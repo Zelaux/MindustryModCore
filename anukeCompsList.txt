@@ -1,3 +1,4 @@
+AnnotationConfigComponents
 BlockUnitComp
 BoundedComp
 BuilderComp

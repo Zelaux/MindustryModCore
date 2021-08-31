@@ -19,7 +19,7 @@ public class CompsProc extends ModBaseProcessor {
         file.writeString("");
         for (Element rootElement : env.getRootElements()) {
             String toString = rootElement.toString();
-            if (toString.contains(".entities.compByAnuke.") && toString.endsWith("Comp")){
+            if (toString.contains(".entities.compByAnuke.")){
                 String symbolName=toString.substring(toString.lastIndexOf(".")+1);
                 file.writeString(symbolName + "\n",true);
             }
