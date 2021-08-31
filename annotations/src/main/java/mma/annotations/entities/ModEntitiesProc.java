@@ -99,15 +99,18 @@ public class ModEntitiesProc extends ModBaseProcessor {
 
     private void zeroRound() {
         try {
-            if (rootPackageName.equals("mma"))return;
-            compByAnukePackage = rootPackageName + ".entities.compByAnuke";
-            Fi tmp=Fi.tempFile("tmp");
+            boolean root = rootPackageName.equals("mma");
+//            if (root)return;
+            compByAnukePackage = /*rootPackageName +*/ "mma.entities.compByAnuke";
+            Fi tmp=Fi.get("tmp");
             FileUtils.copyURLToFile(new URL("https://raw.githubusercontent.com/Zelaux/ZelauxModCore/master/anukeCompsList.txt"),tmp.file());
             compList=tmp.readString().split("\n");
             for (String compName : compList) {
                 String strUrl = Strings.format("https://raw.githubusercontent.com/Zelaux/ZelauxModCore/master/core/src/mma/entities/compByAnuke/@.java", compName);
                 FileUtils.copyURLToFile(new URL(strUrl),tmp.file());
                 JavaFileObject object = filer.createSourceFile(compByAnukePackage + "." + compName);
+                Log.info("name: @",object.getName());
+                if (root)continue;
                 OutputStream stream = object.openOutputStream();
                 stream.write(tmp.readBytes());
                 stream.close();
