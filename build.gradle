@@ -48,7 +48,7 @@ allprojects {
             files.eachFileRecurse(
                     groovy.io.FileType.FILES
             ) { file ->
-                boolean isProcessor=file.text.contains(" extends ModBaseProcessor") ||
+                boolean isProcessor = file.text.contains(" extends ModBaseProcessor") ||
                         (file.text.contains(" extends AbstractProcessor") && !file.text.contains("abstract class")) ||
                         file.text.contains("@ModAnnotations.AnnotationProcessor");
                 if (file.name.endsWith(".java") && isProcessor) {
@@ -182,6 +182,15 @@ project(":core") {
         compileOnly "com.github.Anuken.Mindustry:annotations:$mindustryVersionAnnotations"
         compileOnly "com.github.Anuken.Mindustry:core:$mindustryVersion"
         compileOnly "com.github.Anuken.Mindustry:tools:$mindustryVersion"
+        project.getParent().getSubprojects().forEach(sub -> {
+//            println "sub adding "+sub.getName()
+            String name=sub.getName();
+            println "subproject: " + sub.getName()
+            if (!name.equals("tools") && !name.equals("annotations") && !name.equals(project.getName())) {
+                println "implemented"
+                implementation sub
+            }
+        })
 
         annotationProcessor 'com.github.Anuken:jabel:34e4c172e65b3928cd9eabe1993654ea79c409cd'
         compileOnly project(":annotations")

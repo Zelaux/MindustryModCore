@@ -114,6 +114,10 @@ public abstract class ModBaseProcessor extends BaseProcessor {
         String classNamePrefix = "Mod";
         if (!rootPackageName.equals("mma")) {
             classNamePrefix = Strings.capitalize(rootPackageName);
+            Fi child = rootDirectory.child("annotations/classPrefix.txt");
+            if (child.exists()){
+                classNamePrefix=child.readString();
+            }
         }
         return classNamePrefix;
     }
