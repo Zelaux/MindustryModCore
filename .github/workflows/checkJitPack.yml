@@ -1,6 +1,6 @@
 name: Check JitPack
 
-on: [push]
+on: [ push ]
 jobs:
   build:
 
@@ -12,5 +12,7 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 16
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
       - name: Build with Gradle
         run: ./gradlew checkJitPack -Dorg.gradle.daemon=false"
