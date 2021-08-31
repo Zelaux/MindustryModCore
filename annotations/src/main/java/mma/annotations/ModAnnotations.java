@@ -388,4 +388,10 @@ public class ModAnnotations {
     @Retention(RetentionPolicy.SOURCE)
     public @interface DependenciesAnnotation {
     }
+
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface AnnotationProcessor {
+    }
+
+
 }

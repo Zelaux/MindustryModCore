@@ -58,19 +58,6 @@ allprojects {
 
             processorFile.text = text.toString().replace(".java", "").replace("/", ".").replace("\\", ".")
         }
-        writePlugins = {
-            new File(rootDir, "annotations/src/main/resources/META-INF/services/").mkdirs()
-            def processorFile = new File(rootDir, "annotations/src/main/resources/META-INF/services/com.sun.source.util.Plugin")
-            def text = new StringBuilder()
-            def files = new File(rootDir, "annotations/src/main/java")
-            files.eachFileRecurse(groovy.io.FileType.FILES) { file ->
-                if (file.name.endsWith(".java") && (file.text.contains(" implements Plugin"))) {
-                    text.append(file.path.substring(files.path.length() + 1)).append("\n")
-                }
-            }
-
-            processorFile.text = text.toString().replace(".java", "").replace("/", ".").replace("\\", ".")
-        }
     }
     apply plugin: 'maven-publish'
     repositories {
@@ -149,7 +136,7 @@ project(":core") {
     task preGen {
         outputs.upToDateWhen { false }
         writeProcessors()
-        writePlugins()
+//        writePlugins()
     }
     task copyChangelog {
     }
