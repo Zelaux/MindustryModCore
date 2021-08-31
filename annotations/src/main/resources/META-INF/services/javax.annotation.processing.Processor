@@ -1,3 +1,4 @@
+mma.annotations.comps.CompsProc
 mma.annotations.dependencies.DependenciesProc
 mma.annotations.entities.ModEntitiesProc
 mma.annotations.impl.ModAssetsProcess

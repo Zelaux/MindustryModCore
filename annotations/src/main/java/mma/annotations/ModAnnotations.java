@@ -392,6 +392,9 @@ public class ModAnnotations {
     @Retention(RetentionPolicy.SOURCE)
     public @interface AnnotationProcessor {
     }
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface CompsProcessor {
+    }
 
 
 }

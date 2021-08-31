@@ -163,7 +163,7 @@ project(":core") {
         compileOnly "com.github.Anuken.Mindustry:tools:$mindustryVersion"
         project.getParent().getSubprojects().forEach(sub -> {
 //            println "sub adding "+sub.getName()
-            String name=sub.getName();
+            String name = sub.getName();
             println "subproject: " + sub.getName()
             if (!name.equals("tools") && !name.equals("annotations") && !name.equals(project.getName())) {
                 println "implemented"
@@ -226,6 +226,7 @@ project(":tools") {
 project(":annotations") {
     apply plugin: "java-library"
     dependencies {
+        implementation 'commons-io:commons-io:2.5'
         implementation 'com.squareup:javapoet:1.12.1'
         implementation arcModule('arc-core')
 //        compileOnly project(":core")
@@ -321,6 +322,16 @@ task mjar() {
             }
             def time = LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss"));
             System.out.println("\tlast build time: ${time}")
+        }
+    }
+}
+
+task checkJitPack {
+    doFirst {
+        try {
+            new URL("https://jitpack.io/com/github/Zelaux/ZelauxModCore/" + arc.files.Fi.get("lastVersion.txt").readString() + "/build.log").openStream().readAllBytes();
+        } catch (IOException e) {
+
         }
     }
 }

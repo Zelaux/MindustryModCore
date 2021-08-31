@@ -20,10 +20,12 @@ import javax.lang.model.element.TypeElement;
 import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Set;
 
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
@@ -127,8 +129,7 @@ public abstract class ModBaseProcessor extends BaseProcessor {
         if (round++ >= rounds) return false; //only process 1 round
         if (rootDirectory == null) {
             try {
-                String path = Fi.get(filer.getResource(StandardLocation.CLASS_OUTPUT, "no", "no")
-                        .toUri().toURL().toString().substring(OS.isWindows ? 6 : "file:".length()))
+                String path = getFilesFi(StandardLocation.CLASS_OUTPUT)
                         .parent().parent().parent().parent().parent().parent().parent().toString().replace("%20", " ");
                 rootDirectory = Fi.get(path);
                 if (rootDirectory.name().equals("core")) rootDirectory = rootDirectory.parent();
@@ -149,13 +150,23 @@ public abstract class ModBaseProcessor extends BaseProcessor {
         return true;
     }
 
-    public void delete(String name) throws IOException {
+    protected static Fi getFilesFi(StandardLocation location) throws IOException {
+        return getFilesFi(location,"no","no");
+    }
+    protected static Fi getFilesFi(StandardLocation location,String packageName,String className) throws IOException {
+        return Fi.get(filer.getResource(location, packageName, className)
+                .toUri().toURL().toString().substring(OS.isWindows ? 6 : "file:".length()));
+    }
+
+    public void delete(String packageName,String name) throws IOException {
 //        print("delete name: @",name);
         FileObject resource;
         resource = filer.getResource(StandardLocation.SOURCE_OUTPUT, packageName, name);
 //        boolean delete = resource.delete();
 //        print("delete: @ ,named: @, filer: @",delete,resource.getName(),resource.getClass().getName());
         Files.delete(Paths.get(resource.getName() + ".java"));
-
+    }
+    public void delete(String name) throws IOException {
+        delete(packageName,name);
     }
 }

@@ -16,6 +16,7 @@ import static mindustry.Vars.content;
 import static mma.ModVars.*;
 
 @ModAnnotations.ModAssetsAnnotation
+@ModAnnotations.CompsProcessor
 public class MMAMod extends Mod {
 
     public MMAMod() {

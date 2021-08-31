@@ -1,6 +1,7 @@
 package mma.annotations.entities;
 
 import arc.files.Fi;
+import arc.files.ZipFi;
 import arc.func.Cons;
 import arc.struct.*;
 import arc.util.*;
@@ -11,13 +12,18 @@ import mindustry.annotations.util.*;
 import mma.annotations.ModAnnotations;
 import mma.annotations.ModBaseProcessor;
 import mma.annotations.remote.ModTypeIOResolver;
+import org.apache.commons.io.FileUtils;
 
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.type.MirroredTypesException;
+import javax.tools.JavaFileObject;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.annotation.Annotation;
+import java.net.URL;
 
 @SupportedAnnotationTypes({
         "mma.annotations.ModAnnotations.EntityDef",
@@ -44,32 +50,69 @@ public class ModEntitiesProc extends ModBaseProcessor {
     ObjectSet<String> imports = new ObjectSet<>();
     Seq<TypeSpec.Builder> baseClasses = new Seq<>();
     TypeIOResolver.ClassSerializer serializer;
+    private  String compByAnukePackage,compList[];
     //    Seq<String> anukeComponents = new Seq<>();
     boolean hasAnukeComps = false;
 
     {
-        rounds = 3;
+        rounds = 4;
     }
 
     @Override
     public void process(RoundEnvironment env) throws Exception {
-        Log.info(getClass().getSimpleName() + ".work("+round+")");
+        Log.info(getClass().getSimpleName() + ".work(" + round + ")");
         Time.mark();
         updateRounds();
         for (Stype type : types(ModAnnotations.EntitySuperClass.class)) {
-            Log.info("anukeComp: @",type.fullName());
+            Log.info("anukeComp: @", type.fullName());
             hasAnukeComps = true;
             allInterfaces.add(type.superclasses().peek());
         }
-
+        int round = this.round - 1;
         try {
+            if (round == 0) zeroRound();
             if (round == 1) firstRound();
             if (round == 2) secondRound();
-            if (round == 3) thirdRound();
+            if (round == 3) {
+                thirdRound();
+                clearZeroRound();
+            }
         } catch (Exception e) {
             throw e;
         }
-        Log.info(getClass().getSimpleName() + ".work("+round+").time=@ms",Time.elapsed());
+        Log.info(getClass().getSimpleName() + ".work(" + round + ").time=@ms", Time.elapsed());
+    }
+
+    private void clearZeroRound() {
+        if (rootPackageName.equals("mma"))return;
+        for (String compName : compList) {
+            try {
+                delete(compByAnukePackage,compName);
+            } catch (IOException exception) {
+                Log.err("cannot delete "+compName+" because @",exception);
+            }
+        }
+    }
+
+    private void zeroRound() {
+        try {
+            if (rootPackageName.equals("mma"))return;
+            compByAnukePackage = rootPackageName + ".entities.compByAnuke";
+            Fi tmp=Fi.tempFile("tmp");
+            FileUtils.copyURLToFile(new URL("https://raw.githubusercontent.com/Zelaux/ZelauxModCore/master/anukeCompsList.txt"),tmp.file());
+            compList=tmp.readString().split("\n");
+            for (String compName : compList) {
+                String strUrl = Strings.format("https://raw.githubusercontent.com/Zelaux/ZelauxModCore/master/core/src/mma/entities/compByAnuke/@.java", compName);
+                FileUtils.copyURLToFile(new URL(strUrl),tmp.file());
+                JavaFileObject object = filer.createSourceFile(compByAnukePackage + "." + compName);
+                OutputStream stream = object.openOutputStream();
+                stream.write(tmp.readBytes());
+                stream.close();
+            }
+            tmp.delete();
+        } catch (IOException e){
+            err(Strings.getStackTrace(e));
+        }
     }
 
     private void updateRounds() {
@@ -636,7 +679,7 @@ public class ModEntitiesProc extends ModBaseProcessor {
             //store the mappings
             for (EntityDefinition def : definitions) {
                 //store mapping
-                idStore.addStatement("mindustry.gen.EntityMapping.register($S,$L::new)",def.name.substring(def.name.lastIndexOf(".")+1),def.name);
+                idStore.addStatement("mindustry.gen.EntityMapping.register($S,$L::new)", def.name.substring(def.name.lastIndexOf(".") + 1), def.name);
                 /* idStore.addStatement("idMap[$L] = $L::new", def.classID, def.name);*/
                 extraNames.get(def.naming).each(extra -> {
                     idStore.addStatement("mindustry.gen.EntityMapping.nameMap.put($S, $L::new)", extra, def.name);
@@ -650,7 +693,7 @@ public class ModEntitiesProc extends ModBaseProcessor {
                         .returns(int.class).addModifiers(Modifier.PUBLIC).addStatement("return rpmod.gen.ModEntityMapping.getId(getClass())").build());
             }
             MethodSpec.Builder idGet = MethodSpec.methodBuilder("getId").addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                    .returns(TypeName.get(int.class)).addParameter(TypeName.get(Class.class),"name");
+                    .returns(TypeName.get(int.class)).addParameter(TypeName.get(Class.class), "name");
             idGet.addStatement("return mindustry.gen.EntityMapping.customIdMap.findKey(name.getSimpleName(),false,-1)");
 
             idBuilder.addMethod(idStore.build());
