@@ -372,7 +372,7 @@ public class ModAnnotations {
     }
 
     //Zelaux annotations
-    @Retention(RetentionPolicy.SOURCE)
+//    @Retention(RetentionPolicy.SOURCE)
     public @interface EntitySuperClass {
     }
 
