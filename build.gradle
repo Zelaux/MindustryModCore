@@ -144,16 +144,8 @@ project(":core") {
         archiveClassifier = 'sources'
         from sourceSets.main.allSource
     }
-
-    task assetsJar(type: Jar, dependsOn: ":tools:pack") {
-        archiveClassifier = 'assets'
-        from files("assets") {
-            exclude "config", "cache", "music", "sounds"
-        }
-    }
     artifacts {
         archives sourcesJar
-        archives assetsJar
     }
     dependencies {
         compileJava.dependsOn(preGen)
