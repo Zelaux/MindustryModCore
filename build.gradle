@@ -328,10 +328,7 @@ task mjar() {
 
 task checkJitPack {
     doFirst {
-        try {
             new URL("https://jitpack.io/com/github/Zelaux/ZelauxModCore/" + arc.files.Fi.get("lastVersion.txt").readString() + "/build.log").openStream().readAllBytes();
-        } catch (IOException e) {
 
-        }
     }
 }
