@@ -57,6 +57,7 @@ public class ModEntitiesProc extends ModBaseProcessor {
         Time.mark();
         updateRounds();
         for (Stype type : types(ModAnnotations.EntitySuperClass.class)) {
+            Log.info("anukeComp: @",type.fullName());
             hasAnukeComps = true;
             allInterfaces.add(type.superclasses().peek());
         }
