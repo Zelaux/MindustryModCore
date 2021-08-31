@@ -145,7 +145,7 @@ task pack(dependsOn: [classes, configurations.runtimeClasspath]) {
         javaexec {
             maxHeapSize = "4048m"
             args("-Xmx4048m")
-            main = "gas.tools.ModImagePacker"
+            main = "mma.tools.ModImagePacker"
             classpath = sourceSets.main.runtimeClasspath
             workingDir = genFolder
 //            jvmArgs ("-Xmx2024m")
@@ -217,7 +217,7 @@ task badPack(dependsOn: [classes, configurations.runtimeClasspath]) {
         javaexec {
             maxHeapSize = "4048m"
             args("-Xmx4048m")
-            main = "gas.tools.ModImagePacker"
+            main = "mma.tools.ModImagePacker"
             classpath = sourceSets.main.runtimeClasspath
             workingDir = genFolder
 //            jvmArgs ("-Xmx2024m")
@@ -249,7 +249,7 @@ task badPack(dependsOn: [classes, configurations.runtimeClasspath]) {
 task genSprites(dependsOn: classes, type: JavaExec) {
 //    finalizedBy 'antialiasGen'
 
-    main = "gas.tools.ModImagePacker"
+    main = "mma.tools.ModImagePacker"
     classpath = sourceSets.main.runtimeClasspath
     jvmArgs("-Djava.awt.headless=true")
     standardInput = System.in
@@ -260,7 +260,7 @@ task downloadCompDead (type: JavaExec) {
         javaexec {
             maxHeapSize = "4048m"
             args("-Xmx4048m", "--enable-preview", mindustryVersion)
-            main = "gas.tools.AnukeCompDownloader"
+            main = "mma.tools.AnukeCompDownloader"
             classpath = sourceSets.main.runtimeClasspath
             workingDir = "../"
 //            jvmArgs ("-Xmx2024m")
@@ -273,33 +273,7 @@ task downloadComp (dependsOn: [classes, configurations.runtimeClasspath]) {
         javaexec {
             maxHeapSize = "4048m"
             args("-Xmx4048m", "--enable-preview", mindustryVersion)
-            main = "gas.tools.AnukeCompDownloader"
-            classpath = sourceSets.main.runtimeClasspath
-            workingDir = "../"
-//            jvmArgs ("-Xmx2024m")
-//            systemProperties("-Xmx2024m")
-        }
-    }
-}
-task makeBlocksDead (type: JavaExec) {
-    doFirst {
-        javaexec {
-            maxHeapSize = "4048m"
-            args("-Xmx4048m", "--enable-preview", mindustryVersion)
-            main = "gas.tools.CreatingGasBlocks"
-            classpath = sourceSets.main.runtimeClasspath
-            workingDir = "../"
-//            jvmArgs ("-Xmx2024m")
-//            systemProperties("-Xmx2024m")
-        }
-    }
-}
-task makeBlocks (dependsOn: [classes, configurations.runtimeClasspath]) {
-    doFirst {
-        javaexec {
-            maxHeapSize = "4048m"
-            args("-Xmx4048m", "--enable-preview", mindustryVersion)
-            main = "gas.tools.CreatingGasBlocks"
+            main = "mma.tools.AnukeCompDownloader"
             classpath = sourceSets.main.runtimeClasspath
             workingDir = "../"
 //            jvmArgs ("-Xmx2024m")

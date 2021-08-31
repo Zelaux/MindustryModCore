@@ -3,13 +3,13 @@ package mma.annotations.remote;
 import arc.struct.Seq;
 import arc.util.Log;
 import arc.util.Strings;
-import mma.annotations.ModAnnotations.Remote;
-import mma.annotations.ModBaseProcessor;
 import mindustry.annotations.Annotations.Loc;
 import mindustry.annotations.BaseProcessor;
 import mindustry.annotations.util.Selement;
 import mindustry.annotations.util.Smethod;
 import mindustry.annotations.util.TypeIOResolver.ClassSerializer;
+import mma.annotations.ModAnnotations.Remote;
+import mma.annotations.ModBaseProcessor;
 
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -20,19 +20,22 @@ import javax.lang.model.element.Modifier;
  * The annotation processor for generating remote method call code.
  */
 @SupportedAnnotationTypes({
-        "gas.annotations.ModAnnotations.Remote",
+        "mma.annotations.ModAnnotations.Remote",
 //        "mindustry.annotations.Annotations.Remote",
-        "gas.annotations.ModAnnotations.TypeIOHandler",
+        "mma.annotations.ModAnnotations.TypeIOHandler",
         "mindustry.annotations.Annotations.TypeIOHandler"
 })
 public class ModRemoteProcess extends ModBaseProcessor {
     /**
      * Simple class name of generated class name.
      */
-    public static final String callLocation = "GasCall";
+    public static String callLocation = null;
 
     @Override
     public void process(RoundEnvironment roundEnv) throws Exception {
+        if (callLocation == null) {
+            callLocation = classPrefix() + "Call";
+        }
         Log.info(getClass().getSimpleName() + ".work(" + round + ")");
         //get serializers
         //class serializers

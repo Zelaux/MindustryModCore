@@ -18,6 +18,7 @@ import java.io.IOException;
 
 import static mma.annotations.ModBaseProcessor.packageName;
 import static mindustry.annotations.BaseProcessor.tname;
+import static mma.annotations.ModBaseProcessor.rootPackageName;
 
 /** Generates code for writing remote invoke packets on the client and server. */
 public class CallGenerator{
@@ -294,7 +295,7 @@ public class CallGenerator{
 
         //add statement to create packet from pool
 //        method.addStatement("$1T packet = new $1T()", tname("mindustry.gen." + ent.packetClassName));
-        method.addStatement("$1T packet = new $1T()", tname("gas.gen." + ent.packetClassName));
+        method.addStatement("$1T packet = new $1T()", tname(rootPackageName+".gen." + ent.packetClassName));
 
         method.addTypeVariables(Seq.with(elem.e.getTypeParameters()).map(BaseProcessor::getTVN));
 

@@ -57,7 +57,8 @@ public abstract class ModVars {
     protected abstract void showException(Throwable ex);
 
     public static void modLog(String text, Object... args) {
-        Log.info("[@] @", modInfo == null ? "braindustry-java" : modInfo.name, Strings.format(text, args));
+        String prefix = modInfo==null?instance.getClass().getPackage().getName():modInfo.name;
+        Log.info("[@] @", prefix, Strings.format(text, args));
     }
     public static String modName() {
         return modInfo == null ? "no name" : modInfo.name;

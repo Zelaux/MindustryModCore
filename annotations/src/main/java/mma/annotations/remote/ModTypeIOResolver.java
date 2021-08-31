@@ -2,6 +2,7 @@ package mma.annotations.remote;
 
 import arc.struct.ObjectMap;
 import arc.struct.Seq;
+import arc.util.Log;
 import mma.annotations.ModAnnotations;
 import mindustry.annotations.Annotations;
 import mindustry.annotations.BaseProcessor;
@@ -18,7 +19,23 @@ public class ModTypeIOResolver extends TypeIOResolver {
         Seq<Stype> types = processor.types(Annotations.TypeIOHandler.class);
         types.addAll(processor.types(ModAnnotations.TypeIOHandler.class));
         Seq<Smethod> usedMethods = new Seq<>();
-       types.add(types.first().superclass());
+        ObjectMap<String,Stype> typeMap=new ObjectMap<>();
+        for (Stype type : types) {
+            Log.info("type: @",type.fullName());
+            typeMap.put(type.fullName(),type);
+        }
+        for (Stype stype : types.copy()) {
+            Log.info("stype: @",stype.fullName());
+            for (Stype superclass : stype.allSuperclasses()) {
+                String superFullname = superclass.fullName();
+                Log.info("superclass: @", superFullname);
+                if (superFullname.contains("TypeIO") && !typeMap.containsKey(superFullname)){
+                    typeMap.put(superFullname,superclass);
+                }
+            }
+        }
+        types.clear();
+        types.addAll(typeMap.values());
         for(Stype type : types){
             //look at all TypeIOHandler methods
 
@@ -60,6 +77,7 @@ public class ModTypeIOResolver extends TypeIOResolver {
 
         return out;
     }
+
 
     /** makes sure type names don't contain 'gen' */
     private static String fix(String str){

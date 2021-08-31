@@ -14,11 +14,11 @@ import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.element.Modifier;
 
 
-@SupportedAnnotationTypes("gas.annotations.ModAnnotations.CashAnnotation2")
+@SupportedAnnotationTypes("mma.annotations.ModAnnotations.DependenciesAnnotation")
 public class DependenciesProc extends ModBaseProcessor {
     @Override
     public void process(RoundEnvironment env) throws Exception {
-        TypeSpec.Builder builder = TypeSpec.classBuilder("GasDependencies").addModifiers(Modifier.PUBLIC, Modifier.FINAL);
+        TypeSpec.Builder builder = TypeSpec.classBuilder(classPrefix()+"Dependencies").addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 
 
         //valid method
