@@ -11,7 +11,6 @@ import arc.graphics.g2d.TextureRegion;
 import arc.math.Mathf;
 import arc.math.Rand;
 import arc.math.geom.Vec2;
-import arc.struct.IntIntMap;
 import arc.struct.ObjectSet;
 import arc.util.ArcRuntimeException;
 import arc.util.Log;
@@ -34,12 +33,11 @@ import mma.tools.gen.MindustryGenerators;
 import mma.type.SelfIconGenerator;
 
 import static mindustry.Vars.content;
-import static mindustry.Vars.iconMed;
 import static mma.tools.ModImagePacker.*;
 
 public class ModGenerators extends MindustryGenerators {
 
-    private static Pixmap clearAlpha(Pixmap image) {
+    protected static Pixmap clearAlpha(Pixmap image) {
         int x = 0, y = 0, topx = image.width, topy = image.height;
         //check x-
         for (int dx = 0; dx < image.width; dx++) {
@@ -94,7 +92,7 @@ public class ModGenerators extends MindustryGenerators {
         return image;
     }
 
-    private static Pixmap drawScaleAt(Pixmap image, Pixmap other, int destx, int desty) {
+    protected static Pixmap drawScaleAt(Pixmap image, Pixmap other, int destx, int desty) {
         int widthScale = 0, heightScale = 0;
         if (destx > image.width) {
             widthScale = destx - image.width + other.width;
@@ -158,6 +156,9 @@ public class ModGenerators extends MindustryGenerators {
     protected void setup() {
         disable();
         generateBlockIcons = true;
+        generateUnitIcons = true;
+        generateOreIcons = true;
+        generateEdges = true;
     }
 
     @Override
