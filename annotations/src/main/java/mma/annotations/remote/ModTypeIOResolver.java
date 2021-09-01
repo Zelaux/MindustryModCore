@@ -10,11 +10,12 @@ import mindustry.annotations.util.Smethod;
 import mindustry.annotations.util.Stype;
 import mindustry.annotations.util.Svar;
 import mindustry.annotations.util.TypeIOResolver;
+import mma.annotations.ModBaseProcessor;
 
 import javax.lang.model.element.Modifier;
 
 public class ModTypeIOResolver extends TypeIOResolver {
-    public static ClassSerializer resolve(BaseProcessor processor)  {
+    public static ClassSerializer resolve(ModBaseProcessor processor)  {
         ClassSerializer out = new ClassSerializer(new ObjectMap<>(), new ObjectMap<>(), new ObjectMap<>());
         Seq<Stype> types = processor.types(Annotations.TypeIOHandler.class);
         types.addAll(processor.types(ModAnnotations.TypeIOHandler.class));
@@ -36,6 +37,7 @@ public class ModTypeIOResolver extends TypeIOResolver {
         }
         types.clear();
         types.addAll(typeMap.values());
+        Log.info("types: [@]",types.toString(", "));
         for(Stype type : types){
             //look at all TypeIOHandler methods
 
