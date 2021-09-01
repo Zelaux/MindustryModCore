@@ -1,20 +1,19 @@
 package mma.entities.compByAnuke;
 
 import arc.graphics.g2d.*;
+import mindustry.annotations.Annotations.*;
 import mindustry.game.*;
 import mindustry.gen.*;
-import mma.annotations.ModAnnotations;
-
 import static mindustry.Vars.*;
+import static mindustry.logic.LAccess.*;
 
-
-@ModAnnotations.Component
+@mma.annotations.ModAnnotations.Component
 abstract class BlockUnitComp implements Unitc {
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     Team team;
 
-    @ModAnnotations.ReadOnly
+    @mma.annotations.ModAnnotations.ReadOnly
     transient Building tile;
 
     public void tile(Building tile) {
@@ -33,7 +32,7 @@ abstract class BlockUnitComp implements Unitc {
         }
     }
 
-    @ModAnnotations.Replace
+    @mma.annotations.ModAnnotations.Replace
     @Override
     public TextureRegion icon() {
         return tile.block.fullIcon;
@@ -44,22 +43,22 @@ abstract class BlockUnitComp implements Unitc {
         tile.kill();
     }
 
-    @ModAnnotations.Replace
+    @mma.annotations.ModAnnotations.Replace
     public void damage(float v, boolean b) {
         tile.damage(v, b);
     }
 
-    @ModAnnotations.Replace
+    @mma.annotations.ModAnnotations.Replace
     public boolean dead() {
         return tile == null || tile.dead();
     }
 
-    @ModAnnotations.Replace
+    @mma.annotations.ModAnnotations.Replace
     public boolean isValid() {
         return tile != null && tile.isValid();
     }
 
-    @ModAnnotations.Replace
+    @mma.annotations.ModAnnotations.Replace
     public void team(Team team) {
         if (tile != null && this.team != team) {
             this.team = team;

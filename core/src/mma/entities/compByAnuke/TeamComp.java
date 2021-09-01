@@ -1,18 +1,17 @@
 package mma.entities.compByAnuke;
 
 import arc.util.*;
+import mindustry.annotations.Annotations.*;
 import mindustry.game.*;
 import mindustry.gen.*;
 import mindustry.world.blocks.storage.CoreBlock.*;
-import mma.annotations.ModAnnotations;
-
 import static mindustry.Vars.*;
+import static mindustry.logic.LAccess.*;
 
-
-@ModAnnotations.Component
+@mma.annotations.ModAnnotations.Component
 abstract class TeamComp implements Posc {
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     float x, y;
 
     Team team = Team.derelict;

@@ -1,12 +1,12 @@
 package mma.entities.compByAnuke;
 
 import arc.math.*;
+import mindustry.annotations.Annotations.*;
 import mindustry.gen.*;
 import mindustry.type.*;
-import mma.annotations.ModAnnotations;
+import static mindustry.logic.LAccess.*;
 
-
-@ModAnnotations.Component
+@mma.annotations.ModAnnotations.Component
 abstract class ItemsComp implements Posc {
 
     ItemStack stack = new ItemStack();

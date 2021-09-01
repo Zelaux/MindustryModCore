@@ -4,27 +4,26 @@ import arc.graphics.*;
 import arc.math.*;
 import arc.math.geom.*;
 import arc.util.*;
+import mindustry.annotations.Annotations.*;
 import mindustry.content.*;
 import mindustry.entities.*;
 import mindustry.gen.*;
 import mindustry.type.*;
 import mindustry.world.*;
-import mma.annotations.ModAnnotations;
-
 import static mindustry.Vars.*;
+import static mindustry.logic.LAccess.*;
 
-
-@ModAnnotations.Component
+@mma.annotations.ModAnnotations.Component
 abstract class MechComp implements Posc, Flyingc, Hitboxc, Unitc, Mechc, ElevationMovec {
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     float x, y, hitSize;
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     UnitType type;
 
-    @ModAnnotations.SyncField(false)
-    @ModAnnotations.SyncLocal
+    @mma.annotations.ModAnnotations.SyncField(false)
+    @mma.annotations.ModAnnotations.SyncLocal
     float baseRotation;
 
     transient float walkTime, walkExtension;
@@ -75,6 +74,16 @@ abstract class MechComp implements Posc, Flyingc, Hitboxc, Unitc, Mechc, Elevati
         else if (raw > type.mechStride)
             raw = type.mechStride * 2 - raw;
         return raw;
+    }
+
+    @Override
+    @mma.annotations.ModAnnotations.Replace
+    public void rotateMove(Vec2 vec) {
+        // mechs use baseRotation to rotate, not rotation.
+        moveAt(Tmp.v2.trns(baseRotation, vec.len()));
+        if (!vec.isZero()) {
+            baseRotation = Angles.moveToward(baseRotation, vec.angle(), type.rotateSpeed * Math.max(Time.delta, 1));
+        }
     }
 
     @Override

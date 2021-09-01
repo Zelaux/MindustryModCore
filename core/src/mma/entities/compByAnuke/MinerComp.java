@@ -5,30 +5,29 @@ import arc.graphics.*;
 import arc.graphics.g2d.*;
 import arc.math.*;
 import arc.util.*;
+import mindustry.annotations.Annotations.*;
 import mindustry.content.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.input.*;
 import mindustry.type.*;
 import mindustry.world.*;
-import mma.annotations.ModAnnotations;
-
 import static mindustry.Vars.*;
+import static mindustry.logic.LAccess.*;
 
-
-@ModAnnotations.Component
+@mma.annotations.ModAnnotations.Component
 abstract class MinerComp implements Itemsc, Posc, Teamc, Rotc, Drawc {
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     float x, y, rotation, hitSize;
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     UnitType type;
 
     transient float mineTimer;
 
     @Nullable
-    @ModAnnotations.SyncLocal
+    @mma.annotations.ModAnnotations.SyncLocal
     Tile mineTile;
 
     public boolean canMine(Item item) {

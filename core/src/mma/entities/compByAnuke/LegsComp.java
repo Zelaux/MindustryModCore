@@ -5,6 +5,7 @@ import arc.math.geom.*;
 import arc.util.*;
 import mindustry.*;
 import mindustry.ai.*;
+import mindustry.annotations.Annotations.*;
 import mindustry.content.*;
 import mindustry.entities.*;
 import mindustry.entities.EntityCollisions.*;
@@ -12,16 +13,15 @@ import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.type.*;
 import mindustry.world.blocks.environment.*;
-import mma.annotations.ModAnnotations;
+import static mindustry.logic.LAccess.*;
 
-
-@ModAnnotations.Component
+@mma.annotations.ModAnnotations.Component
 abstract class LegsComp implements Posc, Rotc, Hitboxc, Flyingc, Unitc {
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     float x, y;
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     UnitType type;
 
     transient Leg[] legs = {};
@@ -32,14 +32,14 @@ abstract class LegsComp implements Posc, Rotc, Hitboxc, Flyingc, Unitc {
 
     transient float baseRotation;
 
-    @ModAnnotations.Replace
+    @mma.annotations.ModAnnotations.Replace
     @Override
     public SolidPred solidity() {
         return !type.allowLegStep ? EntityCollisions::solid : EntityCollisions::legsSolid;
     }
 
     @Override
-    @ModAnnotations.Replace
+    @mma.annotations.ModAnnotations.Replace
     public int pathType() {
         return Pathfinder.costLegs;
     }
@@ -138,7 +138,7 @@ abstract class LegsComp implements Posc, Rotc, Hitboxc, Flyingc, Unitc {
     }
 
     /**
-     * @gas.annotations.GasAnnotations.return outwards facing angle of leg at the specified index.
+     * @return outwards facing angle of leg at the specified index.
      */
     float legAngle(float rotation, int index) {
         return rotation + 360f / legs.length * index + (360f / legs.length / 2f);

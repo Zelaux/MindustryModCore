@@ -10,6 +10,7 @@ import arc.struct.*;
 import arc.util.*;
 import mindustry.ai.*;
 import mindustry.ai.types.*;
+import mindustry.annotations.Annotations.*;
 import mindustry.content.*;
 import mindustry.core.*;
 import mindustry.ctype.*;
@@ -25,32 +26,30 @@ import mindustry.ui.*;
 import mindustry.world.*;
 import mindustry.world.blocks.environment.*;
 import mindustry.world.blocks.payloads.*;
-import mma.annotations.ModAnnotations;
-
 import static mindustry.Vars.*;
 import static mindustry.logic.GlobalConstants.*;
+import static mindustry.logic.LAccess.*;
 
-
-@ModAnnotations.Component(base = true)
+@mma.annotations.ModAnnotations.Component(base = true)
 abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, Itemsc, Rotc, Unitc, Weaponsc, Drawc, Boundedc, Syncc, Shieldc, Commanderc, Displayable, Senseable, Ranged, Minerc, Builderc {
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     boolean hovering, dead, disarmed;
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     float x, y, rotation, elevation, maxHealth, drag, armor, hitSize, health, ammo, minFormationSpeed, dragMultiplier;
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     Team team;
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     int id;
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     @Nullable
     Tile mineTile;
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     Vec2 vel;
 
     private UnitController controller;
@@ -70,6 +69,17 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
     private transient boolean wasPlayer;
 
     private transient boolean wasHealed;
+
+    /**
+     * Move based on preferred unit movement type.
+     */
+    public void movePref(Vec2 movement) {
+        if (type.omniMovement) {
+            moveAt(movement);
+        } else {
+            rotateMove(movement);
+        }
+    }
 
     public void moveAt(Vec2 vector) {
         moveAt(vector, type.accel);
@@ -97,14 +107,14 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
     }
 
     /**
-     * @gas.annotations.GasAnnotations.return approx. square size of the physical hitbox for physics
+     * @return approx. square size of the physical hitbox for physics
      */
     public float physicSize() {
         return hitSize * 0.7f;
     }
 
     /**
-     * @gas.annotations.GasAnnotations.return whether there is solid, un-occupied ground under this unit.
+     * @return whether there is solid, un-occupied ground under this unit.
      */
     public boolean canLand() {
         return !onSolid() && Units.count(x, y, physicSize(), f -> f != self() && f.isGrounded()) == 0;
@@ -118,17 +128,22 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
         return type.hasWeapons();
     }
 
+    /**
+     * @return speed with boost & floor multipliers factored in.
+     */
     public float speed() {
         float strafePenalty = isGrounded() || !isPlayer() ? 1f : Mathf.lerp(1f, type.strafePenalty, Angles.angleDist(vel().angle(), rotation) / 180f);
+        float boost = Mathf.lerp(1f, type.canBoost ? type.boostMultiplier : 1f, elevation);
         // limit speed to minimum formation speed to preserve formation
-        return (isCommanding() ? minFormationSpeed * 0.98f : type.speed) * strafePenalty;
+        return (isCommanding() ? minFormationSpeed * 0.98f : type.speed) * strafePenalty * boost * floorSpeedMultiplier();
     }
 
     /**
-     * @gas.annotations.GasAnnotations.return speed with boost multipliers factored in.
+     * @deprecated use speed() instead
      */
+    @Deprecated
     public float realSpeed() {
-        return Mathf.lerp(1f, type.canBoost ? type.boostMultiplier : 1f, elevation) * speed() * floorSpeedMultiplier();
+        return speed();
     }
 
     /**
@@ -140,7 +155,7 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
     }
 
     /**
-     * @gas.annotations.GasAnnotations.return where the unit wants to look at.
+     * @return where the unit wants to look at.
      */
     public float prefRotation() {
         if (activelyBuilding()) {
@@ -158,7 +173,7 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
         return type.maxRange;
     }
 
-    @ModAnnotations.Replace
+    @mma.annotations.ModAnnotations.Replace
     public float clipSize() {
         if (isBuilding()) {
             return state.rules.infiniteResources ? Float.MAX_VALUE : Math.max(type.clipSize, type.region.width) + buildingRange + tilesize * 4f;
@@ -258,13 +273,13 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
     }
 
     @Override
-    @ModAnnotations.Replace
+    @mma.annotations.ModAnnotations.Replace
     public boolean canDrown() {
         return isGrounded() && !hovering && type.canDrown;
     }
 
     @Override
-    @ModAnnotations.Replace
+    @mma.annotations.ModAnnotations.Replace
     public boolean canShoot() {
         // cannot shoot while boosting
         return !disarmed && !(type.canBoost && isFlying());
@@ -309,7 +324,7 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
     }
 
     /**
-     * @gas.annotations.GasAnnotations.return pathfinder path type for calculating costs
+     * @return pathfinder path type for calculating costs
      */
     public int pathType() {
         return Pathfinder.costGround;
@@ -493,7 +508,7 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
     }
 
     /**
-     * @gas.annotations.GasAnnotations.return a preview icon for this unit.
+     * @return a preview icon for this unit.
      */
     public TextureRegion icon() {
         return type.fullIcon;
@@ -537,7 +552,7 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
     }
 
     /**
-     * @gas.annotations.GasAnnotations.return name of direct or indirect player controller.
+     * @return name of direct or indirect player controller.
      */
     @Override
     @Nullable
@@ -592,7 +607,7 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
     }
 
     @Override
-    @ModAnnotations.Replace
+    @mma.annotations.ModAnnotations.Replace
     public void kill() {
         if (dead || net.client())
             return;

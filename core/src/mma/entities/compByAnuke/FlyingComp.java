@@ -4,27 +4,26 @@ import arc.*;
 import arc.math.*;
 import arc.math.geom.*;
 import arc.util.*;
+import mindustry.annotations.Annotations.*;
 import mindustry.content.*;
 import mindustry.game.EventType.*;
 import mindustry.gen.*;
 import mindustry.world.blocks.environment.*;
-import mma.annotations.ModAnnotations;
-
 import static mindustry.Vars.*;
+import static mindustry.logic.LAccess.*;
 
-
-@ModAnnotations.Component
+@mma.annotations.ModAnnotations.Component
 abstract class FlyingComp implements Posc, Velc, Healthc, Hitboxc {
 
     private static final Vec2 tmp1 = new Vec2(), tmp2 = new Vec2();
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     float x, y, speedMultiplier;
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     Vec2 vel;
 
-    @ModAnnotations.SyncLocal
+    @mma.annotations.ModAnnotations.SyncLocal
     float elevation;
 
     private transient boolean wasFlying;
@@ -51,6 +50,10 @@ abstract class FlyingComp implements Posc, Velc, Healthc, Hitboxc {
         return isGrounded() && !hovering;
     }
 
+    boolean emitWalkSound() {
+        return true;
+    }
+
     void landed() {
     }
 
@@ -63,7 +66,7 @@ abstract class FlyingComp implements Posc, Velc, Healthc, Hitboxc {
         // target vector
         Vec2 t = tmp1.set(vector);
         // delta vector
-        tmp2.set(t).sub(vel).limit(acceleration * vector.len() * Time.delta * floorSpeedMultiplier());
+        tmp2.set(t).sub(vel).limit(acceleration * vector.len() * Time.delta);
         vel.add(tmp2);
     }
 
@@ -87,7 +90,7 @@ abstract class FlyingComp implements Posc, Velc, Healthc, Hitboxc {
             if ((splashTimer += Mathf.dst(deltaX(), deltaY())) >= (7f + hitSize() / 8f)) {
                 floor.walkEffect.at(x, y, hitSize() / 8f, floor.mapColor);
                 splashTimer = 0f;
-                if (!(this instanceof WaterMovec)) {
+                if (emitWalkSound()) {
                     floor.walkSound.at(x, y, Mathf.random(floor.walkSoundPitchMin, floor.walkSoundPitchMax), floor.walkSoundVolume);
                 }
             }

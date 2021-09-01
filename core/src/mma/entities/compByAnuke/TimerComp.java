@@ -1,10 +1,10 @@
 package mma.entities.compByAnuke;
 
 import arc.util.*;
-import mma.annotations.ModAnnotations;
+import mindustry.annotations.Annotations.*;
+import static mindustry.logic.LAccess.*;
 
-
-@ModAnnotations.Component
+@mma.annotations.ModAnnotations.Component
 abstract class TimerComp {
 
     transient Interval timer = new Interval(6);

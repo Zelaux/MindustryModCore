@@ -6,28 +6,28 @@ import arc.scene.ui.layout.*;
 import arc.struct.*;
 import arc.util.*;
 import mindustry.*;
+import mindustry.annotations.Annotations.*;
 import mindustry.content.*;
 import mindustry.core.*;
 import mindustry.entities.*;
 import mindustry.game.EventType.*;
 import mindustry.gen.*;
 import mindustry.type.*;
+import mindustry.ui.*;
 import mindustry.world.*;
 import mindustry.world.blocks.payloads.*;
-import mma.annotations.ModAnnotations;
-
-/** An entity that holds a payload. */
+import static mindustry.logic.LAccess.*;
 
 /**
  * An entity that holds a payload.
  */
-@ModAnnotations.Component
+@mma.annotations.ModAnnotations.Component
 abstract class PayloadComp implements Posc, Rotc, Hitboxc, Unitc {
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     float x, y, rotation;
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     UnitType type;
 
     Seq<Payload> payloads = new Seq<>();
@@ -131,7 +131,7 @@ abstract class PayloadComp implements Posc, Rotc, Hitboxc, Unitc {
     }
 
     /**
-     * @gas.annotations.GasAnnotations.return whether the tile has been successfully placed.
+     * @return whether the tile has been successfully placed.
      */
     boolean dropBlock(BuildPayload payload) {
         Building tile = payload.build;

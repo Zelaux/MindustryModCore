@@ -2,26 +2,24 @@ package mma.entities.compByAnuke;
 
 import arc.math.*;
 import arc.math.geom.*;
+import arc.util.*;
+import mindustry.annotations.Annotations.*;
 import mindustry.async.PhysicsProcess.*;
 import mindustry.gen.*;
-import mma.annotations.ModAnnotations;
-
-/** Affected by physics.
- * Will bounce off of other objects that are at similar elevations.
- * Has mass.*/
+import static mindustry.logic.LAccess.*;
 
 /**
  * Affected by physics.
  * Will bounce off of other objects that are at similar elevations.
  * Has mass.
  */
-@ModAnnotations.Component
+@mma.annotations.ModAnnotations.Component
 abstract class PhysicsComp implements Velc, Hitboxc, Flyingc {
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     float hitSize, x, y;
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     Vec2 vel;
 
     transient PhysicRef physref;

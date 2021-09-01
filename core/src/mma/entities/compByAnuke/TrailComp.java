@@ -1,19 +1,19 @@
 package mma.entities.compByAnuke;
 
 import arc.math.*;
+import mindustry.annotations.Annotations.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.type.*;
-import mma.annotations.ModAnnotations;
+import static mindustry.logic.LAccess.*;
 
-
-@ModAnnotations.Component
+@mma.annotations.ModAnnotations.Component
 abstract class TrailComp implements Unitc {
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     UnitType type;
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     float x, y, rotation;
 
     transient Trail trail = new Trail(6);

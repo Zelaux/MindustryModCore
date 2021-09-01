@@ -1,13 +1,13 @@
 package mma.entities.compByAnuke;
 
+import mindustry.annotations.Annotations.*;
 import mindustry.gen.*;
-import mma.annotations.ModAnnotations;
+import static mindustry.logic.LAccess.*;
 
-
-@ModAnnotations.Component
+@mma.annotations.ModAnnotations.Component
 abstract class RotComp implements Entityc {
 
-    @ModAnnotations.SyncField(false)
-    @ModAnnotations.SyncLocal
+    @mma.annotations.ModAnnotations.SyncField(false)
+    @mma.annotations.ModAnnotations.SyncLocal
     float rotation;
 }

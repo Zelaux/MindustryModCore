@@ -2,20 +2,19 @@ package mma.entities.compByAnuke;
 
 import arc.math.geom.*;
 import arc.util.*;
+import mindustry.annotations.Annotations.*;
 import mindustry.content.*;
 import mindustry.core.*;
 import mindustry.world.*;
 import mindustry.world.blocks.environment.*;
-import mma.annotations.ModAnnotations;
-
 import static mindustry.Vars.*;
+import static mindustry.logic.LAccess.*;
 
-
-@ModAnnotations.Component
+@mma.annotations.ModAnnotations.Component
 abstract class PosComp implements Position {
 
-    @ModAnnotations.SyncField(true)
-    @ModAnnotations.SyncLocal
+    @mma.annotations.ModAnnotations.SyncField(true)
+    @mma.annotations.ModAnnotations.SyncLocal
     float x, y;
 
     void set(float x, float y) {

@@ -1,14 +1,14 @@
 package mma.entities.compByAnuke;
 
 import arc.util.*;
+import mindustry.annotations.Annotations.*;
 import mindustry.gen.*;
-import mma.annotations.ModAnnotations;
+import static mindustry.logic.LAccess.*;
 
-
-@ModAnnotations.Component
+@mma.annotations.ModAnnotations.Component
 abstract class ChildComp implements Posc {
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     float x, y;
 
     @Nullable

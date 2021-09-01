@@ -9,6 +9,7 @@ import arc.math.geom.*;
 import arc.struct.Queue;
 import arc.util.*;
 import mindustry.*;
+import mindustry.annotations.Annotations.*;
 import mindustry.content.*;
 import mindustry.entities.units.*;
 import mindustry.game.EventType.*;
@@ -19,31 +20,28 @@ import mindustry.type.*;
 import mindustry.world.*;
 import mindustry.world.blocks.*;
 import mindustry.world.blocks.ConstructBlock.*;
-import mma.annotations.ModAnnotations;
-
 import java.util.*;
-
 import static mindustry.Vars.*;
+import static mindustry.logic.LAccess.*;
 
-
-@ModAnnotations.Component
+@mma.annotations.ModAnnotations.Component
 abstract class BuilderComp implements Posc, Statusc, Teamc, Rotc {
 
     static final Vec2[] vecs = new Vec2[] { new Vec2(), new Vec2(), new Vec2(), new Vec2() };
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     float x, y, rotation, buildSpeedMultiplier;
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     UnitType type;
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     Team team;
 
-    @ModAnnotations.SyncLocal
+    @mma.annotations.ModAnnotations.SyncLocal
     Queue<BuildPlan> plans = new Queue<>(1);
 
-    @ModAnnotations.SyncLocal
+    @mma.annotations.ModAnnotations.SyncLocal
     boolean updateBuilding = true;
 
     private transient BuildPlan lastActive;
@@ -77,7 +75,7 @@ abstract class BuilderComp implements Posc, Statusc, Teamc, Rotc {
                 it.remove();
             }
         }
-        mindustry.world.blocks.storage.CoreBlock.CoreBuild core = core();
+        var core = core();
         // nothing to build.
         if (buildPlan() == null)
             return;
@@ -176,7 +174,7 @@ abstract class BuilderComp implements Posc, Statusc, Teamc, Rotc {
     }
 
     /**
-     * @gas.annotations.GasAnnotations.return whether this request should be skipped, in favor of the next one.
+     * @return whether this request should be skipped, in favor of the next one.
      */
     boolean shouldSkip(BuildPlan request, @Nullable Building core) {
         // requests that you have at least *started* are considered
@@ -267,7 +265,7 @@ abstract class BuilderComp implements Posc, Statusc, Teamc, Rotc {
         Draw.z(Layer.flyingUnit);
         BuildPlan plan = active ? buildPlan() : lastActive;
         Tile tile = world.tile(plan.x, plan.y);
-        mindustry.world.blocks.storage.CoreBlock.CoreBuild core = team.core();
+        var core = team.core();
         if (tile == null || !within(plan, state.rules.infiniteResources ? Float.MAX_VALUE : buildingRange)) {
             return;
         }

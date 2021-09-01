@@ -2,31 +2,31 @@ package mma.entities.compByAnuke;
 
 import arc.math.geom.*;
 import arc.util.*;
+import mindustry.annotations.Annotations.*;
 import mindustry.entities.units.*;
 import mindustry.gen.*;
 import mindustry.type.*;
-import mma.annotations.ModAnnotations;
+import static mindustry.logic.LAccess.*;
 
-
-@ModAnnotations.Component
+@mma.annotations.ModAnnotations.Component
 abstract class WeaponsComp implements Teamc, Posc, Rotc, Velc, Statusc {
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     float x, y;
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     boolean disarmed;
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     UnitType type;
 
     /**
      * weapon mount array, never null
      */
-    @ModAnnotations.SyncLocal
+    @mma.annotations.ModAnnotations.SyncLocal
     WeaponMount[] mounts = {};
 
-    @ModAnnotations.ReadOnly
+    @mma.annotations.ModAnnotations.ReadOnly
     transient boolean isRotate;
 
     transient float aimX, aimY;

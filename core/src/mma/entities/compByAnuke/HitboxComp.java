@@ -4,15 +4,15 @@ import arc.func.*;
 import arc.math.*;
 import arc.math.geom.*;
 import arc.math.geom.QuadTree.*;
+import mindustry.annotations.Annotations.*;
 import mindustry.entities.*;
 import mindustry.gen.*;
-import mma.annotations.ModAnnotations;
+import static mindustry.logic.LAccess.*;
 
-
-@ModAnnotations.Component
+@mma.annotations.ModAnnotations.Component
 abstract class HitboxComp implements Posc, Sized, QuadTreeObject {
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     float x, y;
 
     transient float lastX, lastY, deltaX, deltaY, hitSize;

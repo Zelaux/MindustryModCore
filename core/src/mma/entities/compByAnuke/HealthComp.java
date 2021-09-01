@@ -1,11 +1,11 @@
 package mma.entities.compByAnuke;
 
 import arc.util.*;
+import mindustry.annotations.Annotations.*;
 import mindustry.gen.*;
-import mma.annotations.ModAnnotations;
+import static mindustry.logic.LAccess.*;
 
-
-@ModAnnotations.Component
+@mma.annotations.ModAnnotations.Component
 abstract class HealthComp implements Entityc, Posc {
 
     static final float hitDuration = 9f;

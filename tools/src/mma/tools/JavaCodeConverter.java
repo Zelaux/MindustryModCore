@@ -13,6 +13,8 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.stmt.*;
+import com.github.javaparser.ast.visitor.ModifierVisitor;
+import com.github.javaparser.ast.visitor.Visitable;
 
 import java.util.List;
 import java.util.Optional;
@@ -77,24 +79,31 @@ public class JavaCodeConverter {
                 Log.info("problem: @", problem.toString());
             }
         }
-        CompilationUnit parse = parseR.getResult().get();
-        Optional<ClassOrInterfaceDeclaration> classOpt = parse.getClassByName(className);
+        CompilationUnit compilationUnit = parseR.getResult().get();
+        Optional<ClassOrInterfaceDeclaration> classOpt = compilationUnit.getClassByName(className);
         if (!classOpt.isPresent()) {
             Log.info("class @ cannot find in @", className);
             return null;
         }
         ClassOrInterfaceDeclaration class_ = classOpt.get();
         List<MethodDeclaration> methods = class_.getMethods();
-        for (int i = 0; i < methods.size(); i++) {
-            MethodDeclaration method = methods.get(i);
+       /* compilationUnit.accept(new ModifierVisitor<Void>(){
+            @Override
+            public Visitable visit(MethodDeclaration method, Void arg) {
+                if (!method.isAbstract()){
+
+                }
+                return super.visit(method, arg);
+            }
+        },null);*/
+        for (MethodDeclaration method : methods) {
             if (method.isAbstract()) continue;
             Optional<BlockStmt> bodyOpt = method.getBody();
             if (bodyOpt.isPresent()) {
                 BlockStmt body = bodyOpt.get();
                 NodeList<Statement> statements = body.getStatements();
                 Seq<Statement> newStatements = new Seq<>();
-                for (int j = 0; j < statements.size(); j++) {
-                    Statement statement = statements.get(j);
+                for (Statement statement : statements) {
                     Seq<Statement> check = check(statement);
                     if (check.size > 1 && check.first().toString().contains("LogicAI ai;")) {
                         NodeList<Statement> nodeList = new NodeList<>();
@@ -114,7 +123,7 @@ public class JavaCodeConverter {
                 body.setStatements(nodeList);
             }
         }
-        return imports.toString() + "\n" + class_.toString();
+        return compilationUnit.toString();
     }
 
     private Seq<Statement> check(Statement statement) {

@@ -4,18 +4,17 @@ import arc.graphics.*;
 import arc.struct.*;
 import arc.util.*;
 import arc.util.pooling.*;
+import mindustry.annotations.Annotations.*;
 import mindustry.content.*;
 import mindustry.ctype.*;
 import mindustry.entities.units.*;
 import mindustry.gen.*;
 import mindustry.type.*;
 import mindustry.world.blocks.environment.*;
-import mma.annotations.ModAnnotations;
-
 import static mindustry.Vars.*;
+import static mindustry.logic.LAccess.*;
 
-
-@ModAnnotations.Component
+@mma.annotations.ModAnnotations.Component
 abstract class StatusComp implements Posc, Flyingc {
 
     private Seq<StatusEntry> statuses = new Seq<>();
@@ -27,7 +26,7 @@ abstract class StatusComp implements Posc, Flyingc {
 
     transient boolean disarmed = false;
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     UnitType type;
 
     /**
@@ -73,7 +72,7 @@ abstract class StatusComp implements Posc, Flyingc {
     }
 
     float getDuration(StatusEffect effect) {
-        StatusEntry entry = statuses.find(e -> e.effect == effect);
+        var entry = statuses.find(e -> e.effect == effect);
         return entry == null ? 0 : entry.time;
     }
 

@@ -5,6 +5,7 @@ import arc.graphics.g2d.*;
 import arc.math.*;
 import arc.util.*;
 import mindustry.ai.*;
+import mindustry.annotations.Annotations.*;
 import mindustry.content.*;
 import mindustry.entities.*;
 import mindustry.entities.EntityCollisions.*;
@@ -13,18 +14,16 @@ import mindustry.graphics.*;
 import mindustry.type.*;
 import mindustry.world.*;
 import mindustry.world.blocks.environment.*;
-import mma.annotations.ModAnnotations;
-
 import static mindustry.Vars.*;
+import static mindustry.logic.LAccess.*;
 
-
-@ModAnnotations.Component
+@mma.annotations.ModAnnotations.Component
 abstract class WaterMoveComp implements Posc, Velc, Hitboxc, Flyingc, Unitc {
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     float x, y, rotation, speedMultiplier;
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     UnitType type;
 
     private transient Trail tleft = new Trail(1), tright = new Trail(1);
@@ -33,19 +32,27 @@ abstract class WaterMoveComp implements Posc, Velc, Hitboxc, Flyingc, Unitc {
 
     @Override
     public void update() {
+        boolean flying = isFlying();
         for (int i = 0; i < 2; i++) {
             Trail t = i == 0 ? tleft : tright;
             t.length = type.trailLength;
             int sign = i == 0 ? -1 : 1;
             float cx = Angles.trnsx(rotation - 90, type.trailX * sign, type.trailY) + x, cy = Angles.trnsy(rotation - 90, type.trailX * sign, type.trailY) + y;
-            t.update(cx, cy, world.floorWorld(cx, cy).isLiquid ? 1 : 0);
+            t.update(cx, cy, world.floorWorld(cx, cy).isLiquid && !flying ? 1 : 0);
         }
     }
 
     @Override
-    @ModAnnotations.Replace
+    @mma.annotations.ModAnnotations.Replace
     public int pathType() {
         return Pathfinder.costNaval;
+    }
+
+    // don't want obnoxious splashing
+    @Override
+    @mma.annotations.ModAnnotations.Replace
+    public boolean emitWalkSound() {
+        return false;
     }
 
     @Override
@@ -66,13 +73,19 @@ abstract class WaterMoveComp implements Posc, Velc, Hitboxc, Flyingc, Unitc {
         Draw.z(z);
     }
 
-    @ModAnnotations.Replace
+    @mma.annotations.ModAnnotations.Replace
     @Override
     public SolidPred solidity() {
         return isFlying() ? null : EntityCollisions::waterSolid;
     }
 
-    @ModAnnotations.Replace
+    @mma.annotations.ModAnnotations.Replace
+    @Override
+    public boolean onSolid() {
+        return EntityCollisions.waterSolid(tileX(), tileY());
+    }
+
+    @mma.annotations.ModAnnotations.Replace
     public float floorSpeedMultiplier() {
         Floor on = isFlying() ? Blocks.air.asFloor() : floorOn();
         return (on.isDeep() ? 1.3f : 1f) * speedMultiplier;

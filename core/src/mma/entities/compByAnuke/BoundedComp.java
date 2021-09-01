@@ -2,18 +2,17 @@ package mma.entities.compByAnuke;
 
 import arc.math.*;
 import arc.util.*;
+import mindustry.annotations.Annotations.*;
 import mindustry.gen.*;
-import mma.annotations.ModAnnotations;
-
 import static mindustry.Vars.*;
+import static mindustry.logic.LAccess.*;
 
-
-@ModAnnotations.Component
+@mma.annotations.ModAnnotations.Component
 abstract class BoundedComp implements Velc, Posc, Healthc, Flyingc {
 
     static final float warpDst = 30f;
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     float x, y;
 
     @Override

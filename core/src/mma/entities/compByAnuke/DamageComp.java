@@ -1,9 +1,9 @@
 package mma.entities.compByAnuke;
 
+import mindustry.annotations.Annotations.*;
+import static mindustry.logic.LAccess.*;
 
-import mma.annotations.ModAnnotations;
-
-@ModAnnotations.Component
+@mma.annotations.ModAnnotations.Component
 abstract class DamageComp {
 
     float damage;

@@ -1,24 +1,23 @@
 package mma.entities.compByAnuke;
 
 import arc.util.*;
+import mindustry.annotations.Annotations.*;
 import mindustry.content.*;
 import mindustry.game.*;
 import mindustry.gen.*;
-import mma.annotations.ModAnnotations;
-
 import static mindustry.Vars.*;
+import static mindustry.logic.LAccess.*;
 
-
-@ModAnnotations.Component
+@mma.annotations.ModAnnotations.Component
 abstract class ShieldComp implements Healthc, Posc {
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     float health, hitTime, x, y, healthMultiplier;
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     boolean dead;
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     Team team;
 
     /**
@@ -36,7 +35,7 @@ abstract class ShieldComp implements Healthc, Posc {
      */
     transient float shieldAlpha = 0f;
 
-    @ModAnnotations.Replace
+    @mma.annotations.ModAnnotations.Replace
     @Override
     public void damage(float amount) {
         // apply armor
@@ -45,7 +44,7 @@ abstract class ShieldComp implements Healthc, Posc {
         rawDamage(amount);
     }
 
-    @ModAnnotations.Replace
+    @mma.annotations.ModAnnotations.Replace
     @Override
     public void damagePierce(float amount, boolean withEffect) {
         float pre = hitTime;

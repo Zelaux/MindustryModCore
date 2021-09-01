@@ -1,10 +1,10 @@
 package mma.entities.compByAnuke;
 
+import mindustry.annotations.Annotations.*;
 import mindustry.gen.*;
-import mma.annotations.ModAnnotations;
+import static mindustry.logic.LAccess.*;
 
-
-@ModAnnotations.Component
+@mma.annotations.ModAnnotations.Component
 class OwnerComp {
 
     Entityc owner;

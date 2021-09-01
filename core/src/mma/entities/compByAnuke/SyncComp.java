@@ -2,13 +2,12 @@ package mma.entities.compByAnuke;
 
 import arc.util.io.*;
 import mindustry.*;
+import mindustry.annotations.Annotations.*;
 import mindustry.gen.*;
-import mma.annotations.ModAnnotations;
-
 import java.nio.*;
+import static mindustry.logic.LAccess.*;
 
-
-@ModAnnotations.Component
+@mma.annotations.ModAnnotations.Component
 abstract class SyncComp implements Entityc {
 
     transient long lastUpdated, updateSpacing;

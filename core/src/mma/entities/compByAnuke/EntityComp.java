@@ -1,15 +1,15 @@
 package mma.entities.compByAnuke;
 
+import arc.func.*;
 import arc.util.io.*;
+import mindustry.annotations.Annotations.*;
 import mindustry.entities.*;
 import mindustry.gen.*;
-import mma.annotations.ModAnnotations;
-
 import static mindustry.Vars.*;
+import static mindustry.logic.LAccess.*;
 
-
-@ModAnnotations.Component
-@ModAnnotations.BaseComponent
+@mma.annotations.ModAnnotations.Component
+@mma.annotations.ModAnnotations.BaseComponent
 abstract class EntityComp {
 
     private transient boolean added;
@@ -56,13 +56,13 @@ abstract class EntityComp {
         return (T) this;
     }
 
-    @ModAnnotations.InternalImpl
+    @mma.annotations.ModAnnotations.InternalImpl
     abstract int classId();
 
-    @ModAnnotations.InternalImpl
+    @mma.annotations.ModAnnotations.InternalImpl
     abstract boolean serialize();
 
-    @ModAnnotations.MethodPriority(1)
+    @mma.annotations.ModAnnotations.MethodPriority(1)
     void read(Reads read) {
         afterRead();
     }

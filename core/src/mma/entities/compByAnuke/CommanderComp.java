@@ -7,32 +7,31 @@ import arc.util.*;
 import mindustry.*;
 import mindustry.ai.formations.*;
 import mindustry.ai.types.*;
+import mindustry.annotations.Annotations.*;
 import mindustry.entities.*;
 import mindustry.entities.units.*;
 import mindustry.game.*;
 import mindustry.gen.*;
 import mindustry.type.*;
-import mma.annotations.ModAnnotations;
-
-/** A unit that can command other units. */
+import static mindustry.logic.LAccess.*;
 
 /**
  * A unit that can command other units.
  */
-@ModAnnotations.Component
+@mma.annotations.ModAnnotations.Component
 abstract class CommanderComp implements Entityc, Posc {
 
     private static final Seq<FormationMember> members = new Seq<>();
 
     private static final Seq<Unit> units = new Seq<>();
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     float x, y, rotation, hitSize;
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     Team team;
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     UnitType type;
 
     @Nullable

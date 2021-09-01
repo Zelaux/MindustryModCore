@@ -6,29 +6,45 @@ import arc.struct.Seq;
 import arc.util.Log;
 import arc.util.Strings;
 import arc.util.Time;
-import mma.tools.parsers.*;
+import com.github.javaparser.ParseResult;
+import com.github.javaparser.Range;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.Modifier;
+import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.body.AnnotationDeclaration;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.comments.Comment;
+import com.github.javaparser.ast.comments.LineComment;
+import com.github.javaparser.ast.expr.AnnotationExpr;
+import com.github.javaparser.ast.expr.Name;
+import com.github.javaparser.ast.nodeTypes.NodeWithAnnotations;
+import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
+import mma.tools.parsers.LibrariesDownloader;
+
+import java.util.Optional;
 
 public class AnukeCompDownloader {
-    private static final String  annotationsClassName = "ModAnnotations";
-    private static String packageName = null;
+    private static final String annotationsClassName = "ModAnnotations";
     private static final JavaCodeConverter codeConverter = new JavaCodeConverter(false);
+    private static final Seq<String> mindustryAnnotations = new Seq<>();
+    private static String packageName = null;
     private static String selectedClassName = "";
 
     public static void main(String[] args) {
         Seq<String> argsSeq = Seq.with(args);
         String mindustryVersion = argsSeq.find(s -> s.startsWith("v"));
-        if (mindustryVersion==null){
+        if (mindustryVersion == null) {
             System.out.println("Please put mindustry version in args!!!");
             System.exit(1);
             return;
         }
-        Log.info("Checking Anuke's comps for "+mindustryVersion);
+        Log.info("Checking Anuke's comps for " + mindustryVersion);
         Fi folder = new Fi("debug");
         try {
             long nanos = System.nanoTime();
-            if (packageName==null){
-                packageName=argsSeq.select(a->a.startsWith("package=")).map(s->s.substring("package=".length())).find(f->true);
-                if (packageName==null) {
+            if (packageName == null) {
+                packageName = argsSeq.select(a -> a.startsWith("package=")).map(s -> s.substring("package=".length())).find(f -> true);
+                if (packageName == null) {
                     packageName = Fi.get("core/src").list()[0].nameWithoutExtension();
                 }
             }
@@ -44,69 +60,72 @@ public class AnukeCompDownloader {
             ZipFi sourceZip = LibrariesDownloader.coreZip();
 
             Fi child = sourceZip.list()[0].child("core").child("src").child("mindustry").child("entities").child("comp");
+            Fi annotation = sourceZip.list()[0].child("annotations").child("src").child("main").child("java")
+                    .child("mindustry").child("annotations").child("Annotations.java");
+            loadAnnotations(annotation);
             for (Fi fi : child.list()) {
                 fi.copyTo(compJava.child(fi.name()));
             }
+            boolean useBlackList = false;
             for (Fi fi : compJava.list()) {
                 if (fi.isDirectory()) continue;
                 String className = fi.nameWithoutExtension();
                 selectedClassName = className;
-                if (Seq.with("BuildingComp", "BulletComp", "DecalComp", "EffectStateComp", "FireComp", "LaunchCoreComp", "PlayerComp", "PuddleComp").contains(className)) {
-                    compJava.child(fi.name()).delete();
-                    finalComp.child(fi.name()).delete();
-                    continue;
-                }
-                if (className.equals("BuildingComp") ||
-                    className.equals("BulletComp") ||
-                    className.equals("DecalComp") ||
-                    className.equals("EffectStateComp") ||
-                    className.equals("FireComp") ||
-                    className.equals("LaunchCoreComp") ||
-                    className.equals("PlayerComp") ||
-                    className.equals("PuddleComp") ||
-                    className.equals("PosTeamDef")
-                ) {
-                    Log.info("@ skipped", className);
-                    continue;
+                if (useBlackList) {
+                    if (Seq.with("BuildingComp", "BulletComp", "DecalComp", "EffectStateComp", "FireComp", "LaunchCoreComp", "PlayerComp", "PuddleComp").contains(className)) {
+                        compJava.child(fi.name()).delete();
+                        finalComp.child(fi.name()).delete();
+                        continue;
+                    }
+                    if (className.equals("BuildingComp") ||
+                        className.equals("BulletComp") ||
+                        className.equals("DecalComp") ||
+                        className.equals("EffectStateComp") ||
+                        className.equals("FireComp") ||
+                        className.equals("LaunchCoreComp") ||
+                        className.equals("PlayerComp") ||
+                        className.equals("PuddleComp") ||
+                        className.equals("PosTeamDef")
+                    ) {
+                        Log.info("@ skipped", className);
+                        continue;
+                    }
                 }
                 String file = fi.readString();
-                String convert = codeConverter.convert(file, className);
-                String string = convert
-                        .replace("var core = team.core();", "mindustry.world.blocks.storage.CoreBlock.CoreBuild core = team.core();")
-                        .replace("var core = core();", "mindustry.world.blocks.storage.CoreBlock.CoreBuild core = core();")
-                        .replace("var entry = statuses.find(e -> e.effect == effect);", "StatusEntry entry = statuses.find(e -> e.effect == effect);")
+                String convert = fixCode(codeConverter.convert(file, className));
+
+                /*String string = convert
+//                        .replace("var core = team.core();", "mindustry.world.blocks.storage.CoreBlock.CoreBuild core = team.core();")
+//                        .replace("var core = core();", "mindustry.world.blocks.storage.CoreBlock.CoreBuild core = core();")
+//                        .replace("var entry = statuses.find(e -> e.effect == effect);", "StatusEntry entry = statuses.find(e -> e.effect == effect);")
                         .replace("package mindustry.entities.comp;", "package " + packageName + ".entities.compByAnuke;")
                         .replace("import static mindustry.logic.GlobalConstants.*;",
-                                "import static mindustry.logic.GlobalConstants.*;\n" + "import static mindustry.logic.LAccess.*;")
-                        .replace("@Override", "__OVERRIDE__")
-                        .replace("@Nullable", "__NULLABLE__")
-                        .replace("@", "@" + packageName + ".annotations." + annotationsClassName + ".")
-                        .replace("__OVERRIDE__", "@Override")
-                        .replace("__NULLABLE__", "@Nullable");
-                string = string.replace("};\n" +
-                                        "    }", "}\n" +
-                                                 "    }");
-                finalComp.child(fi.name()).writeString(string);
+                                "import static mindustry.logic.GlobalConstants.*;\n" + "import static mindustry.logic.LAccess.*;");
+//                        .replace("@Override", "__OVERRIDE__")
+//                        .replace("@Nullable", "__NULLABLE__")
+//                        .replace("@Deprecated", "__DEPRECATED__")
+//                        .replace("@", "@" + packageName + ".annotations." + annotationsClassName + ".")
+//                        .replace("__OVERRIDE__", "@Override")
+//                        .replace("__DEPRECATED__", "@Deprecated")
+//                        .replace("__NULLABLE__", "@Nullable");*/
+//                convert = convert.replace("};\n" +
+//                                        "    }", "}\n" +
+//                                                 "    }");
+                finalComp.child(fi.name()).writeString(convert);
             }
             Seq<String> names = new Seq<>();
             for (Fi fi : finalComp.list()) {
                 fi.copyTo(dir.child(fi.name()));
                 names.add(fi.nameWithoutExtension());
             }
-            StringBuilder file = new StringBuilder();
-            file.append("package " + packageName + ".entities.compByAnuke;\n\n" +
-                        "import " + packageName + ".annotations." + annotationsClassName + ";\n" +
-                        "import mindustry.gen.Unitc;\n" +
-                        "public class AnnotationConfigComponents {");
-            for (String name : names) {
-                if (!name.endsWith("Comp")) continue;
-                String interfaceName = interfaceName(name);
-                file.append(Strings.format("@" + annotationsClassName + ".EntitySuperClass\n" +
-                                           "    public static interface @ extends mindustry.gen.@{\n" +
-                                           "    }", "@", interfaceName, interfaceName)).append("\n");
+
+            createAnnotationsConfigClass(dir, names);
+            Fi fi = Fi.get("anukeCompsList.txt");
+            fi.writeString("");
+            for (Fi file : dir.list()) {
+                fi.writeString(file.nameWithoutExtension()+"\n",true);
             }
-            file.append("\n}");
-            dir.child("AnnotationConfigComponents.java").writeString(file.toString());
+
             System.out.println(Strings.format("Time taken: @s", Time.nanosToMillis(Time.timeSinceNanos(nanos)) / 1000f));
         } catch (Exception e) {
             e.printStackTrace();
@@ -115,6 +134,98 @@ public class AnukeCompDownloader {
         folder.walk(f -> f.delete());
         folder.delete();
         System.exit(0);
+    }
+
+    private static void loadAnnotations(Fi annotations) {
+        ParseResult<CompilationUnit> result = codeConverter.javaParser.parse(annotations.readString());
+        CompilationUnit compilationUnit = result.getResult().get();
+        mindustryAnnotations.clear();
+        compilationUnit.accept(new VoidVisitorAdapter<Void>() {
+            @Override
+            public void visit(AnnotationDeclaration n, Void arg) {
+
+                mindustryAnnotations.add(n.getNameAsString());
+            }
+        }, null);
+    }
+
+    private static String fixCode(String convert) {
+        CompilationUnit compilationUnit = codeConverter.javaParser.parse(convert).getResult().get();
+        compilationUnit.setPackageDeclaration(packageName + ".entities.compByAnuke");
+        compilationUnit.addImport("mindustry.logic.LAccess", true, true);
+        Seq<AnnotationExpr> annotationExprs = new Seq<>();
+        String className = compilationUnit.findFirst(ClassOrInterfaceDeclaration.class).get().getNameAsString();
+        compilationUnit.walk(node -> {
+            if (node instanceof AnnotationExpr) {
+                annotationExprs.add((AnnotationExpr) node);
+            }
+        });
+        for (AnnotationExpr annotationExpr : annotationExprs) {
+            String identifier = annotationExpr.getName().getIdentifier();
+             if (mindustryAnnotations.contains(identifier)) {
+                annotationExpr.getName().setQualifier(new Name(packageName + ".annotations." + annotationsClassName));
+            }
+            if (identifier.equals("EntityDef")) {
+                Node parentNode = annotationExpr.getParentNode().get();
+                NodeWithAnnotations<?> parent = (NodeWithAnnotations<?>) parentNode;
+                int i = parent.getAnnotations().indexOf(annotationExpr);
+                Comment comment = new LineComment(annotationExpr.toString());
+                if (i == parent.getAnnotations().size() - 1) {
+                    addComment(parentNode, comment,true);
+                } else {
+                    AnnotationExpr next = parent.getAnnotations().get(i + 1);
+                    addComment(next, comment,true);
+                }
+
+//                parent.addOrphanComment();
+                annotationExpr.remove();
+            }
+        }
+        return compilationUnit.toString();
+    }
+
+    private static void addComment(Node parent, Comment comment, boolean replace) {
+        Optional<Comment> optional = parent.getComment();
+        if (optional.isPresent()) {
+            if (replace) {
+                Comment other = optional.get();
+                parent.setComment(comment);
+                comment.setRange(other.getRange().orElse(null));
+                addComment(parent,other,false);
+                return;
+            }
+            Range other = optional.get().getRange().get();
+            String string = comment.toString();
+
+            String[] split = string.split("\n");
+            Range range = Range.range(other.begin.line - (int) split.length, 1, other.begin.line, split[split.length - 1].length());
+            comment.setRange(range);
+            parent.findCompilationUnit().get().addOrphanComment(comment);
+        } else {
+            parent.setComment(comment);
+        }
+    }
+
+    private static void createAnnotationsConfigClass(Fi dir, Seq<String> names) {
+
+        CompilationUnit compilationUnit = new CompilationUnit();
+        compilationUnit.setPackageDeclaration(packageName + ".entities.compByAnuke");
+        compilationUnit.addImport(packageName + ".annotations." + annotationsClassName, false, false);
+//        compilationUnit.addImport("mindustry.gen", false, true);
+        ClassOrInterfaceDeclaration annotationConfig = compilationUnit.addClass("AnnotationConfigComponents");
+
+        for (String name : names) {
+            if (!name.endsWith("Comp")) continue;
+            String interfaceName = interfaceName(name);
+            ClassOrInterfaceDeclaration comp = new ClassOrInterfaceDeclaration();
+            annotationConfig.addMember(comp);
+            comp.addModifier(Modifier.Keyword.PUBLIC)
+                    .setInterface(true)
+                    .setName(interfaceName)
+                    .getExtendedTypes().add(codeConverter.javaParser.parseClassOrInterfaceType("mindustry.gen." + interfaceName).getResult().get());
+            comp.addAnnotation(annotationsClassName + ".EntitySuperClass");
+        }
+        dir.child("AnnotationConfigComponents.java").writeString(compilationUnit.toString());
     }
 
     static String interfaceName(String comp) {

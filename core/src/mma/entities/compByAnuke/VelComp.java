@@ -3,26 +3,25 @@ package mma.entities.compByAnuke;
 import arc.math.*;
 import arc.math.geom.*;
 import arc.util.*;
+import mindustry.annotations.Annotations.*;
 import mindustry.entities.EntityCollisions.*;
 import mindustry.gen.*;
-import mma.annotations.ModAnnotations;
-
 import static mindustry.Vars.*;
+import static mindustry.logic.LAccess.*;
 
-
-@ModAnnotations.Component
+@mma.annotations.ModAnnotations.Component
 abstract class VelComp implements Posc {
 
-    @ModAnnotations.Import
+    @mma.annotations.ModAnnotations.Import
     float x, y;
 
-    @ModAnnotations.SyncLocal
+    @mma.annotations.ModAnnotations.SyncLocal
     Vec2 vel = new Vec2();
 
     transient float drag = 0f;
 
     // velocity needs to be called first, as it affects delta and lastPosition
-    @ModAnnotations.MethodPriority(-1)
+    @mma.annotations.ModAnnotations.MethodPriority(-1)
     @Override
     public void update() {
         // do not update velocity on the client at all, unless it's non-interpolated
@@ -39,7 +38,7 @@ abstract class VelComp implements Posc {
     }
 
     /**
-     * @gas.annotations.GasAnnotations.return function to use for check solid state. if null, no checking is done.
+     * @return function to use for check solid state. if null, no checking is done.
      */
     @Nullable
     SolidPred solidity() {
@@ -47,7 +46,7 @@ abstract class VelComp implements Posc {
     }
 
     /**
-     * @gas.annotations.GasAnnotations.return whether this entity can move through a location
+     * @return whether this entity can move through a location
      */
     boolean canPass(int tileX, int tileY) {
         SolidPred s = solidity();
@@ -55,7 +54,7 @@ abstract class VelComp implements Posc {
     }
 
     /**
-     * @gas.annotations.GasAnnotations.return whether this entity can exist on its current location
+     * @return whether this entity can exist on its current location
      */
     boolean canPassOn() {
         return canPass(tileX(), tileY());
