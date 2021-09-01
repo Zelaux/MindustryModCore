@@ -1,7 +1,6 @@
 package mma.annotations.entities;
 
 import arc.files.Fi;
-import arc.files.ZipFi;
 import arc.func.Cons;
 import arc.struct.*;
 import arc.util.*;
@@ -19,6 +18,7 @@ import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.type.MirroredTypesException;
+import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
 import java.io.IOException;
@@ -35,12 +35,13 @@ import java.net.URL;
         "mma.annotations.ModAnnotations.EntitySuperClass"
 })
 public class ModEntitiesProc extends ModBaseProcessor {
+    final Seq<Stype> baseComponents = new Seq<>();
+    private final Seq<Stype> allComponents = new Seq<>();
     Seq<EntityDefinition> definitions = new Seq<>();
     Seq<Stype> allInterfaces = new Seq<>();
     Seq<Stype> anukeSuperInterfaces = new Seq<>();
     Seq<Selement> allGroups = new Seq<>();
     Seq<Selement> allDefs = new Seq<>();
-   final Seq<Stype> baseComponents=new Seq<>();
     Seq<GroupDefinition> groupDefs = new Seq<>();
     ObjectMap<String, Stype> componentNames = new ObjectMap<>();
     ObjectMap<Stype, Seq<Stype>> componentDependencies = new ObjectMap<>();
@@ -51,10 +52,9 @@ public class ModEntitiesProc extends ModBaseProcessor {
     ObjectSet<String> imports = new ObjectSet<>();
     Seq<TypeSpec.Builder> baseClasses = new Seq<>();
     TypeIOResolver.ClassSerializer serializer;
-    private  String compByAnukePackage,compList[];
     //    Seq<String> anukeComponents = new Seq<>();
     boolean hasAnukeComps = false;
-    private final Seq<Stype> allComponents=new Seq<>();
+    private String compByAnukePackage, compList[];
 
     {
         rounds = 4;
@@ -66,7 +66,7 @@ public class ModEntitiesProc extends ModBaseProcessor {
         Time.mark();
         updateRounds();
         for (Stype type : types(ModAnnotations.EntitySuperClass.class)) {
-            if (!hasAnukeComps){
+            if (!hasAnukeComps) {
                 Log.info("anukeComp exists");
             }
             hasAnukeComps = true;
@@ -90,42 +90,39 @@ public class ModEntitiesProc extends ModBaseProcessor {
     }
 
     private void clearZeroRound() {
-        if (rootPackageName.equals("mma"))return;
+        boolean root = rootPackageName.equals("mma");
+        if (root)return;
         try {
-            Fi mma = getFilesFi(StandardLocation.SOURCE_OUTPUT).child("mma");
-            mma.walk(Fi::delete);
+            Fi filesFi = getFilesFi(StandardLocation.SOURCE_OUTPUT);
+            Fi mma = filesFi.child( "mma");
+//            mma.walk(Fi::delete);
             mma.deleteDirectory();
-            mma.delete();
-            if (mma.exists())throw new RuntimeException("Cannot delete mma package!!!");
+//            mma.delete();
+
+//            Log.info(mma.exists());
+            if (mma.exists()) throw new RuntimeException("Cannot delete mma package!!!");
         } catch (IOException exception) {
-            Log.err("Cannot delete mma package because @",exception);
+            Log.err("Cannot delete mma package because @", exception);
         }
-        /*for (String compName : compList) {
-            try {
-                delete(compByAnukePackage,compName);
-            } catch (IOException exception) {
-                Log.err("cannot delete "+compName+" because @",exception);
-            }
-        }*/
     }
 
     private void zeroRound() {
         try {
             boolean root = rootPackageName.equals("mma");
             if (root)return;
-            compByAnukePackage = /*rootPackageName +*/ "mma.entities.compByAnuke";
-            Fi tmp=Fi.get("tmp");
-            FileUtils.copyURLToFile(new URL("https://raw.githubusercontent.com/Zelaux/ZelauxModCore/master/anukeCompsList.txt"),tmp.file());
-            compList=tmp.readString().split("\n");
+            compByAnukePackage =  "mma.entities.compByAnuke";
+            Fi tmp = Fi.get("tmp");
+            FileUtils.copyURLToFile(new URL("https://raw.githubusercontent.com/Zelaux/ZelauxModCore/master/anukeCompsList.txt"), tmp.file());
+            compList = tmp.readString().split("\n");
             for (String compName : compList) {
                 String strUrl = Strings.format("https://raw.githubusercontent.com/Zelaux/ZelauxModCore/master/core/src/mma/entities/compByAnuke/@.java", compName);
-                FileUtils.copyURLToFile(new URL(strUrl),tmp.file());
+                FileUtils.copyURLToFile(new URL(strUrl), tmp.file());
                 JavaFileObject object = filer.createSourceFile(compByAnukePackage + "." + compName);
                 OutputStream stream = object.openOutputStream();
                 stream.write(tmp.readBytes());
                 stream.close();
             }
-            FileUtils.copyURLToFile(new URL("https://raw.githubusercontent.com/Zelaux/ZelauxModCore/master/core/src/mma/entities/GroupDefs.java"),tmp.file());
+            FileUtils.copyURLToFile(new URL("https://raw.githubusercontent.com/Zelaux/ZelauxModCore/master/core/src/mma/entities/GroupDefs.java"), tmp.file());
 
             JavaFileObject object = filer.createSourceFile("mma.entities.GroupDefs");
             OutputStream stream = object.openOutputStream();
@@ -133,7 +130,7 @@ public class ModEntitiesProc extends ModBaseProcessor {
             stream.close();
 
             tmp.delete();
-        } catch (IOException e){
+        } catch (IOException e) {
             err(Strings.getStackTrace(e));
         }
     }
@@ -142,7 +139,7 @@ public class ModEntitiesProc extends ModBaseProcessor {
         allGroups.addAll(elements(ModAnnotations.GroupDef.class));
         allInterfaces.addAll(types(ModAnnotations.EntityInterface.class));
         allDefs.addAll(elements(ModAnnotations.EntityDef.class));
-        if (serializer==null){
+        if (serializer == null) {
             serializer = ModTypeIOResolver.resolve(this);
         }
         baseComponents.addAll(types(ModAnnotations.BaseComponent.class));
@@ -150,7 +147,7 @@ public class ModEntitiesProc extends ModBaseProcessor {
     }
 
     private void firstRound() throws Exception {
-        Seq<Stype> allComponents=this.allComponents.copy();
+        Seq<Stype> allComponents = this.allComponents.copy();
         //store code
         for (Stype component : allComponents) {
 
@@ -715,7 +712,7 @@ public class ModEntitiesProc extends ModBaseProcessor {
                 //return mapping
                 def.builder.addMethod(MethodSpec.methodBuilder("classId").addAnnotation(Override.class)
 //                            .returns(int.class).addModifiers(Modifier.PUBLIC).addStatement("return " + def.classID).build());
-                        .returns(int.class).addModifiers(Modifier.PUBLIC).addStatement("return "+rootPackageName+".gen."+classPrefix()+"EntityMapping.getId(getClass())").build());
+                        .returns(int.class).addModifiers(Modifier.PUBLIC).addStatement("return " + rootPackageName + ".gen." + classPrefix() + "EntityMapping.getId(getClass())").build());
             }
             MethodSpec.Builder idGet = MethodSpec.methodBuilder("getId").addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                     .returns(TypeName.get(int.class)).addParameter(TypeName.get(Class.class), "name");

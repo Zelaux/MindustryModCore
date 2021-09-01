@@ -129,7 +129,7 @@ public abstract class ModBaseProcessor extends BaseProcessor {
         if (round++ >= rounds) return false; //only process 1 round
         if (rootDirectory == null) {
             try {
-                String path = getFilesFi(StandardLocation.CLASS_OUTPUT)
+                String path = getFilesFi(StandardLocation.CLASS_OUTPUT,"no","no")
                         .parent().parent().parent().parent().parent().parent().parent().toString().replace("%20", " ");
                 rootDirectory = Fi.get(path);
                 if (rootDirectory.name().equals("core")) rootDirectory = rootDirectory.parent();
@@ -151,7 +151,7 @@ public abstract class ModBaseProcessor extends BaseProcessor {
     }
 
     protected static Fi getFilesFi(StandardLocation location) throws IOException {
-        return getFilesFi(location,"no","no");
+        return getFilesFi(location,"no","no").parent().parent();
     }
     protected static Fi getFilesFi(StandardLocation location,String packageName,String className) throws IOException {
         return Fi.get(filer.getResource(location, packageName, className)
