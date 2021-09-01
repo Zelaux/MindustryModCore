@@ -12,24 +12,18 @@ import mindustry.Vars;
 import mindustry.content.TechTree;
 import mindustry.ctype.ContentType;
 import mindustry.ctype.UnlockableContent;
-import mindustry.entities.EntityGroup;
 import mindustry.entities.units.UnitCommand;
 import mindustry.entities.units.UnitController;
 import mindustry.game.Team;
 import mindustry.gen.Building;
-import mindustry.gen.Groups;
-import mindustry.gen.Nulls;
-import mindustry.gen.Unit;
+import mindustry.io.TypeIO;
 import mindustry.logic.LAccess;
 import mindustry.type.UnitType;
 import mindustry.world.Block;
-import mindustry.world.blocks.ControlBlock;
 import mindustry.world.blocks.environment.Floor;
 import mindustry.world.blocks.environment.OreBlock;
 import mindustry.world.blocks.environment.StaticWall;
 import mma.annotations.ModAnnotations;
-import mindustry.io.TypeIO;
-
 @ModAnnotations.TypeIOHandler
 public class ModTypeIO extends TypeIO {
     public static void writeInteger(Writes write, Integer integer) {
@@ -94,9 +88,6 @@ public class ModTypeIO extends TypeIO {
         return floor instanceof Floor ? (Floor) floor : null;
     }
 
-    public static Vec2 readVec2(Reads read) {
-        return new Vec2(read.f(), read.f());
-    }
 
     public static void writeTeam(Writes write, Team team) {
         if (team == null) {

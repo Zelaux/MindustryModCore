@@ -20,6 +20,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.type.MirroredTypesException;
 import javax.tools.JavaFileObject;
+import javax.tools.StandardLocation;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;
@@ -65,7 +66,9 @@ public class ModEntitiesProc extends ModBaseProcessor {
         Time.mark();
         updateRounds();
         for (Stype type : types(ModAnnotations.EntitySuperClass.class)) {
-            Log.info("anukeComp: @", type.fullName());
+            if (!hasAnukeComps){
+                Log.info("anukeComp exists");
+            }
             hasAnukeComps = true;
             allInterfaces.add(type.superclasses().peek());
         }
@@ -88,19 +91,24 @@ public class ModEntitiesProc extends ModBaseProcessor {
 
     private void clearZeroRound() {
         if (rootPackageName.equals("mma"))return;
-        for (String compName : compList) {
+        try {
+            getFilesFi(StandardLocation.SOURCE_OUTPUT).child("mma").deleteDirectory();
+        } catch (IOException exception) {
+            Log.err("Cannot delete mma package because @",exception);
+        }
+        /*for (String compName : compList) {
             try {
                 delete(compByAnukePackage,compName);
             } catch (IOException exception) {
                 Log.err("cannot delete "+compName+" because @",exception);
             }
-        }
+        }*/
     }
 
     private void zeroRound() {
         try {
             boolean root = rootPackageName.equals("mma");
-//            if (root)return;
+            if (root)return;
             compByAnukePackage = /*rootPackageName +*/ "mma.entities.compByAnuke";
             Fi tmp=Fi.get("tmp");
             FileUtils.copyURLToFile(new URL("https://raw.githubusercontent.com/Zelaux/ZelauxModCore/master/anukeCompsList.txt"),tmp.file());
@@ -109,12 +117,17 @@ public class ModEntitiesProc extends ModBaseProcessor {
                 String strUrl = Strings.format("https://raw.githubusercontent.com/Zelaux/ZelauxModCore/master/core/src/mma/entities/compByAnuke/@.java", compName);
                 FileUtils.copyURLToFile(new URL(strUrl),tmp.file());
                 JavaFileObject object = filer.createSourceFile(compByAnukePackage + "." + compName);
-                Log.info("name: @",object.getName());
-                if (root)continue;
                 OutputStream stream = object.openOutputStream();
                 stream.write(tmp.readBytes());
                 stream.close();
             }
+            FileUtils.copyURLToFile(new URL("https://raw.githubusercontent.com/Zelaux/ZelauxModCore/master/core/src/mma/entities/GroupDefs.java"),tmp.file());
+
+            JavaFileObject object = filer.createSourceFile("mma.entities.GroupDefs");
+            OutputStream stream = object.openOutputStream();
+            stream.write(tmp.readBytes());
+            stream.close();
+
             tmp.delete();
         } catch (IOException e){
             err(Strings.getStackTrace(e));
@@ -703,7 +716,7 @@ public class ModEntitiesProc extends ModBaseProcessor {
                 //return mapping
                 def.builder.addMethod(MethodSpec.methodBuilder("classId").addAnnotation(Override.class)
 //                            .returns(int.class).addModifiers(Modifier.PUBLIC).addStatement("return " + def.classID).build());
-                        .returns(int.class).addModifiers(Modifier.PUBLIC).addStatement("return rpmod.gen.ModEntityMapping.getId(getClass())").build());
+                        .returns(int.class).addModifiers(Modifier.PUBLIC).addStatement("return "+rootPackageName+".gen."+classPrefix()+"EntityMapping.getId(getClass())").build());
             }
             MethodSpec.Builder idGet = MethodSpec.methodBuilder("getId").addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                     .returns(TypeName.get(int.class)).addParameter(TypeName.get(Class.class), "name");
