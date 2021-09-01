@@ -70,7 +70,11 @@ public class ModContentLoader extends ContentLoader {
         for (ContentList contentList : modContent) {
             for (Field field : contentList.getClass().getFields()) {
                 if (Content.class.isAssignableFrom(field.getType())) {
-
+                    try {
+                        cons.get((Content) field.get(contentList));
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
