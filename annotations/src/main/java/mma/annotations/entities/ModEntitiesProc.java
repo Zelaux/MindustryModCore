@@ -40,7 +40,7 @@ public class ModEntitiesProc extends ModBaseProcessor {
     Seq<Stype> anukeSuperInterfaces = new Seq<>();
     Seq<Selement> allGroups = new Seq<>();
     Seq<Selement> allDefs = new Seq<>();
-    Seq<Stype> baseComponents;
+   final Seq<Stype> baseComponents=new Seq<>();
     Seq<GroupDefinition> groupDefs = new Seq<>();
     ObjectMap<String, Stype> componentNames = new ObjectMap<>();
     ObjectMap<Stype, Seq<Stype>> componentDependencies = new ObjectMap<>();
@@ -54,7 +54,7 @@ public class ModEntitiesProc extends ModBaseProcessor {
     private  String compByAnukePackage,compList[];
     //    Seq<String> anukeComponents = new Seq<>();
     boolean hasAnukeComps = false;
-    private Seq<Stype> allComponents;
+    private final Seq<Stype> allComponents=new Seq<>();
 
     {
         rounds = 4;
@@ -140,14 +140,9 @@ public class ModEntitiesProc extends ModBaseProcessor {
         allDefs.addAll(elements(ModAnnotations.EntityDef.class));
         if (serializer==null){
             serializer = ModTypeIOResolver.resolve(this);
-
         }
-        if (baseComponents==null){
-            baseComponents = types(ModAnnotations.BaseComponent.class);
-        }
-        if (allComponents==null){
-            allComponents = types(ModAnnotations.Component.class);
-        }
+        baseComponents.addAll(types(ModAnnotations.BaseComponent.class));
+        allComponents.addAll(types(ModAnnotations.Component.class));
     }
 
     private void firstRound() throws Exception {
