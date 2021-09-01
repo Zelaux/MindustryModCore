@@ -62,8 +62,6 @@ public class ModEntitiesProc extends ModBaseProcessor {
 
     @Override
     public void process(RoundEnvironment env) throws Exception {
-        Log.info(getClass().getSimpleName() + ".work(" + round + ")");
-        Time.mark();
         updateRounds();
         for (Stype type : types(ModAnnotations.EntitySuperClass.class)) {
             if (!hasAnukeComps) {
@@ -86,7 +84,6 @@ public class ModEntitiesProc extends ModBaseProcessor {
         } catch (Exception e) {
             throw e;
         }
-        Log.info(getClass().getSimpleName() + ".work(" + round + ").time=@ms", Time.elapsed());
     }
 
     private void clearZeroRound() {

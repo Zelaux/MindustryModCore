@@ -36,7 +36,6 @@ public class ModRemoteProcess extends ModBaseProcessor {
         if (callLocation == null) {
             callLocation = classPrefix() + "Call";
         }
-        Log.info(getClass().getSimpleName() + ".work(" + round + ")");
         //get serializers
         //class serializers
         ClassSerializer serializer = ModTypeIOResolver.resolve(this);

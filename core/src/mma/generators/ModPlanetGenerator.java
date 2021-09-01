@@ -26,15 +26,15 @@ import mindustry.world.Tiles;
 public class ModPlanetGenerator extends PlanetGenerator {
 
     private static int lastSeed = 0;
-    final int seed=lastSeed++;
+    protected final int seed=lastSeed++;
     public  Block[][] arr;
     public  float scl = 0.f;
     public  float waterOffset = 0.f;
     public   BaseGenerator basegen = new BaseGenerator();
     public float water = 0.f;
-    ObjectMap<Block,Block> dec;
+   protected ObjectMap<Block,Block> dec;
 
-    ObjectMap<Block,Block> tars;
+protected     ObjectMap<Block,Block> tars;
 
     public ModPlanetGenerator() {
         dec=new ObjectMap<>();

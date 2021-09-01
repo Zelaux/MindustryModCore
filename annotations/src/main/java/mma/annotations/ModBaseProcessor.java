@@ -5,6 +5,7 @@ import arc.struct.Seq;
 import arc.util.Log;
 import arc.util.OS;
 import arc.util.Strings;
+import arc.util.Time;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeName;
@@ -33,6 +34,7 @@ public abstract class ModBaseProcessor extends BaseProcessor {
     static final String parentName = "mindustry.gen";
     public static String packageName = null;
     public static String rootPackageName = null;
+    protected boolean disableTimer=false;
 
     public static void print(String obj, Object... args) {
         String message = Strings.format(obj.toString(), args);
@@ -142,7 +144,14 @@ public abstract class ModBaseProcessor extends BaseProcessor {
 
         this.env = roundEnv;
         try {
+            if (!disableTimer) {
+                Log.info(getClass().getSimpleName() + ".work(" + round + ")");
+                Time.mark();
+            }
             process(roundEnv);
+            if (!disableTimer){
+                Log.info(getClass().getSimpleName() + ".work(" + round + ").time=@ms", Time.elapsed());
+            }
         } catch (Throwable e) {
             Log.err(e);
             throw new RuntimeException(e);

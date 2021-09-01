@@ -20,7 +20,6 @@ public class LogicStatementProcessor extends ModBaseProcessor {
 
     @Override
     public void process(RoundEnvironment env) throws Exception {
-        Log.info(getClass().getSimpleName() + ".work(" + round + ")");
         TypeSpec.Builder type = TypeSpec.classBuilder(classPrefix()+"LogicIO")
                 .addModifiers(Modifier.PUBLIC);
         MethodSpec.Builder initBlock = MethodSpec.methodBuilder("init").addModifiers(Modifier.PUBLIC, Modifier.STATIC);

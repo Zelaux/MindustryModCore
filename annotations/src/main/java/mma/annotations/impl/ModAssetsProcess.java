@@ -37,7 +37,6 @@ public class ModAssetsProcess extends ModBaseProcessor {
 
     @Override
     public void process(RoundEnvironment env) throws Exception {
-        Log.info(getClass().getSimpleName() + ".work("+round+")");
         processSounds(classPrefix()+"Sounds", rootDirectory + "/core/assets/sounds", "arc.audio.Sound");
         processSounds(classPrefix()+"Musics", rootDirectory + "/core/assets/music", "arc.audio.Music");
         processUI(env.getElementsAnnotatedWith(ModAnnotations.StyleDefaults.class));
