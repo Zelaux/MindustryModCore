@@ -92,7 +92,11 @@ public class ModEntitiesProc extends ModBaseProcessor {
     private void clearZeroRound() {
         if (rootPackageName.equals("mma"))return;
         try {
-            getFilesFi(StandardLocation.SOURCE_OUTPUT).child("mma").deleteDirectory();
+            Fi mma = getFilesFi(StandardLocation.SOURCE_OUTPUT).child("mma");
+            mma.walk(Fi::delete);
+            mma.deleteDirectory();
+            mma.delete();
+            if (mma.exists())throw new RuntimeException("Cannot delete mma package!!!");
         } catch (IOException exception) {
             Log.err("Cannot delete mma package because @",exception);
         }

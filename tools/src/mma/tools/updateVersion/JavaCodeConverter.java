@@ -1,4 +1,4 @@
-package mma.tools;
+package mma.tools.updateVersion;
 
 import arc.files.Fi;
 import arc.func.Cons;
@@ -13,14 +13,12 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.stmt.*;
-import com.github.javaparser.ast.visitor.ModifierVisitor;
-import com.github.javaparser.ast.visitor.Visitable;
 
 import java.util.List;
 import java.util.Optional;
 
 public class JavaCodeConverter {
-    JavaParser javaParser = new JavaParser();
+   public JavaParser javaParser = new JavaParser();
     private boolean logProblems=true;
 
     public JavaCodeConverter() {

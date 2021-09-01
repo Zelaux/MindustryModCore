@@ -268,12 +268,12 @@ task downloadCompDead (type: JavaExec) {
         }
     }
 }
-task downloadComp (dependsOn: [classes, configurations.runtimeClasspath]) {
+task updateMindustryVersion (dependsOn: [classes, configurations.runtimeClasspath]) {
     doFirst {
         javaexec {
             maxHeapSize = "4048m"
             args("-Xmx4048m", "--enable-preview", mindustryVersion)
-            main = "mma.tools.AnukeCompDownloader"
+            main = "mma.tools.updateVersion.MindustryVersionUpdater"
             classpath = sourceSets.main.runtimeClasspath
             workingDir = "../"
 //            jvmArgs ("-Xmx2024m")

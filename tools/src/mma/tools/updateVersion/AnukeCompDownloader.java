@@ -1,4 +1,4 @@
-package mma.tools;
+package mma.tools.updateVersion;
 
 import arc.files.Fi;
 import arc.files.ZipFi;
@@ -30,14 +30,8 @@ public class AnukeCompDownloader {
     private static String packageName = null;
     private static String selectedClassName = "";
 
-    public static void main(String[] args) {
+    public static void run(String mindustryVersion , String[] args) {
         Seq<String> argsSeq = Seq.with(args);
-        String mindustryVersion = argsSeq.find(s -> s.startsWith("v"));
-        if (mindustryVersion == null) {
-            System.out.println("Please put mindustry version in args!!!");
-            System.exit(1);
-            return;
-        }
         Log.info("Checking Anuke's comps for " + mindustryVersion);
         Fi folder = new Fi("debug");
         try {
@@ -55,7 +49,6 @@ public class AnukeCompDownloader {
             Fi compJava = folder.child("compJava");
             Fi finalComp = folder.child("finalComp");
 
-            LibrariesDownloader.download(mindustryVersion);
 
             ZipFi sourceZip = LibrariesDownloader.coreZip();
 
@@ -133,7 +126,6 @@ public class AnukeCompDownloader {
         folder.deleteDirectory();
         folder.walk(f -> f.delete());
         folder.delete();
-        System.exit(0);
     }
 
     private static void loadAnnotations(Fi annotations) {
