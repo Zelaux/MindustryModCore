@@ -266,12 +266,10 @@ public class ModPackingUpdater {
                                             argument.accept(new ModifierVisitor<Void>() {
                                                 @Override
                                                 public Visitable visit(StringLiteralExpr literalExpr, Void arg) {
-                                                    Log.info("literalExpr: @", literalExpr);
                                                     for (ContentType type : ContentType.values()) {
                                                         String value = literalExpr.getValue();
                                                         String suffix = type.name() + "-";
                                                         if (value.endsWith(suffix)) {
-                                                            Log.info("suffix: @", suffix);
                                                             int endIndex = suffix.length() + (value.endsWith("/" + suffix) ? 1 : 0);
                                                             literalExpr.setValue(value.substring(0, value.length() - endIndex));
                                                         }
