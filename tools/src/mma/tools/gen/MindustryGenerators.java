@@ -1,63 +1,34 @@
 package mma.tools.gen;
 
-import arc.Core;
-import arc.files.Fi;
-import arc.func.Cons;
-import arc.func.Func;
-import arc.graphics.Color;
-import arc.graphics.Pixmap;
-import arc.graphics.Pixmaps;
-import arc.graphics.g2d.Draw;
-import arc.graphics.g2d.TextureRegion;
-import arc.math.Mathf;
-import arc.math.Rand;
-import arc.math.geom.Vec2;
-import arc.struct.ObjectMap;
-import arc.struct.ObjectSet;
-import arc.struct.Seq;
-import arc.util.Log;
-import arc.util.async.Threads;
-import arc.util.noise.Noise;
-import arc.util.noise.Ridged;
-import arc.util.noise.VoronoiNoise;
-import mindustry.ctype.UnlockableContent;
-import mindustry.game.Team;
-import mindustry.gen.Legsc;
-import mindustry.gen.Mechc;
-import mindustry.graphics.BlockRenderer;
-import mindustry.graphics.Pal;
-import mindustry.type.Item;
-import mindustry.type.StatusEffect;
-import mindustry.type.Weapon;
-import mindustry.world.Block;
-import mindustry.world.blocks.ConstructBlock;
+import arc.*;
+import arc.files.*;
+import arc.func.*;
+import arc.graphics.*;
+import arc.graphics.g2d.*;
+import arc.math.*;
+import arc.math.geom.*;
+import arc.struct.*;
+import arc.util.*;
+import arc.util.async.*;
+import arc.util.noise.*;
+import mindustry.ctype.*;
+import mindustry.game.*;
+import mindustry.gen.*;
+import mindustry.graphics.*;
+import mindustry.type.*;
+import mindustry.world.*;
+import mindustry.world.blocks.*;
 import mindustry.world.blocks.environment.*;
-import mindustry.world.blocks.legacy.LegacyBlock;
-import mindustry.world.meta.BuildVisibility;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
+import mindustry.world.blocks.legacy.*;
+import mindustry.world.meta.*;
+import java.util.concurrent.*;
 import static mindustry.Vars.*;
-import static mindustry.tools.Generators.ScorchGenerator;
 import static mma.tools.gen.MindustryImagePacker.*;
+import static mindustry.tools.Generators.ScorchGenerator;
 
 public class MindustryGenerators {
 
     static final public int logicIconSize = (int) iconMed, maxUiIcon = 128;
-    protected ObjectMap<Block, Pixmap> gens = new ObjectMap<>();
-    protected boolean generateSplashes;
-    protected boolean generateBubbles;
-    protected boolean generateCliffs;
-    protected boolean generateCracks;
-    protected boolean generateBlockIcons;
-    protected boolean generateShallows;
-    protected boolean generateItemIcons;
-    protected boolean generateTeamIcons;
-    protected boolean generateUnitIcons;
-    protected boolean generateOreIcons;
-    protected boolean generateEdges;
-    protected boolean generateScorches;
 
     public MindustryGenerators() {
         setup();
@@ -113,6 +84,10 @@ public class MindustryGenerators {
         enable();
     }
 
+    protected ObjectMap<Block, Pixmap> gens = new ObjectMap<>();
+
+    protected boolean generateSplashes;
+
     protected void splashes() {
         if (!generateSplashes)
             return;
@@ -134,6 +109,8 @@ public class MindustryGenerators {
             pixmap.dispose();
         }
     }
+
+    protected boolean generateBubbles;
 
     protected void bubbles() {
         if (!generateBubbles)
@@ -158,6 +135,8 @@ public class MindustryGenerators {
             pixmap.dispose();
         }
     }
+
+    protected boolean generateCliffs;
 
     protected void cliffs() {
         if (!generateCliffs)
@@ -232,6 +211,8 @@ public class MindustryGenerators {
         Threads.await(exec);
     }
 
+    protected boolean generateCracks;
+
     protected void cracks() {
         if (!generateCracks)
             return;
@@ -273,6 +254,8 @@ public class MindustryGenerators {
             }
         }
     }
+
+    protected boolean generateBlockIcons;
 
     protected void blockIcons() {
         if (!generateBlockIcons)
@@ -389,6 +372,8 @@ public class MindustryGenerators {
         save(colors, "../../../assets/sprites/block_colors");
     }
 
+    protected boolean generateShallows;
+
     protected void shallows() {
         if (!generateShallows)
             return;
@@ -409,6 +394,8 @@ public class MindustryGenerators {
             }
         });
     }
+
+    protected boolean generateItemIcons;
 
     protected void itemIcons() {
         if (!generateItemIcons)
@@ -433,6 +420,8 @@ public class MindustryGenerators {
         }
     }
 
+    protected boolean generateTeamIcons;
+
     protected void teamIcons() {
         if (!generateTeamIcons)
             return;
@@ -446,6 +435,8 @@ public class MindustryGenerators {
             }
         }
     }
+
+    protected boolean generateUnitIcons;
 
     protected void unitIcons() {
         if (!generateUnitIcons)
@@ -544,6 +535,8 @@ public class MindustryGenerators {
         });
     }
 
+    protected boolean generateOreIcons;
+
     protected void oreIcons() {
         if (!generateOreIcons)
             return;
@@ -573,6 +566,8 @@ public class MindustryGenerators {
         });
     }
 
+    protected boolean generateEdges;
+
     protected void edges() {
         if (!generateEdges)
             return;
@@ -594,6 +589,8 @@ public class MindustryGenerators {
             }
         });
     }
+
+    protected boolean generateScorches;
 
     protected void scorches() {
         if (!generateScorches)
