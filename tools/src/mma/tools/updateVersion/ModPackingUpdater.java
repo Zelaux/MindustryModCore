@@ -59,6 +59,9 @@ public class ModPackingUpdater {
         Seq<String> defMethods = Seq.with(imagePacker.getMethods()).map(NodeWithSimpleName::getNameAsString);
         mainMethod.remove();
 
+        imagePacker.addField(PrimitiveType.booleanType(), "disableIconProcessing", Modifier.Keyword.PROTECTED).getVariables().getFirst().get()
+                .setInitializer(new BooleanLiteralExpr(false));
+
         Seq<NodeWithModifiers<? extends Node>> nodeWithModifiers = new Seq<>();
         imagePacker.walk(node -> {
             if (node instanceof NodeWithModifiers) {
@@ -79,6 +82,9 @@ public class ModPackingUpdater {
         imagePacker.addMethod("postCreatingContent", Modifier.Keyword.PROTECTED);
 
         MethodDeclaration iconProcessingMethod = imagePacker.addMethod("iconProcessing", Modifier.Keyword.PROTECTED);
+        iconProcessingMethod.getBody().ifPresent(blockStmt -> {
+            blockStmt.addStatement("if (disableIconProcessing){\nreturn;\n}");
+        });
         iconProcessingMethod.setThrownExceptions(mainMethod.getThrownExceptions());
 
         imagePacker.addMethod("runGenerators", Modifier.Keyword.PROTECTED)
@@ -97,11 +103,18 @@ public class ModPackingUpdater {
                 iconProcessingMethod.getBody().get().addStatement(statement);
                 continue;
             }
-            if (statement.toString().equals("Vars.content.createBaseContent();")) {
+            boolean creatingContent = statement.toString().equals("Vars.content.createBaseContent();");
+            if (creatingContent) {
                 blockStmt.addStatement(javaParser.parseStatement("preCreatingContent();").getResult().get());
             }
             blockStmt.addStatement(statement);
-            if (statement.toString().equals("Vars.content.createBaseContent();")) {
+            if (creatingContent) {
+                blockStmt.addStatement("Vars.content.createModContent();");
+            } else if (statement.toString().equals("Draw.scl = 1f / Core.atlas.find(\"scale_marker\").width;")) {
+                blockStmt.addStatement("load();");
+                imagePacker.addMethod("load", Modifier.Keyword.PROTECTED);
+            }
+            if (creatingContent) {
                 blockStmt.addStatement(javaParser.parseStatement("postCreatingContent();").getResult().get());
             }
             if (statement.toString().startsWith("Log.info(\"&ly[Generator]&lc Total time to generate: &lg@&lcms\", Time.elapsed())")) {
@@ -133,9 +146,6 @@ public class ModPackingUpdater {
             @Override
             public Visitable visit(MethodCallExpr methodCallExpr, Void arg) {
                 Visitable visit = super.visit(methodCallExpr, arg);
-                if (methodCallExpr.toString().equals("Vars.content.createBaseContent()")) {
-                    methodCallExpr.setName("createModContent");
-                }
                 if (methodCallExpr.toString().equals("Generators.run()")) {
                     visit = javaParser.parseExpression("runGenerators()").getResult().get();
                 }
@@ -305,7 +315,7 @@ public class ModPackingUpdater {
     private static void sortClasses(CompilationUnit compilationUnit) {
         for (ClassOrInterfaceDeclaration classOrInterfaceDeclaration : compilationUnit.findAll(ClassOrInterfaceDeclaration.class)) {
             Comparator<BodyDeclaration<?>> comparator = (o1, o2) -> {
-                if (o1.isFieldDeclaration() && o1.isFieldDeclaration()) {
+                if (o1.isFieldDeclaration() && o2.isFieldDeclaration()) {
                     FieldDeclaration o1f = o1.asFieldDeclaration();
                     FieldDeclaration o2f = o2.asFieldDeclaration();
 //                    Comparator<FieldDeclaration> comparator = ;

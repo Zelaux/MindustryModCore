@@ -33,6 +33,8 @@ public class ModImagePacker extends MindustryImagePacker {
 
     @Override
     protected void start() throws Exception {
+        disableIconProcessing=true;
+
         Json json = new Json();
         Fi metaf = Fi.get("../../../../").child("mod.hjson");
         modMeta = json.fromJson(Mods.ModMeta.class, Jval.read(metaf.readString()).toString(Jval.Jformat.plain));
@@ -46,17 +48,6 @@ public class ModImagePacker extends MindustryImagePacker {
     protected void preCreatingContent() {
         super.preCreatingContent();
         ModEntityMapping.init();
-        init();
-    }
-
-    @Override
-    protected void postCreatingContent() {
-        ModContentLoader.eachModContent(this::checkContent);
-    }
-
-    @Override
-    protected void iconProcessing() throws Exception {
-        //none
     }
 
     @Override
@@ -64,11 +55,9 @@ public class ModImagePacker extends MindustryImagePacker {
         new ModGenerators();
     }
 
-    /**
-     * @deprecated use preCreatingContent
-     */
-    @Deprecated
-    protected void init() {
+    @Override
+    protected void load() {
+        ModContentLoader.eachModContent(this::checkContent);
     }
 
     protected void checkContent(Content content) {

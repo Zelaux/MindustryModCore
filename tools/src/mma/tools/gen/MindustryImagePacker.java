@@ -27,6 +27,7 @@ public class MindustryImagePacker {
         Log.logger = new NoopLogHandler();
         Vars.content = new mma.core.ModContentLoader();
         preCreatingContent();
+        Vars.content.createBaseContent();
         Vars.content.createModContent();
         postCreatingContent();
         Log.logger = new DefaultLogHandler();
@@ -82,6 +83,7 @@ public class MindustryImagePacker {
             }
         };
         Draw.scl = 1f / Core.atlas.find("scale_marker").width;
+        load();
         Time.mark();
         runGenerators();
         Log.info("&ly[Generator]&lc Total time to generate: &lg@&lcms", Time.elapsed());
@@ -98,7 +100,13 @@ public class MindustryImagePacker {
     protected void postCreatingContent() {
     }
 
+    protected void load() {
+    }
+
     protected void iconProcessing() throws Exception {
+        if (disableIconProcessing) {
+            return;
+        }
         // character-ID=contentname:texture-name
         Fi iconfile = Fi.get("../../../assets/icons/icons.properties");
         OrderedMap<String, String> map = new OrderedMap<>();
@@ -182,6 +190,8 @@ public class MindustryImagePacker {
     }
 
     static public ObjectMap<String, PackIndex> cache = new ObjectMap<>();
+
+    protected boolean disableIconProcessing = false;
 
     static public void validate(TextureRegion region) {
         if (((GenRegion) region).invalid) {
