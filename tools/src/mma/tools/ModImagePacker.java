@@ -8,6 +8,7 @@ import mindustry.Vars;
 import mindustry.ctype.Content;
 import mindustry.ctype.MappableContent;
 import mindustry.mod.Mods;
+import mma.ModVars;
 import mma.core.ModContentLoader;
 import mma.gen.ModContentRegions;
 import mma.gen.ModEntityMapping;
@@ -65,11 +66,11 @@ public class ModImagePacker extends MindustryImagePacker {
         Fi metaf = Fi.get("../../../../").child("mod.hjson");
         modMeta = json.fromJson(Mods.ModMeta.class, Jval.read(metaf.readString()).toString(Jval.Jformat.plain));
 
-        Vars.headless = true;
+        ModVars.packSprites = true;
         downloadMindustrySprites();
         super.start();
         deleteMindustrySprites();
-        Vars.headless = false;
+        ModVars.packSprites = false;
     }
 
     private void deleteMindustrySprites() {
