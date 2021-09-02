@@ -28,6 +28,10 @@ public class ModImagePacker extends MindustryImagePacker {
     static Mods.ModMeta modMeta;
 
     public ModImagePacker() {
+        start();
+    }
+
+    protected void start(){
         Json json = new Json();
         Fi metaf = Fi.get("../../../../").child("mod.hjson");
         modMeta = json.fromJson(Mods.ModMeta.class, Jval.read(metaf.readString()).toString(Jval.Jformat.plain));
@@ -108,7 +112,6 @@ public class ModImagePacker extends MindustryImagePacker {
         Log.info("&ly[Disposing]&lc Total time: @", Time.elapsed());
         ModVars.packSprites = false;
     }
-
     protected void runGenerators() {
         new ModGenerators();
     }

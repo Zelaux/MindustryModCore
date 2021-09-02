@@ -9,6 +9,7 @@ import arc.math.geom.Vec2;
 import arc.scene.style.TextureRegionDrawable;
 import arc.scene.ui.ImageButton;
 import arc.scene.ui.layout.Table;
+import arc.struct.Seq;
 import arc.util.Eachable;
 import arc.util.Strings;
 import arc.util.io.Reads;
@@ -98,7 +99,7 @@ public class SmartSorter extends Block {
         @Override
         public void control(LAccess type, Object p1, double p2, double p3, double p4) {
             if (type == LAccess.config) {
-                
+
                 String lastConfig = config();
                 try {
                     String config = (String) p1;
@@ -132,6 +133,9 @@ public class SmartSorter extends Block {
         }
         public void configSide(int side, int item) {
             sides[side] = item;
+        }
+        public void configSide(int side, Item item) {
+            configSide(side,item==null?-1:item.id);
         }
 
         @Override
@@ -168,7 +172,8 @@ public class SmartSorter extends Block {
 
         private boolean canAccept(Building building, Item item) {
             int dir = building.relativeTo(this);
-            return !invert == (sides[Mathf.mod(dir + 2, 4)] == item.id);
+            int side = sides[Mathf.mod(dir + 2, 4)];
+            return !invert == (side == item.id || side==-1);
         }
 
         public Building getTileTarget(Item item, Building source, boolean flip) {
@@ -194,14 +199,19 @@ public class SmartSorter extends Block {
             } else if (!ac && !bc && !cc) {
                 return null;
             } else {
-                if (ac && bc) {
+                Seq<Building> candidates=new Seq<>();
+                if (ac)candidates.add(a);
+                if (bc)candidates.add(b);
+                if (cc)candidates.add(c);
+                to=candidates.get(rotation=Mathf.mod(rotation,candidates.size));
+                /*if (ac && bc) {
                     to = rotation % 2 == 0 ? a : b;
                 } else if(bc && cc){
                     to = rotation % 2 == 0 ? b : c;
                 } else {
                     to = rotation % 2 == 0 ? c : a;
-                }
-                if (flip)rotation=Mathf.mod(rotation+1,4);
+                }*/
+                if (flip)rotation=Mathf.mod(rotation+1,candidates.size);
             }
             return to;
         }
@@ -223,8 +233,8 @@ public class SmartSorter extends Block {
             button.clicked(() -> {
                 t.clearChildren();
                 ItemSelection.buildTable(t, content.items(), () -> content.item(sides[dir]), newItem -> {
-                    sides[dir] = newItem == null ? -1 : newItem.id;
-                    configure(sides[0] + " " + sides[1] + " " + sides[2] + " " + sides[3]);
+                    configSide(dir,newItem);
+                    configure(config());
                     t.clearChildren();
                     buildConfiguration(t);
                 });

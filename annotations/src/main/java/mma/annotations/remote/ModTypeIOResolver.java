@@ -31,13 +31,11 @@ public class ModTypeIOResolver extends TypeIOResolver {
             }
         };
         for (Stype stype : types.copy()) {
-            Log.info("stype: @", stype.fullName());
             addNewType.get(stype);
             Seq<Stype> allSuperclasses = stype.allSuperclasses();
 //            allSuperclasses.reverse();
             for (Stype superclass : allSuperclasses) {
                 String superFullname = superclass.fullName();
-                Log.info("superclass: @", superFullname);
                 if (superFullname.contains("TypeIO")) {
                     addNewType.get(superclass);
                 }
@@ -45,7 +43,6 @@ public class ModTypeIOResolver extends TypeIOResolver {
         }
         types.set(newTypes);
 //        types.reverse();
-        Log.info("types: [@]", types.toString(", "));
         for (Stype type : types) {
             //look at all TypeIOHandler methods
             for (Smethod method : type.methods()) {

@@ -95,8 +95,6 @@ public class ModEntitiesProc extends ModBaseProcessor {
 //            mma.walk(Fi::delete);
             mma.deleteDirectory();
 //            mma.delete();
-
-//            Log.info(mma.exists());
             if (mma.exists()) throw new RuntimeException("Cannot delete mma package!!!");
         } catch (IOException exception) {
             Log.err("Cannot delete mma package because @", exception);
@@ -327,7 +325,7 @@ public class ModEntitiesProc extends ModBaseProcessor {
                 groupDefs.add(new GroupDefinition(group.name().startsWith("g") ? group.name().substring(1) : group.name(),
                         ClassName.bestGuess(packageName + "." + groupType), types, an.spatial(), an.mapping(), collides));
             } catch (RuntimeException e) {
-                Log.info("@", e);
+                Log.err("@", e);
             }
         }
 
