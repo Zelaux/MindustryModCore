@@ -71,6 +71,10 @@ public class ModEntitiesProc extends ModBaseProcessor {
             allInterfaces.add(type.superclasses().peek());
         }
         int round = this.round - 1;
+        if (allComponents.isEmpty() && allDefs.isEmpty()){
+            round=rounds;
+            return;
+        }
         try {
             if (round == 0) {
                 zeroRound();
