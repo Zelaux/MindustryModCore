@@ -23,13 +23,13 @@ public class VersionsFileUpdater {
         if (result.matches("[\"].*[\"]")){
             result=result.substring(1,result.length()-1);
         }
-        String version = Structs.find(args, v -> v.startsWith("v"));
-        if (version == null) {
-            throw new RuntimeException("cannot find version from " + Arrays.toString(args));
+        String gameVersion = Structs.find(args, v -> v.startsWith("v"));
+        if (gameVersion == null) {
+            throw new RuntimeException("cannot find gameVersion from " + Arrays.toString(args));
         }
-        String substring = result.substring(0, 11);
-        Log.info("result(@), version(@)",result, substring);
-        versions.child(version + ".txt").writeString(substring);
-        new URL("https://jitpack.io/com/github/Zelaux/ZelauxModCore/" +substring + "/build.log").openStream();
+        String version = result.substring(0, 11);
+        Log.info("result(@), version(@)",result, version);
+        versions.child(gameVersion + ".txt").writeString(version);
+        new URL("https://jitpack.io/com/github/Zelaux/ZelauxModCore/" +version + "/build.log").openStream();
     }
 }
