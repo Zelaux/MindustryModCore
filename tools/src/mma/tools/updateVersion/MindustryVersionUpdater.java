@@ -2,6 +2,7 @@ package mma.tools.updateVersion;
 
 import arc.files.Fi;
 import arc.func.Cons;
+import arc.func.Cons2;
 import arc.struct.Seq;
 import arc.util.Log;
 import arc.util.Strings;
@@ -13,20 +14,38 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 public class MindustryVersionUpdater {
+    static String mindustryVersion;
+    static Seq<String> argsSeq;
+
     public static void main(String[] args) {
-        Seq<String> argsSeq = Seq.with(args);
-        String mindustryVersion = argsSeq.find(s -> s.startsWith("v"));
+        argsSeq = Seq.with(args);
+        mindustryVersion = argsSeq.find(s -> s.startsWith("v"));
         if (mindustryVersion == null) {
             System.out.println("Please put mindustry version in args!!!");
             System.exit(1);
             return;
         }
+//git log --pretty=format:"%H:%s"
+
         LibrariesDownloader.download(mindustryVersion);
 
-        AnukeCompDownloader.run(mindustryVersion, args);
-        ModPackingUpdater.run(mindustryVersion, args);
+        runTask("Checking Anuke's comps for " + mindustryVersion,AnukeCompDownloader::run);
+
+        runTask("ModPacker update",ModPackingUpdater::run);
+
+        runTask("Annotations update",AnnotationsUpdater::run);
 
         createSpriteZip();
+
+    }
+
+    private static void runTask(String name, Cons2<String, String[]> task) {
+        System.out.println(name);
+        long nanos = System.nanoTime();
+        task.get(mindustryVersion,argsSeq.toArray(String.class));
+        System.out.println(Strings.format("Time taken: @s", Time.nanosToMillis(Time.timeSinceNanos(nanos)) / 1000f));
+        System.out.println();
+
     }
 
     private static void createSpriteZip() {
@@ -43,7 +62,6 @@ public class MindustryVersionUpdater {
 
             Cons<Fi> fiCons = fi -> {
                 if (!fi.extension().equals("png") && !fi.extension().equals("jpg")) return;
-                Log.info(fi.absolutePath());
                 try {
                     writeZip(stream, fi, fi.absolutePath().substring(prefix.length()));
                 } catch (Exception e) {

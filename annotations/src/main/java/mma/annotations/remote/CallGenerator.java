@@ -140,7 +140,7 @@ public class CallGenerator{
                 String ser = serializer.writers.get(typeName.replace("mindustry.gen.", ""), SerializerResolver.locate(ent.element.e, var.mirror(), true));
 
                 if(ser == null){ //make sure a serializer exists!
-                    ModBaseProcessor.err("No method to write class type: '" + typeName + "'", var,0);
+                    ModBaseProcessor.err("No method to write class type: '" + typeName + "'", var);
                 }
 
                 //add statement for writing it
@@ -207,7 +207,7 @@ public class CallGenerator{
                 String ser = serializer.readers.get(typeName.replace("mindustry.gen.", ""), SerializerResolver.locate(ent.element.e, var.mirror(), false));
 
                 if(ser == null){ //make sure a serializer exists!
-                    ModBaseProcessor.err("No read method to read class type '" + typeName + "' in method " + ent.targetMethod + "; " + serializer.readers, var,0);
+                    ModBaseProcessor.err("No read method to read class type '" + typeName + "' in method " + ent.targetMethod + "; " + serializer.readers, var);
                 }
 
                 //add statement for reading it
@@ -240,12 +240,12 @@ public class CallGenerator{
         //validate client methods to make sure
         if(ent.where.isClient){
             if(params.isEmpty()){
-                ModBaseProcessor.err("Client invoke methods must have a first parameter of type Player", elem,0);
+                ModBaseProcessor.err("Client invoke methods must have a first parameter of type Player", elem);
                 return;
             }
 
             if(!params.get(0).mirror().toString().contains("Player")){
-                ModBaseProcessor.err("Client invoke methods should have a first parameter of type Player", elem,0);
+                ModBaseProcessor.err("Client invoke methods should have a first parameter of type Player", elem);
                 return;
             }
         }

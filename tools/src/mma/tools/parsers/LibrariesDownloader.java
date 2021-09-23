@@ -20,6 +20,12 @@ public class LibrariesDownloader{
     public static ZipFi arcZip(){
         return new ZipFi(arc());
     }
+    public static Fi coreZipRoot(){
+        return new ZipFi(core()).list()[0];
+    }
+    public static Fi arcZipRoot(){
+        return new ZipFi(arc()).list()[0];
+    }
     public static void download(String mindustryVersion){
         boolean downloadNew = false;
         try{

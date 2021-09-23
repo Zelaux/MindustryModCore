@@ -32,10 +32,8 @@ public class AnukeCompDownloader {
 
     public static void run(String mindustryVersion , String[] args) {
         Seq<String> argsSeq = Seq.with(args);
-        Log.info("Checking Anuke's comps for " + mindustryVersion);
         Fi folder = new Fi("debug");
         try {
-            long nanos = System.nanoTime();
             if (packageName == null) {
                 packageName = argsSeq.select(a -> a.startsWith("package=")).map(s -> s.substring("package=".length())).find(f -> true);
                 if (packageName == null) {
@@ -86,24 +84,6 @@ public class AnukeCompDownloader {
                 }
                 String file = fi.readString();
                 String convert = fixCode(codeConverter.convert(file, className));
-
-                /*String string = convert
-//                        .replace("var core = team.core();", "mindustry.world.blocks.storage.CoreBlock.CoreBuild core = team.core();")
-//                        .replace("var core = core();", "mindustry.world.blocks.storage.CoreBlock.CoreBuild core = core();")
-//                        .replace("var entry = statuses.find(e -> e.effect == effect);", "StatusEntry entry = statuses.find(e -> e.effect == effect);")
-                        .replace("package mindustry.entities.comp;", "package " + packageName + ".entities.compByAnuke;")
-                        .replace("import static mindustry.logic.GlobalConstants.*;",
-                                "import static mindustry.logic.GlobalConstants.*;\n" + "import static mindustry.logic.LAccess.*;");
-//                        .replace("@Override", "__OVERRIDE__")
-//                        .replace("@Nullable", "__NULLABLE__")
-//                        .replace("@Deprecated", "__DEPRECATED__")
-//                        .replace("@", "@" + packageName + ".annotations." + annotationsClassName + ".")
-//                        .replace("__OVERRIDE__", "@Override")
-//                        .replace("__DEPRECATED__", "@Deprecated")
-//                        .replace("__NULLABLE__", "@Nullable");*/
-//                convert = convert.replace("};\n" +
-//                                        "    }", "}\n" +
-//                                                 "    }");
                 finalComp.child(fi.name()).writeString(convert);
             }
             Seq<String> names = new Seq<>();
@@ -119,7 +99,6 @@ public class AnukeCompDownloader {
                 fi.writeString(file.nameWithoutExtension()+"\n",true);
             }
 
-            System.out.println(Strings.format("Time taken: @s", Time.nanosToMillis(Time.timeSinceNanos(nanos)) / 1000f));
         } catch (Exception e) {
             e.printStackTrace();
         }

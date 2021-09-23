@@ -2,7 +2,6 @@ buildscript {
     ext {
         arcHash = "v130.1"
         mindustryVersion = "v130.1"
-        mindustryVersionAnnotations = "v126.2"
         modsDirectory = "classic"
     }
     repositories {
@@ -14,7 +13,6 @@ buildscript {
     }
 
     dependencies {
-        classpath "com.github.Anuken.Mindustry:annotations:$mindustryVersionAnnotations"
         classpath "com.github.Anuken.Mindustry:core:$mindustryVersion"
         classpath "com.github.Anuken.Mindustry:tools:$mindustryVersion"
         classpath "com.github.Anuken.Arc:arc-core:$mindustryVersion"
@@ -160,12 +158,11 @@ project(":core") {
 //        compileOnly "com.github.Anuken.Mindustry:entities:$mindustryVersion"
         compileOnly "com.github.Anuken.Mindustry:core:$mindustryVersion"
         compileOnly "com.github.Anuken.Mindustry:tools:$mindustryVersion"
-        compileOnly "com.github.Anuken.Mindustry:annotations:$mindustryVersionAnnotations"
         project.getParent().getSubprojects().forEach(sub -> {
 //            println "sub adding "+sub.getName()
             String name = sub.getName();
             println "subproject: " + sub.getName()
-            if (!name.equals("tools") && !name.equals("annotations") && !name.equals(project.getName())) {
+            if (!(name in ["tools","annotations",project.getName()]) && !name.equals(project.getName())) {
                 println "implemented"
                 implementation sub
             }
@@ -215,12 +212,6 @@ project(":tools") {
         implementation 'com.github.javaparser:javaparser-symbol-solver-core:3.22.1'
         implementation "com.github.Anuken.Mindustry:core:$mindustryVersion"
         implementation "com.github.Anuken.Mindustry:tools:$mindustryVersion"
-        compileOnly "com.github.Anuken.Mindustry:annotations:$mindustryVersionAnnotations"
-//        implementation arcModule("natives:natives-desktop")
-//        implementation arcModule("natives:natives-desktop")
-//        implementation arcModule("natives:natives-freetype-desktop")
-//        implementation arcModule("backends:backend-headless")
-//        implementation arcModule("extensions:packer")
     }
 }
 project(":annotations") {
@@ -232,7 +223,6 @@ project(":annotations") {
 //        compileOnly project(":core")
         implementation "com.github.Anuken.Mindustry:core:$mindustryVersion"
         implementation "com.github.Anuken.Mindustry:tools:$mindustryVersion"
-        compileOnly "com.github.Anuken.Mindustry:annotations:$mindustryVersionAnnotations"
 //                if(name!="tools")compile  project(":tools")
 //        implementation  project(":core")
     }
@@ -324,11 +314,4 @@ task mjar() {
             System.out.println("\tlast build time: ${time}")
         }
     }
-}
-
-task checkJitPack(dependsOn: classes, type: JavaExec){
-    main = "mma.tools.VersionsFileUpdater"
-    classpath = sourceSets.main.runtimeClasspath
-    standardInput = System.in
-    systemProperties System.properties
 }
