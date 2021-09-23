@@ -30,13 +30,6 @@ public class VersionsFileUpdater {
         String substring = result.substring(0, 6);
         Log.info("result(@), version(@)",result, substring);
         versions.child(version + ".txt").writeString(substring);
-
-        versions.walk(fi -> {
-            try {
-                new URL("https://jitpack.io/com/github/Zelaux/ZelauxModCore/" + fi.readString() + "/build.log").openStream();
-            } catch (IOException exception) {
-                exception.printStackTrace();
-            }
-        });
+        new URL("https://jitpack.io/com/github/Zelaux/ZelauxModCore/" +substring + "/build.log").openStream();
     }
 }
