@@ -27,7 +27,7 @@ public class VersionsFileUpdater {
         if (version == null) {
             throw new RuntimeException("cannot find version from " + Arrays.toString(args));
         }
-        String substring = result.substring(0, 6);
+        String substring = result.substring(0, 11);
         Log.info("result(@), version(@)",result, substring);
         versions.child(version + ".txt").writeString(substring);
         new URL("https://jitpack.io/com/github/Zelaux/ZelauxModCore/" +substring + "/build.log").openStream();
