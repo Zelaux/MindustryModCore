@@ -137,6 +137,7 @@ project(":core") {
         }
     }
     compileJava.options.fork = true
+
     task preGen {
         outputs.upToDateWhen { false }
         writeProcessors()
@@ -202,8 +203,8 @@ project(":core") {
         }
     }
     jar {
-        exclude("gas/entities/comp/**")
-        exclude("gas/entities/compByAnuke/**")
+        exclude("mma/entities/comp/**")
+        exclude("mma/entities/compByAnuke/**")
     }
 }
 
