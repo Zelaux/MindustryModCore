@@ -7,12 +7,13 @@ import arc.util.Structs;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.ConnectException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
 public class VersionsFileUpdater {
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args)  throws Exception{
         Fi versions = Fi.get("versions");
 
         Process proc = Runtime.getRuntime().exec("git log --pretty=format:\"%H:%s\" -1");
@@ -30,6 +31,10 @@ public class VersionsFileUpdater {
         String version = result.substring(0, 11);
         Log.info("result(@), version(@)",result, version);
         versions.child(gameVersion + ".txt").writeString(version);
-        new URL("https://jitpack.io/com/github/Zelaux/ZelauxModCore/" +version + "/build.log").openStream();
+        try {
+            new URL("https://jitpack.io/com/github/Zelaux/ZelauxModCore/" +version + "/build.log").openStream();
+        } catch (ConnectException exception) {
+            exception.printStackTrace();
+        }
     }
 }
