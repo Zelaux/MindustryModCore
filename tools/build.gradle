@@ -281,12 +281,12 @@ task updateMindustryVersion (dependsOn: [classes, configurations.runtimeClasspat
         }
     }
 }
-task checkJitPack(dependsOn: [jar,classes, configurations.runtimeClasspath], type: JavaExec){
+task checkJitPack(dependsOn: [classes, configurations.runtimeClasspath], type: JavaExec){
     doFirst {
         javaexec {
             maxHeapSize = "4048m"
             args("-Xmx4048m", "--enable-preview", mindustryVersion)
-            main = "mma.tools.updateVersion.MindustryVersionUpdater"
+            main = "mma.tools.VersionsFileUpdater"
             classpath = sourceSets.main.runtimeClasspath
             workingDir = "../"
 //            jvmArgs ("-Xmx2024m")
