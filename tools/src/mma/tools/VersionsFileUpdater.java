@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.regex.Pattern;
 
 public class VersionsFileUpdater {
     public static void main(String[] args) throws Exception {
@@ -19,6 +20,9 @@ public class VersionsFileUpdater {
 
 //            String result = new String(.readNBytes(Integer.MAX_VALUE));
         String result = new BufferedReader(new InputStreamReader(proc.getInputStream())).readLine();
+        if (result.matches("[\"].*[\"]")){
+            result=result.substring(1,result.length()-1);
+        }
         String version = Structs.find(args, v -> v.startsWith("v"));
         if (version == null) {
             throw new RuntimeException("cannot find version from " + Arrays.toString(args));
