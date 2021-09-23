@@ -1,7 +1,11 @@
 name: Version Updates
 
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
 
-on: [ push ]
 jobs:
   build:
 

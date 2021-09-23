@@ -158,9 +158,9 @@ project(":core") {
         compileOnly arcModule("extensions:fx")
         compileOnly arcModule("extensions:arcnet")
 //        compileOnly "com.github.Anuken.Mindustry:entities:$mindustryVersion"
-        compileOnly "com.github.Anuken.Mindustry:annotations:$mindustryVersionAnnotations"
         compileOnly "com.github.Anuken.Mindustry:core:$mindustryVersion"
         compileOnly "com.github.Anuken.Mindustry:tools:$mindustryVersion"
+        compileOnly "com.github.Anuken.Mindustry:annotations:$mindustryVersionAnnotations"
         project.getParent().getSubprojects().forEach(sub -> {
 //            println "sub adding "+sub.getName()
             String name = sub.getName();
@@ -213,9 +213,9 @@ project(":tools") {
         implementation project(":core")
 
         implementation 'com.github.javaparser:javaparser-symbol-solver-core:3.22.1'
-        implementation "com.github.Anuken.Mindustry:annotations:$mindustryVersionAnnotations"
         implementation "com.github.Anuken.Mindustry:core:$mindustryVersion"
         implementation "com.github.Anuken.Mindustry:tools:$mindustryVersion"
+        compileOnly "com.github.Anuken.Mindustry:annotations:$mindustryVersionAnnotations"
 //        implementation arcModule("natives:natives-desktop")
 //        implementation arcModule("natives:natives-desktop")
 //        implementation arcModule("natives:natives-freetype-desktop")
@@ -230,9 +230,9 @@ project(":annotations") {
         implementation 'com.squareup:javapoet:1.12.1'
         implementation arcModule('arc-core')
 //        compileOnly project(":core")
-        implementation "com.github.Anuken.Mindustry:annotations:$mindustryVersionAnnotations"
         implementation "com.github.Anuken.Mindustry:core:$mindustryVersion"
         implementation "com.github.Anuken.Mindustry:tools:$mindustryVersion"
+        compileOnly "com.github.Anuken.Mindustry:annotations:$mindustryVersionAnnotations"
 //                if(name!="tools")compile  project(":tools")
 //        implementation  project(":core")
     }
@@ -326,9 +326,9 @@ task mjar() {
     }
 }
 
-task checkJitPack {
-    doFirst {
-            new URL("https://jitpack.io/com/github/Zelaux/ZelauxModCore/" + arc.files.Fi.get("lastVersion.txt").readString() + "/build.log").openStream();
-
-    }
+task checkJitPack(dependsOn: classes, type: JavaExec){
+    main = "mma.tools.VersionsFileUpdater"
+    classpath = sourceSets.main.runtimeClasspath
+    standardInput = System.in
+    systemProperties System.properties
 }
