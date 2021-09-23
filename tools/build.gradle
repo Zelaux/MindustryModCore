@@ -292,5 +292,5 @@ task checkJitPack(dependsOn: [classes, configurations.runtimeClasspath], type: J
 //            jvmArgs ("-Xmx2024m")
 //            systemProperties("-Xmx2024m")
         }
-    }s
+    }
 }
