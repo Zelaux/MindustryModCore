@@ -18,7 +18,7 @@ jobs:
         with:
           java-version: 16
       - name: Build with Gradle
-          run: ./gradlew checkJitPack -Dorg.gradle.daemon=false
+          run: gradlew checkJitPack -Dorg.gradle.daemon=false
       - name: Push changes
         run: |
           git config --global user.email "cli@github.com"
