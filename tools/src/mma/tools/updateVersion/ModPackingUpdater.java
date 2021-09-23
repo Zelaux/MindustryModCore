@@ -36,8 +36,6 @@ public class ModPackingUpdater {
 
     public static void run(String mindustryVersion, String[] args) {
 
-        long nanos = System.nanoTime();
-        Log.info("ModPacking update");
 
         ZipFi sourceZip = LibrariesDownloader.coreZip();
         Fi tools = sourceZip.list()[0].child("tools").child("src").child("mindustry").child("tools");
@@ -46,7 +44,6 @@ public class ModPackingUpdater {
         createModGenerators(javaParser.parse(tools.child("Generators.java").readString()).getResult().get());
         createModImagePacker(javaParser.parse(tools.child("ImagePacker.java").readString()).getResult().get());
 
-        System.out.println(Strings.format("Time taken: @s", Time.nanosToMillis(Time.timeSinceNanos(nanos)) / 1000f));
     }
 
     private static void createModImagePacker(CompilationUnit otherCompilationUnit) {
