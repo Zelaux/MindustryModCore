@@ -15,4 +15,3 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
       - name: Build with Gradle
-        run: ./gradlew checkJitPack -Dorg.gradle.daemon=false
