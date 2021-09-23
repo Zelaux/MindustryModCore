@@ -23,8 +23,9 @@ public class VersionsFileUpdater {
         if (version == null) {
             throw new RuntimeException("cannot find version from " + Arrays.toString(args));
         }
-        versions.child(version+".txt").writeString(result.substring(0,6));
-//        Log.info("result :@", result);
+        String substring = result.substring(0, 6);
+        Log.info("result(@), version(@)",result, substring);
+        versions.child(version + ".txt").writeString(substring);
 
         versions.walk(fi -> {
             try {
