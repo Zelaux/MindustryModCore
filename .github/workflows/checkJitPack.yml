@@ -15,7 +15,7 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
       - name: Build with Gradle
-        run: ./gradlew checkJitPack
+        run: ./gradlew tools:checkJitPack
       - name: Push changes
         run: |
           git config --global user.email "cli@github.com"
