@@ -281,7 +281,7 @@ task updateMindustryVersion (dependsOn: [classes, configurations.runtimeClasspat
         }
     }
 }
-task checkJitPack(dependsOn: classes, type: JavaExec){
+task checkJitPack(dependsOn: [classes, configurations.runtimeClasspath], type: JavaExec){
     main = "mma.tools.VersionsFileUpdater"
     classpath = sourceSets.main.runtimeClasspath
     standardInput = System.in
