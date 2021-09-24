@@ -1,4 +1,4 @@
-name: Check JitPack
+name: Update Version
 
 on:
   push:
