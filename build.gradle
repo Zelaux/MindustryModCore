@@ -92,7 +92,7 @@ allprojects {
         ])
     }
 }
-//needed for android build
+/*//needed for android build
 ext {
     //the build number that this mod is made for
     //version of SDK you will be using
@@ -103,7 +103,7 @@ ext {
         def proc = cmd.execute(null, new File("$buildDir/libs"))
         proc.waitForProcessOutput(System.out, System.err)
     }
-}
+}*/
 configure(project(":annotations")) {
     tasks.withType(JavaCompile) {
         targetCompatibility = 8
@@ -141,9 +141,6 @@ project(":core") {
     task preGen {
         outputs.upToDateWhen { false }
         writeProcessors()
-//        writePlugins()
-    }
-    task copyChangelog {
     }
     task sourcesJar(type: Jar, dependsOn: classes) {
         archiveClassifier = 'sources'
@@ -169,7 +166,7 @@ project(":core") {
 //            println "sub adding "+sub.getName()
             String name = sub.getName();
             println "subproject: " + sub.getName()
-            if (!(name in ["tools","annotations",project.getName()]) && !name.equals(project.getName())) {
+            if (!(name in ["tools", "annotations", project.getName()]) && !name.equals(project.getName())) {
                 println "implemented"
                 implementation sub
             }
@@ -178,9 +175,8 @@ project(":core") {
         annotationProcessor 'com.github.Anuken:jabel:34e4c172e65b3928cd9eabe1993654ea79c409cd'
         compileOnly project(":annotations")
         kapt project(":annotations")
-//        annotationProcessor project(":annotations")
-
     }
+
     afterEvaluate {
         task mergedJavadoc(type: Javadoc) {
             def blacklist = [/*project(":ios"), project(":desktop"), project(":server"),*/ project(":annotations")]
@@ -275,9 +271,6 @@ jar {
 
     from("core/assets/") {
         include "**"
-    }
-    doLast {
-//        doExec("python ../../cmp.py")
     }
 }
 task deploy(type: Jar) {
