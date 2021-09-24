@@ -7,3 +7,4 @@ before_install:
 install:
   - chmod +x gradlew
   - ./gradlew publishToMavenLocal
+  - sed -i 's/ --illegal-access=permit//' gradle.properties #remove extra flags after compilation

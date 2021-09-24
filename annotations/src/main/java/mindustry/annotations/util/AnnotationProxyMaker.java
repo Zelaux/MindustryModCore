@@ -34,6 +34,7 @@ public class AnnotationProxyMaker{
     private AnnotationProxyMaker(Compound var1, Class<? extends Annotation> var2){
         this.anno = var1;
         this.annoType = var2;
+        
     }
 
     public static <A extends Annotation> A generateAnnotation(Compound var0, Class<A> var1){
