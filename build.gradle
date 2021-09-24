@@ -3,6 +3,7 @@ buildscript {
         arcHash = "v130.1"
         mindustryVersion = "v130.1"
         modsDirectory = "classic"
+        jparcerVersion="3.22.1"
     }
     repositories {
         mavenLocal()
@@ -37,6 +38,11 @@ allprojects {
             //skip to last submodule
             if (name.contains(':')) name = name.split(':').last()
             return "com.github.Anuken.Arc:$name:$arcHash"
+        }
+        mindustryModule = { String name ->
+            //skip to last submodule
+            if (name.contains(':')) name = name.split(':').last()
+            return "com.github.Anuken.Mindustry:$name:$mindustryVersion"
         }
         writeProcessors = {
             new File(rootDir, "annotations/src/main/resources/META-INF/services/").mkdirs()
@@ -142,13 +148,16 @@ project(":core") {
         outputs.upToDateWhen { false }
         writeProcessors()
     }
+
     task sourcesJar(type: Jar, dependsOn: classes) {
         archiveClassifier = 'sources'
         from sourceSets.main.allSource
     }
+
     artifacts {
         archives sourcesJar
     }
+
     dependencies {
         compileJava.dependsOn(preGen)
 
@@ -159,14 +168,15 @@ project(":core") {
         compileOnly arcModule("extensions:g3d")
         compileOnly arcModule("extensions:fx")
         compileOnly arcModule("extensions:arcnet")
-//        compileOnly "com.github.Anuken.Mindustry:entities:$mindustryVersion"
-        compileOnly "com.github.Anuken.Mindustry:core:$mindustryVersion"
-        compileOnly "com.github.Anuken.Mindustry:tools:$mindustryVersion"
+
+//        compileOnly "com.github.Anuken.Mindustry:core:$mindustryVersion"
+        compileOnly mindustryModule("core")
+//        compileOnly mindustryModule("tools")
         project.getParent().getSubprojects().forEach(sub -> {
 //            println "sub adding "+sub.getName()
             String name = sub.getName();
             println "subproject: " + sub.getName()
-            if (!(name in ["tools", "annotations", project.getName()]) && !name.equals(project.getName())) {
+            if (!["tools", "annotations", project.getName()].contains(name)) {
                 println "implemented"
                 implementation sub
             }
@@ -212,9 +222,9 @@ project(":tools") {
 
         implementation project(":core")
 
-        implementation 'com.github.javaparser:javaparser-symbol-solver-core:3.22.1'
-        implementation "com.github.Anuken.Mindustry:core:$mindustryVersion"
-        implementation "com.github.Anuken.Mindustry:tools:$mindustryVersion"
+        implementation "com.github.javaparser:javaparser-symbol-solver-core:$jparcerVersion"
+        compileOnly mindustryModule("core")
+        compileOnly mindustryModule("tools")
     }
 }
 project(":annotations") {
@@ -224,8 +234,8 @@ project(":annotations") {
         implementation 'com.squareup:javapoet:1.12.1'
         implementation arcModule('arc-core')
 //        compileOnly project(":core")
-        implementation "com.github.Anuken.Mindustry:core:$mindustryVersion"
-        implementation "com.github.Anuken.Mindustry:tools:$mindustryVersion"
+        compileOnly mindustryModule("core")
+        compileOnly mindustryModule("tools")
 //                if(name!="tools")compile  project(":tools")
 //        implementation  project(":core")
     }
