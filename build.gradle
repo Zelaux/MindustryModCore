@@ -98,7 +98,7 @@ allprojects {
         ])
     }
 }
-/*//needed for android build
+//needed for android build
 ext {
     //the build number that this mod is made for
     //version of SDK you will be using
@@ -109,7 +109,7 @@ ext {
         def proc = cmd.execute(null, new File("$buildDir/libs"))
         proc.waitForProcessOutput(System.out, System.err)
     }
-}*/
+}
 configure(project(":annotations")) {
     tasks.withType(JavaCompile) {
         targetCompatibility = 8
