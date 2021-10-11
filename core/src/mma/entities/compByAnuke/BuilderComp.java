@@ -97,6 +97,9 @@ abstract class BuilderComp implements Posc, Statusc, Teamc, Rotc {
             lastSize = tile.block().size;
         if (!within(tile, finalPlaceDst))
             return;
+        if (!headless) {
+            Vars.control.sound.loop(Sounds.build, tile, 0.51f);
+        }
         ConstructBuild cb;
         if (!((tile.build instanceof ConstructBuild && (cb = (ConstructBuild) tile.build) == tile.build))) {
             if (!current.initialized && !current.breaking && Build.validPlace(current.block, team, current.x, current.y, current.rotation)) {

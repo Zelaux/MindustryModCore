@@ -1616,6 +1616,9 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
                 control.sound.loop(block.ambientSound, self(), block.ambientSoundVolume * ambientVolume());
             }
         }
+        if (cons != null) {
+            cons.update();
+        }
         if (enabled || !block.noUpdateDisabled) {
             updateTile();
         }
@@ -1624,9 +1627,6 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
         }
         if (liquids != null) {
             liquids.update(updateFlow);
-        }
-        if (cons != null) {
-            cons.update();
         }
         if (power != null) {
             power.graph.update();

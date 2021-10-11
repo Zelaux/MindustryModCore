@@ -1,7 +1,7 @@
 buildscript {
     ext {
-        arcHash = "v130.1"
-        mindustryVersion = "v130.1"
+        arcHash = "v131"
+        mindustryVersion = "v131"
         modsDirectory = "classic"
         jparcerVersion="3.22.1"
     }

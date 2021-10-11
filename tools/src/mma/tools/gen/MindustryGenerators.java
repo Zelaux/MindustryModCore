@@ -205,7 +205,9 @@ public class MindustryGenerators {
                         result.setRaw(x, y, m == 1 ? Color.whiteRgba : m == 2 ? dark : mid);
                     }
                 });
-                Fi.get("../blocks/environment/cliffmask" + (val & 0xff) + ".png").writePng(result);
+                Fi fi = Fi.get("../blocks/environment/cliffmask" + (val & 0xff) + ".png");
+                fi.writePng(result);
+                fi.copyTo(Fi.get("../editor").child("editor-" + fi.name()));
             });
         }
         Threads.await(exec);
