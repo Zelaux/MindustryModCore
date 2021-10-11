@@ -6,4 +6,4 @@ before_install:
   - jshell --version
 install:
   - chmod +x gradlew
-  - ./gradlew publishToMavenLocal -Dargs--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED
+  - ./gradlew publishToMavenLocal -DjvmArgs--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED
