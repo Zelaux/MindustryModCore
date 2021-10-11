@@ -3,7 +3,6 @@ buildscript {
         arcHash = "v130.1"
         mindustryVersion = "v130.1"
         modsDirectory = "classic"
-        mindustryVersionAnnotations = "v126.2"
         jparcerVersion="3.22.1"
     }
     repositories {
@@ -14,7 +13,6 @@ buildscript {
         maven { url 'https://jitpack.io' }
     }
     dependencies {
-//        classpath "com.github.Anuken.Mindustry:annotations:$mindustryVersionAnnotations"
         classpath "com.github.Anuken.Mindustry:core:$mindustryVersion"
         classpath "com.github.Anuken.Mindustry:tools:$mindustryVersion"
         classpath "com.github.Anuken.Arc:arc-core:$mindustryVersion"
@@ -231,7 +229,6 @@ project(":annotations") {
 //        compileOnly project(":core")
         compileOnly mindustryModule("core")
         compileOnly mindustryModule("tools")
-        implementation "com.github.Anuken.Mindustry:annotations:$mindustryVersionAnnotations"
 //                if(name!="tools")compile  project(":tools")
 //        implementation  project(":core")
     }
