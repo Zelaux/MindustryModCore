@@ -24,7 +24,6 @@ buildscript {
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.5.31'
     id "org.jetbrains.kotlin.kapt" version "1.5.31"
-    id 'maven-publish'
 }
 allprojects {
     apply plugin: 'maven-publish'
@@ -61,7 +60,6 @@ allprojects {
             processorFile.text = text.toString().replace(".java", "").replace("/", ".").replace("\\", ".")
         }
     }
-    apply plugin: 'maven-publish'
     repositories {
         mavenLocal()
         google()
