@@ -27,8 +27,9 @@ plugins {
     id "org.jetbrains.kotlin.kapt" version "1.5.31"
     id "groovy"
 }
-version = 1.0
+version '1.0'
 allprojects {
+    apply plugin: 'groovy'
 
 //    version = 'release'
     group = 'com.github.Zelaux'
