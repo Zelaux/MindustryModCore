@@ -3,6 +3,7 @@ buildscript {
         arcHash = "v130.1"
         mindustryVersion = "v130.1"
         modsDirectory = "classic"
+        mindustryVersionAnnotations = "v126.2"
         jparcerVersion="3.22.1"
     }
     repositories {
@@ -12,8 +13,8 @@ buildscript {
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url 'https://jitpack.io' }
     }
-
     dependencies {
+        classpath "com.github.Anuken.Mindustry:annotations:$mindustryVersionAnnotations"
         classpath "com.github.Anuken.Mindustry:core:$mindustryVersion"
         classpath "com.github.Anuken.Mindustry:tools:$mindustryVersion"
         classpath "com.github.Anuken.Arc:arc-core:$mindustryVersion"
@@ -68,14 +69,6 @@ allprojects {
         maven { url "https://oss.sonatype.org/content/repositories/releases/" }
         maven { url 'https://jitpack.io' }
     }
-
-    task clearCache {
-        doFirst {
-            delete {
-                delete "$rootDir/core/assets/cache"
-            }
-        }
-    }
     tasks.withType(JavaCompile) {
         targetCompatibility = 8
         sourceCompatibility = JavaVersion.VERSION_16
@@ -93,25 +86,6 @@ allprojects {
                 '--add-opens=java.base/sun.reflect.annotation=ALL-UNNAMED'
         ])
     }
-}
-
-tasks.withType(JavaCompile) {
-    targetCompatibility = 8
-    sourceCompatibility = JavaVersion.VERSION_16
-    options.encoding = "UTF-8"
-    options.compilerArgs += ["-Xlint:deprecation"]
-
-    options.fork = true
-    options.forkOptions.jvmArgs.addAll([
-            '--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED',
-            '--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED',
-            '--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED',
-            '--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED',
-            '--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED',
-            '--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED',
-            '--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED',
-            '--add-opens=java.base/sun.reflect.annotation=ALL-UNNAMED'
-    ])
 }
 //needed for android build
 ext {
@@ -135,12 +109,12 @@ configure(project(":annotations")) {
 
 //compile with java 8 compatibility for everything except the annotation project
 configure(subprojects - project(":annotations")) {
-    tasks.withType(JavaCompile) {
+    tasks.withType(JavaCompile){
         options.compilerArgs.addAll(['--release', '8'])
     }
 
-    tasks.withType(Javadoc) {
-        options {
+    tasks.withType(Javadoc){
+        options{
             addStringOption('Xdoclint:none', '-quiet')
             addStringOption('-release', '16')
         }
