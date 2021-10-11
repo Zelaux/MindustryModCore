@@ -118,6 +118,7 @@ configure(subprojects - project(":annotations")) {
         options{
             addStringOption('Xdoclint:none', '-quiet')
             addStringOption('-release', '16')
+            addStringOption('--illegal-access=permit')
         }
     }
 }
@@ -214,8 +215,8 @@ project(":tools") {
         implementation arcModule('arc-core')
 
         implementation "com.github.javaparser:javaparser-symbol-solver-core:$jparcerVersion"
-        compileOnly mindustryModule("core")
-        compileOnly mindustryModule("tools")
+        implementation mindustryModule("core")
+        implementation mindustryModule("tools")
     }
 }
 project(":annotations") {
@@ -234,7 +235,10 @@ project(":annotations") {
 }
 configure(project.getSubprojects()) {
     java {
-        withJavadocJar()
+        if (!name.equals("annotations")){
+            println "doc for "+name
+            withJavadocJar()
+        }
         withSourcesJar()
     }
 
