@@ -168,7 +168,7 @@ project(":core") {
 //            println "sub adding "+sub.getName()
             String name = sub.getName();
             println "subproject: " + sub.getName()
-            if (!["tools", "annotations", project.getName()].contains(name)) {
+            if (!["tools", "annotations","plugins", project.getName()].contains(name)) {
                 println "implemented"
                 implementation sub
             }
@@ -231,6 +231,15 @@ project(":annotations") {
         compileOnly mindustryModule("tools")
 //                if(name!="tools")compile  project(":tools")
 //        implementation  project(":core")
+    }
+}
+project(":plugins") {
+    apply plugin: "java-library"
+    dependencies {
+        implementation 'commons-io:commons-io:2.5'
+        implementation arcModule('arc-core')
+        compileOnly mindustryModule("core")
+        compileOnly mindustryModule("server")
     }
 }
 configure(project.getSubprojects()) {
