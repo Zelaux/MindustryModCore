@@ -76,6 +76,7 @@ allprojects {
         options.compilerArgs += ["-Xlint:deprecation"]
 
         options.forkOptions.jvmArgs.addAll([
+                '--illegal-access=permit',
                 '--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED',
                 '--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED',
                 '--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED',
