@@ -119,7 +119,6 @@ configure(subprojects - project(":annotations")) {
         options{
             addStringOption('Xdoclint:none', '-quiet')
             addStringOption('-release', '16')
-            addStringOption('--illegal-access=permit')
         }
     }
 }
@@ -237,7 +236,7 @@ project(":plugins") {
     apply plugin: "java-library"
     dependencies {
         implementation 'commons-io:commons-io:2.5'
-        implementation arcModule('arc-core')
+        compileOnly arcModule('arc-core')
         compileOnly mindustryModule("core")
         compileOnly mindustryModule("server")
     }
