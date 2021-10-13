@@ -11,6 +11,9 @@ public class EventSender {
     public EventSender(String commandName) {
         this.commandName = commandName;
     }
+    public EventSender(EventReceiver receiver) {
+        this(receiver.commandName);
+    }
 
     public <T> void setParameter(String name, T parameter) {
         parametersMap.put(name, parameter);

@@ -5,10 +5,12 @@ import arc.func.Cons;
 import arc.struct.ObjectMap;
 
 public class EventReceiver {
-    final String commandName;
+public     final String commandName;
     private Object[] objects = null;
     private ObjectMap<String, Object> parametersMap = new ObjectMap<>();
-
+public EventReceiver(EventSender sender){
+    this(sender.commandName);
+}
     public EventReceiver(String commandName) {
         this.commandName = commandName;
     }
