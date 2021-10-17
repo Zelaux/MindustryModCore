@@ -10,6 +10,7 @@ import mindustry.entities.*;
 import mindustry.gen.*;
 import mindustry.type.*;
 import mindustry.world.*;
+import mindustry.world.blocks.environment.*;
 import static mindustry.Vars.*;
 import static mindustry.logic.LAccess.*;
 
@@ -60,6 +61,22 @@ abstract class MechComp implements Posc, Flyingc, Hitboxc, Unitc, Mechc, Elevati
             }
         }
         walkExtension = extendScl;
+    }
+
+    @mma.annotations.ModAnnotations.Replace
+    @Override
+    @Nullable
+    public Floor drownFloor() {
+        // large mechs can only drown when all the nearby floors are deep
+        if (hitSize >= 12 && canDrown()) {
+            for (Point2 p : Geometry.d8) {
+                Floor f = world.floorWorld(x + p.x * tilesize, y + p.y * tilesize);
+                if (!f.isDeep()) {
+                    return null;
+                }
+            }
+        }
+        return canDrown() ? floorOn() : null;
     }
 
     public float walkExtend(boolean scaled) {

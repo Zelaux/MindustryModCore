@@ -1,6 +1,5 @@
 package mma.entities.compByAnuke;
 
-import arc.func.*;
 import arc.util.io.*;
 import mindustry.annotations.Annotations.*;
 import mindustry.entities.*;

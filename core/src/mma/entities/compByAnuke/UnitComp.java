@@ -11,6 +11,7 @@ import arc.util.*;
 import mindustry.ai.*;
 import mindustry.ai.types.*;
 import mindustry.annotations.Annotations.*;
+import mindustry.content.*;
 import mindustry.core.*;
 import mindustry.ctype.*;
 import mindustry.entities.*;
@@ -51,13 +52,18 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
     @mma.annotations.ModAnnotations.Import
     Vec2 vel;
 
+    @mma.annotations.ModAnnotations.Import
+    WeaponMount[] mounts;
+
     private UnitController controller;
 
-    UnitType type;
+    UnitType type = UnitTypes.alpha;
 
     boolean spawnedByCore;
 
     double flag;
+
+    transient float shadowAlpha = -1f;
 
     transient Seq<Ability> abilities = new Seq<>(0);
 
@@ -68,6 +74,12 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
     private transient boolean wasPlayer;
 
     private transient boolean wasHealed;
+
+    /**
+     * Called when this unit was unloaded from a factory or spawn point.
+     */
+    public void unloaded() {
+    }
 
     /**
      * Move based on preferred unit movement type.
@@ -521,7 +533,7 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
             return;
         float explosiveness = 2f + item().explosiveness * stack().amount * 1.53f;
         float flammability = item().flammability * stack().amount / 1.9f;
-        float power = item().charge * stack().amount * 150f;
+        float power = item().charge * Mathf.pow(stack().amount, 1.11f) * 160f;
         if (!spawnedByCore) {
             Damage.dynamicExplosion(x, y, flammability, explosiveness, power, bounds() / 2f, state.rules.damageExplosions, item().flammability > 1, team, type.deathExplosionEffect);
         } else {
@@ -535,6 +547,13 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
         if (explosiveness > 7f && (isLocal() || wasPlayer)) {
             Events.fire(Trigger.suicideBomb);
         }
+        for (WeaponMount mount : mounts) {
+            if (mount.weapon.shootOnDeath && !(mount.weapon.bullet.killShooter && mount.shoot)) {
+                mount.reload = 0f;
+                mount.shoot = true;
+                mount.weapon.update(self(), mount);
+            }
+        }
         // if this unit crash landed (was flying), damage stuff in a radius
         if (type.flying && !spawnedByCore) {
             Damage.damage(team, x, y, Mathf.pow(hitSize, 0.94f) * 1.25f, Mathf.pow(hitSize, 0.75f) * type.crashDamageMultiplier * 5f, true, false, true);
@@ -546,6 +565,11 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
                     Tmp.v1.rnd(range);
                     Effect.decal(type.wreckRegions[i], x + Tmp.v1.x, y + Tmp.v1.y, rotation - 90);
                 }
+            }
+        }
+        if (abilities.size > 0) {
+            for (Ability a : abilities) {
+                a.death(self());
             }
         }
         remove();

@@ -13,7 +13,6 @@ import mindustry.entities.*;
 import mindustry.game.EventType.*;
 import mindustry.gen.*;
 import mindustry.type.*;
-import mindustry.ui.*;
 import mindustry.world.*;
 import mindustry.world.blocks.payloads.*;
 import static mindustry.logic.LAccess.*;
@@ -127,6 +126,7 @@ abstract class PayloadComp implements Posc, Rotc, Hitboxc, Unitc {
         if (!u.isAdded())
             u.team.data().updateCount(u.type, -1);
         u.add();
+        u.unloaded();
         return true;
     }
 
