@@ -25,6 +25,9 @@ public class DependenciesProc extends ModBaseProcessor {
         MethodSpec.Builder valid = MethodSpec.methodBuilder("valid").addModifiers(Modifier.PUBLIC, Modifier.STATIC).returns(TypeName.get(boolean.class));
         Json json = new Json();
         Fi metaf = rootDirectory.child("mod.hjson");
+        if (!metaf.exists()){
+            metaf=rootDirectory.child("mod.json");
+        }
         Mods.ModMeta modMeta = json.fromJson(Mods.ModMeta.class, Jval.read(metaf.readString()).toString(Jval.Jformat.plain));
         valid.addStatement("boolean valid=true");
         valid.beginControlFlow("try");
