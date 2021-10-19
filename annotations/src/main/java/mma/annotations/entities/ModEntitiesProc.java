@@ -603,7 +603,9 @@ public class ModEntitiesProc extends ModBaseProcessor {
                     //wrap scope to prevent variable leakage
                     if (writeBlock) {
                         //replace return; with block break
-                        str = str.replace("return;", "break " + blockName + ";");
+                        if(!elem.has(ModAnnotations.GlobalReturn.class)){
+                            str = str.replace("return;", "break " + blockName + ";");
+                        }
                         mbuilder.addCode(blockName + ": {\n");
                     }
 

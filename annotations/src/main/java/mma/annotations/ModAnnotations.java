@@ -372,6 +372,13 @@ public class ModAnnotations {
     }
 
     //Zelaux annotations
+
+    /** The return statement of a method with this annotation will not be replaced. */
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface GlobalReturn{
+    }
+
 //    @Retention(RetentionPolicy.SOURCE)
     public @interface EntitySuperClass {
     }
