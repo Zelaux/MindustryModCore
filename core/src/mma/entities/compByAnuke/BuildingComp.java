@@ -477,17 +477,16 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
     public void onControlSelect(Unit player) {
     }
 
-    public void handleUnitPayload(Unit player, Cons<Payload> grabber) {
-        Fx.spawn.at(player);
-        if (player.isPlayer()) {
-            player.getPlayer().clearUnit();
+    public void handleUnitPayload(Unit unit, Cons<Payload> grabber) {
+        Fx.spawn.at(unit);
+        if (unit.isPlayer()) {
+            unit.getPlayer().clearUnit();
         }
-        player.remove();
-        grabber.get(new UnitPayload(player));
-        Fx.unitDrop.at(player);
-        if (Vars.net.client()) {
-            Vars.netClient.clearRemovedEntity(player.id);
-        }
+        unit.remove();
+        // needs new ID as it is now a payload
+        unit.id = EntityGroup.nextId();
+        grabber.get(new UnitPayload(unit));
+        Fx.unitDrop.at(unit);
     }
 
     public boolean canUnload() {

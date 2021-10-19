@@ -19,7 +19,7 @@ public class ContentIcons {
     public static char icon(MappableContent content) {
         return iconMap.get(content.getContentType(), () -> {
             return createFor(content.getContentType());
-        }).get(content);
+        }).get(content,' ');
     }
 
     private static ObjectMap<MappableContent, Character> createFor(ContentType type) {
