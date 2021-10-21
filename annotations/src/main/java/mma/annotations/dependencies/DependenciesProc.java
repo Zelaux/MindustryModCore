@@ -14,7 +14,7 @@ import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.element.Modifier;
 
 
-@SupportedAnnotationTypes("mma.annotations.Annotations.DependenciesAnnotation")
+@SupportedAnnotationTypes("mma.annotations.ModAnnotations.DependenciesAnnotation")
 public class DependenciesProc extends ModBaseProcessor {
     @Override
     public void process(RoundEnvironment env) throws Exception {

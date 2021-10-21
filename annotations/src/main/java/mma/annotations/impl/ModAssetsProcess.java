@@ -16,7 +16,7 @@ import javax.lang.model.element.Modifier;
 import java.util.HashSet;
 import java.util.Set;
 
-@SupportedAnnotationTypes("mma.annotations.Annotations.ModAssetsAnnotation")
+@SupportedAnnotationTypes("mma.annotations.ModAnnotations.ModAssetsAnnotation")
 public class ModAssetsProcess extends ModBaseProcessor {
     static String capitalize(String s) {
         StringBuilder result = new StringBuilder(s.length());

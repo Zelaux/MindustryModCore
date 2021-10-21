@@ -32,7 +32,7 @@ import java.net.URL;
         "mindustry.annotations.Annotations.BaseComponent",
         "mindustry.annotations.Annotations.Component",
         "mindustry.annotations.Annotations.TypeIOHandler",
-        "mindustry.annotations.Annotations.EntitySuperClass"
+        "mma.annotations.ModAnnotations.EntitySuperClass"
 })
 public class ModEntitiesProc extends ModBaseProcessor {
     final Seq<Stype> baseComponents = new Seq<>();
