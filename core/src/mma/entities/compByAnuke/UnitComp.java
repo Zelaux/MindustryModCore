@@ -30,29 +30,29 @@ import static mindustry.Vars.*;
 import static mindustry.logic.GlobalConstants.*;
 import static mindustry.logic.LAccess.*;
 
-@mma.annotations.ModAnnotations.Component(base = true)
+@Component(base = true)
 abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, Itemsc, Rotc, Unitc, Weaponsc, Drawc, Boundedc, Syncc, Shieldc, Commanderc, Displayable, Senseable, Ranged, Minerc, Builderc {
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     boolean hovering, dead, disarmed;
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     float x, y, rotation, elevation, maxHealth, drag, armor, hitSize, health, ammo, minFormationSpeed, dragMultiplier;
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     Team team;
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     int id;
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     @Nullable
     Tile mineTile;
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     Vec2 vel;
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     WeaponMount[] mounts;
 
     private UnitController controller;
@@ -184,7 +184,7 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
         return type.maxRange;
     }
 
-    @mma.annotations.ModAnnotations.Replace
+    @Replace
     public float clipSize() {
         if (isBuilding()) {
             return state.rules.infiniteResources ? Float.MAX_VALUE : Math.max(type.clipSize, type.region.width) + buildingRange + tilesize * 4f;
@@ -284,13 +284,13 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
     }
 
     @Override
-    @mma.annotations.ModAnnotations.Replace
+    @Replace
     public boolean canDrown() {
         return isGrounded() && !hovering && type.canDrown;
     }
 
     @Override
-    @mma.annotations.ModAnnotations.Replace
+    @Replace
     public boolean canShoot() {
         // cannot shoot while boosting
         return !disarmed && !(type.canBoost && isFlying());
@@ -631,7 +631,7 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
     }
 
     @Override
-    @mma.annotations.ModAnnotations.Replace
+    @Replace
     public void kill() {
         if (dead || net.client())
             return;

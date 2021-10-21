@@ -20,13 +20,13 @@ import static mindustry.logic.LAccess.*;
 /**
  * An entity that holds a payload.
  */
-@mma.annotations.ModAnnotations.Component
+@Component
 abstract class PayloadComp implements Posc, Rotc, Hitboxc, Unitc {
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     float x, y, rotation;
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     UnitType type;
 
     Seq<Payload> payloads = new Seq<>();

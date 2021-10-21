@@ -17,13 +17,13 @@ import mindustry.world.blocks.environment.*;
 import static mindustry.Vars.*;
 import static mindustry.logic.LAccess.*;
 
-@mma.annotations.ModAnnotations.Component
+@Component
 abstract class WaterMoveComp implements Posc, Velc, Hitboxc, Flyingc, Unitc {
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     float x, y, rotation, speedMultiplier;
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     UnitType type;
 
     private transient Trail tleft = new Trail(1), tright = new Trail(1);
@@ -43,14 +43,14 @@ abstract class WaterMoveComp implements Posc, Velc, Hitboxc, Flyingc, Unitc {
     }
 
     @Override
-    @mma.annotations.ModAnnotations.Replace
+    @Replace
     public int pathType() {
         return Pathfinder.costNaval;
     }
 
     // don't want obnoxious splashing
     @Override
-    @mma.annotations.ModAnnotations.Replace
+    @Replace
     public boolean emitWalkSound() {
         return false;
     }
@@ -73,19 +73,19 @@ abstract class WaterMoveComp implements Posc, Velc, Hitboxc, Flyingc, Unitc {
         Draw.z(z);
     }
 
-    @mma.annotations.ModAnnotations.Replace
+    @Replace
     @Override
     public SolidPred solidity() {
         return isFlying() ? null : EntityCollisions::waterSolid;
     }
 
-    @mma.annotations.ModAnnotations.Replace
+    @Replace
     @Override
     public boolean onSolid() {
         return EntityCollisions.waterSolid(tileX(), tileY());
     }
 
-    @mma.annotations.ModAnnotations.Replace
+    @Replace
     public float floorSpeedMultiplier() {
         Floor on = isFlying() ? Blocks.air.asFloor() : floorOn();
         return (on.shallow ? 1f : 1.3f) * speedMultiplier;

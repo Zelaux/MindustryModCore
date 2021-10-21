@@ -18,20 +18,20 @@ import static mindustry.logic.LAccess.*;
 /**
  * A unit that can command other units.
  */
-@mma.annotations.ModAnnotations.Component
+@Component
 abstract class CommanderComp implements Entityc, Posc {
 
     private static final Seq<FormationMember> members = new Seq<>();
 
     private static final Seq<Unit> units = new Seq<>();
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     float x, y, rotation, hitSize;
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     Team team;
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     UnitType type;
 
     @Nullable

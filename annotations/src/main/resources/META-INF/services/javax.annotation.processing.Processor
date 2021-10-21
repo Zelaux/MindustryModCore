@@ -1,6 +1,7 @@
 mma.annotations.dependencies.DependenciesProc
 mma.annotations.entities.ModEntitiesProc
 mma.annotations.impl.ModAssetsProcess
+mma.annotations.impl.StructProcess
 mma.annotations.misc.LogicStatementProcessor
 mma.annotations.misc.ModLoadRegionProcessor
 mma.annotations.remote.ModRemoteProcess

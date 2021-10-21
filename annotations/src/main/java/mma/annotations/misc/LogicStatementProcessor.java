@@ -6,7 +6,7 @@ import arc.util.Log;
 import com.squareup.javapoet.*;
 import mindustry.annotations.util.Stype;
 import mindustry.annotations.util.Svar;
-import mma.annotations.ModAnnotations;
+import mindustry.annotations.Annotations;
 import mma.annotations.ModBaseProcessor;
 
 import javax.annotation.processing.RoundEnvironment;
@@ -15,7 +15,7 @@ import javax.lang.model.element.Modifier;
 
 import static mma.annotations.ModBaseProcessor.tname;
 
-@SupportedAnnotationTypes("mma.annotations.ModAnnotations.RegisterStatement")
+@SupportedAnnotationTypes("mindustry.annotations.Annotations.RegisterStatement")
 public class LogicStatementProcessor extends ModBaseProcessor {
 
     @Override
@@ -35,7 +35,7 @@ public class LogicStatementProcessor extends ModBaseProcessor {
 //                .addParameter(String[].class, "tokens")
 //                .addParameter(int.class, "length");
 
-        Seq<Stype> types = types(ModAnnotations.RegisterStatement.class);
+        Seq<Stype> types = types(Annotations.RegisterStatement.class);
 
         type.addField(FieldSpec.builder(
                 ParameterizedTypeName.get(
@@ -47,7 +47,7 @@ public class LogicStatementProcessor extends ModBaseProcessor {
         initBlock.addStatement("mindustry.gen.LogicIO.allStatements.addAll(allModStatements)");
         initBlock.addStatement("arc.struct.ObjectMap<String, arc.func.Func<String[], LStatement>> customParsers=mindustry.logic.LAssembler.customParsers");
         for (Stype c : types) {
-            String name = c.annotation(ModAnnotations.RegisterStatement.class).value();
+            String name = c.annotation(Annotations.RegisterStatement.class).value();
 
             if (beganWrite) {
                 writer.nextControlFlow("else if(obj.getClass() == $T.class)", c.mirror());

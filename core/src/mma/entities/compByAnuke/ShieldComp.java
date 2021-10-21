@@ -8,16 +8,16 @@ import mindustry.gen.*;
 import static mindustry.Vars.*;
 import static mindustry.logic.LAccess.*;
 
-@mma.annotations.ModAnnotations.Component
+@Component
 abstract class ShieldComp implements Healthc, Posc {
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     float health, hitTime, x, y, healthMultiplier;
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     boolean dead;
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     Team team;
 
     /**
@@ -35,7 +35,7 @@ abstract class ShieldComp implements Healthc, Posc {
      */
     transient float shieldAlpha = 0f;
 
-    @mma.annotations.ModAnnotations.Replace
+    @Replace
     @Override
     public void damage(float amount) {
         // apply armor
@@ -44,7 +44,7 @@ abstract class ShieldComp implements Healthc, Posc {
         rawDamage(amount);
     }
 
-    @mma.annotations.ModAnnotations.Replace
+    @Replace
     @Override
     public void damagePierce(float amount, boolean withEffect) {
         float pre = hitTime;

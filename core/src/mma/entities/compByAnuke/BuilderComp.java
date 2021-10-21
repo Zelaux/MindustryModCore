@@ -24,24 +24,24 @@ import java.util.*;
 import static mindustry.Vars.*;
 import static mindustry.logic.LAccess.*;
 
-@mma.annotations.ModAnnotations.Component
+@Component
 abstract class BuilderComp implements Posc, Statusc, Teamc, Rotc {
 
     static final Vec2[] vecs = new Vec2[] { new Vec2(), new Vec2(), new Vec2(), new Vec2() };
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     float x, y, rotation, buildSpeedMultiplier;
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     UnitType type;
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     Team team;
 
-    @mma.annotations.ModAnnotations.SyncLocal
+    @SyncLocal
     Queue<BuildPlan> plans = new Queue<>(1);
 
-    @mma.annotations.ModAnnotations.SyncLocal
+    @SyncLocal
     boolean updateBuilding = true;
 
     private transient BuildPlan lastActive;

@@ -8,7 +8,8 @@ import mindustry.ctype.Content;
 import mindustry.ctype.MappableContent;
 import mindustry.ctype.UnlockableContent;
 import mindustry.mod.Mod;
-import mma.annotations.ModAnnotations;
+import mindustry.annotations.Annotations;
+import mma.annotations.*;
 import mma.core.ModContentLoader;
 import mma.gen.ModContentRegions;
 

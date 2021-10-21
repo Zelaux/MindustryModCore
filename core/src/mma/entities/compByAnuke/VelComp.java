@@ -9,19 +9,19 @@ import mindustry.gen.*;
 import static mindustry.Vars.*;
 import static mindustry.logic.LAccess.*;
 
-@mma.annotations.ModAnnotations.Component
+@Component
 abstract class VelComp implements Posc {
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     float x, y;
 
-    @mma.annotations.ModAnnotations.SyncLocal
+    @SyncLocal
     Vec2 vel = new Vec2();
 
     transient float drag = 0f;
 
     // velocity needs to be called first, as it affects delta and lastPosition
-    @mma.annotations.ModAnnotations.MethodPriority(-1)
+    @MethodPriority(-1)
     @Override
     public void update() {
         // do not update velocity on the client at all, unless it's non-interpolated

@@ -1,36 +1,41 @@
 package mma.entities;
 
-import arc.math.geom.Vec2;
-import mindustry.gen.Entityc;
-import mindustry.gen.Unit;
-import mma.annotations.ModAnnotations;
-import mma.gen.TestAnnotationsc;
+import arc.math.geom.*;
+import mindustry.annotations.*;
+import mindustry.annotations.Annotations.*;
+import mindustry.gen.*;
+import mma.gen.*;
 
-@ModAnnotations.EntityDef({TestAnnotationsc.class})
-@ModAnnotations.Component
-abstract class TestAnnotationsComp implements Entityc {
+@Annotations.EntityDef({TestAnnotationsc.class})
+@Annotations.Component
+abstract class TestAnnotationsComp implements Entityc{
     public Vec2 vec2Test;
     Unit testUnit;
 
     @Override
-    @ModAnnotations.MethodPriority(1000)
-    public void update() {
+    @Annotations.MethodPriority(1000)
+    public void update(){
         throw new RuntimeException();
     }
 
     @Override
-    @ModAnnotations.MethodPriority(1000)
-    public void add() {
+    @Annotations.MethodPriority(1000)
+    public void add(){
         throw new RuntimeException();
     }
 
     @Override
-    @ModAnnotations.MethodPriority(1000)
-    public void remove() {
+    @Annotations.MethodPriority(1000)
+    public void remove(){
         throw new RuntimeException();
     }
 
-    public void test() {
+    public void test(){
 
     }
+}
+
+@Struct
+class TestStructStruct{
+    short block, floor, overlay;
 }

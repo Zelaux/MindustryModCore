@@ -8,25 +8,25 @@ import mindustry.gen.*;
 import mindustry.type.*;
 import static mindustry.logic.LAccess.*;
 
-@mma.annotations.ModAnnotations.Component
+@Component
 abstract class WeaponsComp implements Teamc, Posc, Rotc, Velc, Statusc {
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     float x, y;
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     boolean disarmed;
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     UnitType type;
 
     /**
      * weapon mount array, never null
      */
-    @mma.annotations.ModAnnotations.SyncLocal
+    @SyncLocal
     WeaponMount[] mounts = {};
 
-    @mma.annotations.ModAnnotations.ReadOnly
+    @ReadOnly
     transient boolean isRotate;
 
     transient float aimX, aimY;

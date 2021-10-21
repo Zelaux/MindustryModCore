@@ -18,20 +18,20 @@ import mindustry.world.blocks.environment.*;
 import static mindustry.Vars.*;
 import static mindustry.logic.LAccess.*;
 
-// @mma.annotations.ModAnnotations.EntityDef(value = { Bulletc.class }, pooled = true, serialize = false)
-@mma.annotations.ModAnnotations.Component(base = true)
+// @EntityDef(value = { Bulletc.class }, pooled = true, serialize = false)
+@Component(base = true)
 abstract class BulletComp implements Timedc, Damagec, Hitboxc, Teamc, Posc, Drawc, Shielderc, Ownerc, Velc, Bulletc, Timerc {
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     Team team;
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     Entityc owner;
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     float x, y, damage;
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     Vec2 vel;
 
     IntSeq collided = new IntSeq(6);
@@ -42,7 +42,7 @@ abstract class BulletComp implements Timedc, Damagec, Hitboxc, Teamc, Posc, Draw
 
     float fdata;
 
-    @mma.annotations.ModAnnotations.ReadOnly
+    @ReadOnly
     private float rotation;
 
     transient boolean absorbed, hit;
@@ -62,7 +62,7 @@ abstract class BulletComp implements Timedc, Damagec, Hitboxc, Teamc, Posc, Draw
 
     // bullets always considered local
     @Override
-    @mma.annotations.ModAnnotations.Replace
+    @Replace
     public boolean isLocal() {
         return true;
     }
@@ -102,12 +102,12 @@ abstract class BulletComp implements Timedc, Damagec, Hitboxc, Teamc, Posc, Draw
         return collided.size != 0 && collided.contains(id);
     }
 
-    @mma.annotations.ModAnnotations.Replace
+    @Replace
     public float clipSize() {
         return type.drawSize;
     }
 
-    @mma.annotations.ModAnnotations.Replace
+    @Replace
     @Override
     public boolean collides(Hitboxc other) {
         Teamc t;
@@ -116,7 +116,7 @@ abstract class BulletComp implements Timedc, Damagec, Hitboxc, Teamc, Posc, Draw
         type.collides && ((other instanceof Teamc && (t = (Teamc) other) == other) && t.team() != team) && !((other instanceof Flyingc && (f = (Flyingc) other) == other) && !f.checkTarget(type.collidesAir, type.collidesGround)) && !(type.pierce && hasCollided(other.id()));
     }
 
-    @mma.annotations.ModAnnotations.MethodPriority(100)
+    @MethodPriority(100)
     @Override
     public void collision(Hitboxc other, float x, float y) {
         type.hit(self(), x, y);

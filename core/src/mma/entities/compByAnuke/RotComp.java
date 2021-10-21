@@ -4,10 +4,10 @@ import mindustry.annotations.Annotations.*;
 import mindustry.gen.*;
 import static mindustry.logic.LAccess.*;
 
-@mma.annotations.ModAnnotations.Component
+@Component
 abstract class RotComp implements Entityc {
 
-    @mma.annotations.ModAnnotations.SyncField(false)
-    @mma.annotations.ModAnnotations.SyncLocal
+    @SyncField(false)
+    @SyncLocal
     float rotation;
 }

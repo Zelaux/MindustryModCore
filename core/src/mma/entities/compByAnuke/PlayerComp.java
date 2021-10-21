@@ -23,28 +23,28 @@ import mindustry.world.blocks.storage.CoreBlock.*;
 import static mindustry.Vars.*;
 import static mindustry.logic.LAccess.*;
 
-// @mma.annotations.ModAnnotations.EntityDef(value = { Playerc.class }, serialize = false)
-@mma.annotations.ModAnnotations.Component(base = true)
+// @EntityDef(value = { Playerc.class }, serialize = false)
+@Component(base = true)
 abstract class PlayerComp implements UnitController, Entityc, Syncc, Timerc, Drawc {
 
     static final float deathDelay = 60f;
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     float x, y;
 
-    @mma.annotations.ModAnnotations.ReadOnly
+    @ReadOnly
     Unit unit = Nulls.unit;
 
     @Nullable
     transient NetConnection con;
 
-    @mma.annotations.ModAnnotations.ReadOnly
+    @ReadOnly
     Team team = Team.sharded;
 
-    @mma.annotations.ModAnnotations.SyncLocal
+    @SyncLocal
     boolean typing, shooting, boosting;
 
-    @mma.annotations.ModAnnotations.SyncLocal
+    @SyncLocal
     float mouseX, mouseY;
 
     boolean admin;
@@ -117,7 +117,7 @@ abstract class PlayerComp implements UnitController, Entityc, Syncc, Timerc, Dra
         return isAdded();
     }
 
-    @mma.annotations.ModAnnotations.Replace
+    @Replace
     public float clipSize() {
         return unit.isNull() ? 20 : unit.type.hitSize * 2f;
     }

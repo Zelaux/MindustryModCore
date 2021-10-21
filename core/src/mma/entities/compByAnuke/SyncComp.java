@@ -7,7 +7,7 @@ import mindustry.gen.*;
 import java.nio.*;
 import static mindustry.logic.LAccess.*;
 
-@mma.annotations.ModAnnotations.Component
+@Component
 abstract class SyncComp implements Entityc {
 
     transient long lastUpdated, updateSpacing;

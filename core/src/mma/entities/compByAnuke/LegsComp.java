@@ -16,16 +16,16 @@ import mindustry.type.*;
 import mindustry.world.blocks.environment.*;
 import static mindustry.logic.LAccess.*;
 
-@mma.annotations.ModAnnotations.Component
+@Component
 abstract class LegsComp implements Posc, Rotc, Hitboxc, Flyingc, Unitc {
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     float x, y;
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     UnitType type;
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     Team team;
 
     transient Leg[] legs = {};
@@ -38,20 +38,20 @@ abstract class LegsComp implements Posc, Rotc, Hitboxc, Flyingc, Unitc {
 
     transient Floor lastDeepFloor;
 
-    @mma.annotations.ModAnnotations.Replace
+    @Replace
     @Override
     public SolidPred solidity() {
         return type.allowLegStep ? EntityCollisions::legsSolid : EntityCollisions::solid;
     }
 
     @Override
-    @mma.annotations.ModAnnotations.Replace
+    @Replace
     public int pathType() {
         return type.allowLegStep ? Pathfinder.costGround : Pathfinder.costLegs;
     }
 
     @Override
-    @mma.annotations.ModAnnotations.Replace
+    @Replace
     public Floor drownFloor() {
         return lastDeepFloor;
     }

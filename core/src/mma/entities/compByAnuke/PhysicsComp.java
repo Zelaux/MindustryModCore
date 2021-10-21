@@ -13,13 +13,13 @@ import static mindustry.logic.LAccess.*;
  * Will bounce off of other objects that are at similar elevations.
  * Has mass.
  */
-@mma.annotations.ModAnnotations.Component
+@Component
 abstract class PhysicsComp implements Velc, Hitboxc, Flyingc {
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     float hitSize, x, y;
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     Vec2 vel;
 
     transient PhysicRef physref;

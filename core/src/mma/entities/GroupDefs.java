@@ -1,6 +1,6 @@
 package mma.entities;
 
-import mma.annotations.ModAnnotations.GroupDef;
+import mindustry.annotations.Annotations.GroupDef;
 import mindustry.gen.*;
 
 class GroupDefs<G>{

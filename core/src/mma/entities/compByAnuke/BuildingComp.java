@@ -42,8 +42,8 @@ import mindustry.world.modules.*;
 import static mindustry.Vars.*;
 import static mindustry.logic.LAccess.*;
 
-// @mma.annotations.ModAnnotations.EntityDef(value = { Buildingc.class }, isFinal = false, genio = false, serialize = false)
-@mma.annotations.ModAnnotations.Component(base = true)
+// @EntityDef(value = { Buildingc.class }, isFinal = false, genio = false, serialize = false)
+@Component(base = true)
 abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, QuadTreeObject, Displayable, Senseable, Controllable, Sized {
 
     // region vars and initialization
@@ -57,10 +57,10 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
 
     static int sleepingEntities = 0;
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     float x, y, health, maxHealth;
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     Team team;
 
     transient Tile tile;
@@ -155,13 +155,13 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
     }
 
     @Override
-    @mma.annotations.ModAnnotations.Replace
+    @Replace
     public int tileX() {
         return tile.x;
     }
 
     @Override
-    @mma.annotations.ModAnnotations.Replace
+    @Replace
     public int tileY() {
         return tile.y;
     }
@@ -224,12 +224,12 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
         read(read, revision);
     }
 
-    @mma.annotations.ModAnnotations.CallSuper
+    @CallSuper
     public void write(Writes write) {
         // overriden by subclasses!
     }
 
-    @mma.annotations.ModAnnotations.CallSuper
+    @CallSuper
     public void read(Reads read, byte revision) {
         // overriden by subclasses!
     }
@@ -1029,14 +1029,14 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
     /**
      * Called after the block is placed by this client.
      */
-    @mma.annotations.ModAnnotations.CallSuper
+    @CallSuper
     public void playerPlaced(Object config) {
     }
 
     /**
      * Called after the block is placed by anyone.
      */
-    @mma.annotations.ModAnnotations.CallSuper
+    @CallSuper
     public void placed() {
         if (net.client())
             return;
@@ -1431,19 +1431,19 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
         return null;
     }
 
-    @mma.annotations.ModAnnotations.Replace
+    @Replace
     @Override
     public boolean isValid() {
         return tile.build == self() && !dead();
     }
 
-    @mma.annotations.ModAnnotations.MethodPriority(100)
+    @MethodPriority(100)
     @Override
     public void heal() {
         indexer.notifyBuildHealed(self());
     }
 
-    @mma.annotations.ModAnnotations.MethodPriority(100)
+    @MethodPriority(100)
     @Override
     public void heal(float amount) {
         indexer.notifyBuildHealed(self());
@@ -1454,13 +1454,13 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
         return tile.block().size * tilesize;
     }
 
-    @mma.annotations.ModAnnotations.Replace
+    @Replace
     @Override
     public void kill() {
         Call.tileDestroyed(self());
     }
 
-    @mma.annotations.ModAnnotations.Replace
+    @Replace
     @Override
     public void damage(float damage) {
         if (dead())
@@ -1600,7 +1600,7 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
         afterDestroyed();
     }
 
-    @mma.annotations.ModAnnotations.Final
+    @Final
     @Override
     public void update() {
         if (state.isEditor())

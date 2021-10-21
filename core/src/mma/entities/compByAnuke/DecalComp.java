@@ -8,11 +8,11 @@ import mindustry.gen.*;
 import mindustry.graphics.*;
 import static mindustry.logic.LAccess.*;
 
-// @mma.annotations.ModAnnotations.EntityDef(value = { Decalc.class }, pooled = true, serialize = false)
-@mma.annotations.ModAnnotations.Component(base = true)
+// @EntityDef(value = { Decalc.class }, pooled = true, serialize = false)
+@Component(base = true)
 abstract class DecalComp implements Drawc, Timedc, Rotc, Posc {
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     float x, y, rotation;
 
     Color color = new Color(1, 1, 1, 1);
@@ -28,7 +28,7 @@ abstract class DecalComp implements Drawc, Timedc, Rotc, Posc {
         Draw.reset();
     }
 
-    @mma.annotations.ModAnnotations.Replace
+    @Replace
     public float clipSize() {
         return region.width * 2;
     }

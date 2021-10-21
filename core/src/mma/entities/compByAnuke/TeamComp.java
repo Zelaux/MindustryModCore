@@ -8,10 +8,10 @@ import mindustry.world.blocks.storage.CoreBlock.*;
 import static mindustry.Vars.*;
 import static mindustry.logic.LAccess.*;
 
-@mma.annotations.ModAnnotations.Component
+@Component
 abstract class TeamComp implements Posc {
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     float x, y;
 
     Team team = Team.derelict;

@@ -23,8 +23,8 @@ import mindustry.world.Block;
 import mindustry.world.blocks.environment.Floor;
 import mindustry.world.blocks.environment.OreBlock;
 import mindustry.world.blocks.environment.StaticWall;
-import mma.annotations.ModAnnotations;
-@ModAnnotations.TypeIOHandler
+import mindustry.annotations.Annotations;
+@Annotations.TypeIOHandler
 public class ModTypeIO extends TypeIO {
     public static void writeInteger(Writes write, Integer integer) {
         write.i(integer);

@@ -4,7 +4,7 @@ import arc.func.Cons;
 import arc.struct.ObjectMap;
 import arc.struct.Seq;
 import arc.util.Log;
-import mma.annotations.ModAnnotations;
+import mindustry.annotations.Annotations;
 import mindustry.annotations.Annotations;
 import mindustry.annotations.util.Smethod;
 import mindustry.annotations.util.Stype;
@@ -22,7 +22,7 @@ public class ModTypeIOResolver extends TypeIOResolver {
         methods.clear();
         ClassSerializer out = new ClassSerializer(new ObjectMap<>(), new ObjectMap<>(), new ObjectMap<>());
         Seq<Stype> types = processor.types(Annotations.TypeIOHandler.class);
-        types.addAll(processor.types(ModAnnotations.TypeIOHandler.class));
+        types.addAll(processor.types(Annotations.TypeIOHandler.class));
         Seq<Smethod> usedMethods = new Seq<>();
         Seq<Stype> newTypes = new Seq<>();
         Cons<Stype> addNewType = nt -> {

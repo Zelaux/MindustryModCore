@@ -14,17 +14,17 @@ import mindustry.world.blocks.environment.*;
 import static mindustry.Vars.*;
 import static mindustry.logic.LAccess.*;
 
-@mma.annotations.ModAnnotations.Component
+@Component
 abstract class MechComp implements Posc, Flyingc, Hitboxc, Unitc, Mechc, ElevationMovec {
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     float x, y, hitSize;
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     UnitType type;
 
-    @mma.annotations.ModAnnotations.SyncField(false)
-    @mma.annotations.ModAnnotations.SyncLocal
+    @SyncField(false)
+    @SyncLocal
     float baseRotation;
 
     transient float walkTime, walkExtension;
@@ -63,7 +63,7 @@ abstract class MechComp implements Posc, Flyingc, Hitboxc, Unitc, Mechc, Elevati
         walkExtension = extendScl;
     }
 
-    @mma.annotations.ModAnnotations.Replace
+    @Replace
     @Override
     @Nullable
     public Floor drownFloor() {
@@ -94,7 +94,7 @@ abstract class MechComp implements Posc, Flyingc, Hitboxc, Unitc, Mechc, Elevati
     }
 
     @Override
-    @mma.annotations.ModAnnotations.Replace
+    @Replace
     public void rotateMove(Vec2 vec) {
         // mechs use baseRotation to rotate, not rotation.
         moveAt(Tmp.v2.trns(baseRotation, vec.len()));

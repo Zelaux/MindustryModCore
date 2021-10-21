@@ -29,7 +29,7 @@ version '1.0'
 allprojects {
     apply plugin: 'groovy'
 
-//    version = 'release'
+    version = 'release'
     group = 'com.github.Zelaux'
     ext {
         arcModule = { String name ->
@@ -52,7 +52,7 @@ allprojects {
             ) { file ->
                 boolean isProcessor = file.text.contains(" extends ModBaseProcessor") ||
                         (file.text.contains(" extends AbstractProcessor") && !file.text.contains("abstract class")) ||
-                        file.text.contains("@ModAnnotations.AnnotationProcessor");
+                        file.text.contains("@Annotations.AnnotationProcessor");
                 if (file.name.endsWith(".java") && isProcessor) {
                     text.append(file.path.substring(files.path.length() + 1)).append("\n")
                 }

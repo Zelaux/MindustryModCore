@@ -14,7 +14,7 @@ import mindustry.world.blocks.environment.*;
 import static mindustry.Vars.*;
 import static mindustry.logic.LAccess.*;
 
-@mma.annotations.ModAnnotations.Component
+@Component
 abstract class StatusComp implements Posc, Flyingc {
 
     private Seq<StatusEntry> statuses = new Seq<>();
@@ -26,7 +26,7 @@ abstract class StatusComp implements Posc, Flyingc {
 
     transient boolean disarmed = false;
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     UnitType type;
 
     /**

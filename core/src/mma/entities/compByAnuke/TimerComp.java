@@ -4,7 +4,7 @@ import arc.util.*;
 import mindustry.annotations.Annotations.*;
 import static mindustry.logic.LAccess.*;
 
-@mma.annotations.ModAnnotations.Component
+@Component
 abstract class TimerComp {
 
     transient Interval timer = new Interval(6);

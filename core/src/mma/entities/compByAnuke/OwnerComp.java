@@ -4,7 +4,7 @@ import mindustry.annotations.Annotations.*;
 import mindustry.gen.*;
 import static mindustry.logic.LAccess.*;
 
-@mma.annotations.ModAnnotations.Component
+@Component
 class OwnerComp {
 
     Entityc owner;

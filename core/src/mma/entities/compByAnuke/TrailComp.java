@@ -7,13 +7,13 @@ import mindustry.graphics.*;
 import mindustry.type.*;
 import static mindustry.logic.LAccess.*;
 
-@mma.annotations.ModAnnotations.Component
+@Component
 abstract class TrailComp implements Unitc {
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     UnitType type;
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     float x, y, rotation;
 
     transient Trail trail = new Trail(6);

@@ -20,13 +20,13 @@ import mindustry.type.Item;
 import mindustry.world.Tile;
 import mindustry.world.blocks.distribution.Router;
 import mindustry.world.meta.BlockGroup;
-import mma.annotations.ModAnnotations;
+import mindustry.annotations.Annotations;
 
 public class SmartRouter extends Router {
 
-    public @ModAnnotations.Load("@-cross")
+    public @Annotations.Load("@-cross")
     TextureRegion cross;
-    public @ModAnnotations.Load("@-arrow")
+    public @Annotations.Load("@-arrow")
     TextureRegion arrow;
 
     public SmartRouter(String name) {

@@ -7,8 +7,8 @@ import mindustry.gen.*;
 import static mindustry.Vars.*;
 import static mindustry.logic.LAccess.*;
 
-@mma.annotations.ModAnnotations.Component
-@mma.annotations.ModAnnotations.BaseComponent
+@Component
+@BaseComponent
 abstract class EntityComp {
 
     private transient boolean added;
@@ -55,13 +55,13 @@ abstract class EntityComp {
         return (T) this;
     }
 
-    @mma.annotations.ModAnnotations.InternalImpl
+    @InternalImpl
     abstract int classId();
 
-    @mma.annotations.ModAnnotations.InternalImpl
+    @InternalImpl
     abstract boolean serialize();
 
-    @mma.annotations.ModAnnotations.MethodPriority(1)
+    @MethodPriority(1)
     void read(Reads read) {
         afterRead();
     }

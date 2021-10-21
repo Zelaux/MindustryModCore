@@ -13,21 +13,21 @@ import mindustry.world.blocks.environment.*;
 import static mindustry.Vars.*;
 import static mindustry.logic.LAccess.*;
 
-@mma.annotations.ModAnnotations.Component
+@Component
 abstract class FlyingComp implements Posc, Velc, Healthc, Hitboxc {
 
     private static final Vec2 tmp1 = new Vec2(), tmp2 = new Vec2();
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     float x, y, speedMultiplier, hitSize;
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     Vec2 vel;
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     UnitType type;
 
-    @mma.annotations.ModAnnotations.SyncLocal
+    @SyncLocal
     float elevation;
 
     private transient boolean wasFlying;

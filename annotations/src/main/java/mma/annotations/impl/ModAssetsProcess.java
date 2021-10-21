@@ -5,8 +5,8 @@ import arc.func.Cons;
 import arc.util.Log;
 import com.squareup.javapoet.*;
 import mindustry.annotations.BaseProcessor;
-import mma.annotations.ModAnnotations;
-import mma.annotations.ModBaseProcessor;
+import mindustry.annotations.Annotations;
+import mma.annotations.*;
 
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -16,7 +16,7 @@ import javax.lang.model.element.Modifier;
 import java.util.HashSet;
 import java.util.Set;
 
-@SupportedAnnotationTypes("mma.annotations.ModAnnotations.ModAssetsAnnotation")
+@SupportedAnnotationTypes("mma.annotations.Annotations.ModAssetsAnnotation")
 public class ModAssetsProcess extends ModBaseProcessor {
     static String capitalize(String s) {
         StringBuilder result = new StringBuilder(s.length());
@@ -41,7 +41,7 @@ public class ModAssetsProcess extends ModBaseProcessor {
         if (root)return;
         processSounds(classPrefix()+"Sounds", rootDirectory + "/core/assets/sounds", "arc.audio.Sound");
         processSounds(classPrefix()+"Musics", rootDirectory + "/core/assets/music", "arc.audio.Music");
-        processUI(env.getElementsAnnotatedWith(ModAnnotations.StyleDefaults.class));
+        processUI(env.getElementsAnnotatedWith(Annotations.StyleDefaults.class));
     }
 
     void processUI(Set<? extends Element> elements) throws Exception {

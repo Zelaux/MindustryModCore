@@ -6,10 +6,10 @@ import mindustry.annotations.Annotations.*;
 import mindustry.gen.*;
 import static mindustry.logic.LAccess.*;
 
-@mma.annotations.ModAnnotations.Component
+@Component
 abstract class ChildComp implements Posc, Rotc {
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     float x, y, rotation;
 
     @Nullable

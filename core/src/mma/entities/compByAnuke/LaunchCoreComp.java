@@ -10,11 +10,11 @@ import mindustry.graphics.*;
 import mindustry.world.*;
 import static mindustry.logic.LAccess.*;
 
-// @mma.annotations.ModAnnotations.EntityDef(value = LaunchCorec.class, serialize = false)
-@mma.annotations.ModAnnotations.Component
+// @EntityDef(value = LaunchCorec.class, serialize = false)
+@Component
 abstract class LaunchCoreComp implements Drawc, Timedc {
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     float x, y;
 
     transient Interval in = new Interval();

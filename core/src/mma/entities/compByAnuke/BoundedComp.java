@@ -7,12 +7,12 @@ import mindustry.gen.*;
 import static mindustry.Vars.*;
 import static mindustry.logic.LAccess.*;
 
-@mma.annotations.ModAnnotations.Component
+@Component
 abstract class BoundedComp implements Velc, Posc, Healthc, Flyingc {
 
     static final float warpDst = 30f;
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     float x, y;
 
     @Override

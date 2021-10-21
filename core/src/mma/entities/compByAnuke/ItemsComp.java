@@ -6,7 +6,7 @@ import mindustry.gen.*;
 import mindustry.type.*;
 import static mindustry.logic.LAccess.*;
 
-@mma.annotations.ModAnnotations.Component
+@Component
 abstract class ItemsComp implements Posc {
 
     ItemStack stack = new ItemStack();

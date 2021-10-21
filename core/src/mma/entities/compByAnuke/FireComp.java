@@ -17,8 +17,8 @@ import mindustry.world.meta.*;
 import static mindustry.Vars.*;
 import static mindustry.logic.LAccess.*;
 
-// @mma.annotations.ModAnnotations.EntityDef(value = { Firec.class }, pooled = true)
-@mma.annotations.ModAnnotations.Component(base = true)
+// @EntityDef(value = { Firec.class }, pooled = true)
+@Component(base = true)
 abstract class FireComp implements Timedc, Posc, Syncc, Drawc {
 
     public static final int frames = 40, duration = 90;
@@ -27,10 +27,10 @@ abstract class FireComp implements Timedc, Posc, Syncc, Drawc {
 
     public static final TextureRegion[] regions = new TextureRegion[frames];
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     float time, lifetime, x, y;
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     int id;
 
     Tile tile;
@@ -106,7 +106,7 @@ abstract class FireComp implements Timedc, Posc, Syncc, Drawc {
         Drawf.light(x, y, 50f + Mathf.absin(5f, 5f), Pal.lightFlame, 0.6f * Mathf.clamp(warmup / warmupDuration));
     }
 
-    @mma.annotations.ModAnnotations.Replace
+    @Replace
     @Override
     public float clipSize() {
         return 25;

@@ -14,7 +14,7 @@ import com.squareup.javapoet.TypeSpec;
 import mindustry.annotations.BaseProcessor;
 import mindustry.annotations.util.Svar;
 import mindustry.annotations.util.TypeIOResolver.ClassSerializer;
-import mma.annotations.ModAnnotations;
+import mindustry.annotations.Annotations;
 
 import javax.lang.model.element.Modifier;
 
@@ -87,7 +87,7 @@ public class ModEntityIO {
         this.write = write;
 
         //subclasses *have* to call this method
-        method.addAnnotation(ModAnnotations.CallSuper.class);
+        method.addAnnotation(Annotations.CallSuper.class);
 
         if(write){
             //write short revision
@@ -143,7 +143,7 @@ public class ModEntityIO {
             //add code for reading revision
             for(RevisionField field : rev.fields){
                 Svar var = allFields.find(s -> s.name().equals(field.name));
-                boolean sf = var.has(ModAnnotations.SyncField.class), sl = var.has(ModAnnotations.SyncLocal.class);
+                boolean sf = var.has(Annotations.SyncField.class), sl = var.has(Annotations.SyncLocal.class);
 
                 if(sl) cont("if(!islocal)");
 
@@ -207,7 +207,7 @@ public class ModEntityIO {
         //write interpolated data, using slerp / lerp
         for(Svar field : fields){
             String name = field.name(), targetName = name + targetSuf, lastName = name + lastSuf;
-            st("$L = $L($T.$L($L, $L, alpha))", name, field.annotation(ModAnnotations.SyncField.class).clamped() ? "arc.math.Mathf.clamp" : "", Mathf.class, field.annotation(ModAnnotations.SyncField.class).value() ? "lerp" : "slerp", lastName, targetName);
+            st("$L = $L($T.$L($L, $L, alpha))", name, field.annotation(Annotations.SyncField.class).clamped() ? "arc.math.Mathf.clamp" : "", Mathf.class, field.annotation(Annotations.SyncField.class).value() ? "lerp" : "slerp", lastName, targetName);
         }
 
         ncont("else if(lastUpdated != 0)"); //check if no meaningful data has arrived yet

@@ -15,19 +15,19 @@ import mindustry.world.*;
 import static mindustry.Vars.*;
 import static mindustry.logic.LAccess.*;
 
-@mma.annotations.ModAnnotations.Component
+@Component
 abstract class MinerComp implements Itemsc, Posc, Teamc, Rotc, Drawc {
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     float x, y, rotation, hitSize;
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     UnitType type;
 
     transient float mineTimer;
 
     @Nullable
-    @mma.annotations.ModAnnotations.SyncLocal
+    @SyncLocal
     Tile mineTile;
 
     public boolean canMine(Item item) {

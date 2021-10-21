@@ -8,14 +8,14 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import mindustry.annotations.util.Stype;
 import mindustry.annotations.util.Svar;
-import mma.annotations.ModAnnotations;
+import mindustry.annotations.Annotations;
 import mma.annotations.ModBaseProcessor;
 
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.element.Modifier;
 
-@SupportedAnnotationTypes("mma.annotations.ModAnnotations.Load")
+@SupportedAnnotationTypes("mindustry.annotations.Annotations.Load")
 public class ModLoadRegionProcessor extends ModBaseProcessor {
 
     private static int count(String str, String substring) {
@@ -45,7 +45,7 @@ public class ModLoadRegionProcessor extends ModBaseProcessor {
 
         ObjectMap<Stype, Seq<Svar>> fieldMap = new ObjectMap<>();
 
-        for (Svar field : fields(ModAnnotations.Load.class)) {
+        for (Svar field : fields(Annotations.Load.class)) {
             if (!field.is(Modifier.PUBLIC)) {
                 err("@LoadRegion field must be public", field);
             }
@@ -57,7 +57,7 @@ public class ModLoadRegionProcessor extends ModBaseProcessor {
             method.beginControlFlow("if(content instanceof $T)", entry.key.tname());
 
             for (Svar field : entry.value) {
-                ModAnnotations.Load an = field.annotation(ModAnnotations.Load.class);
+                Annotations.Load an = field.annotation(Annotations.Load.class);
                 //get # of array dimensions
                 int dims = count(field.mirror().toString(), "[]");
                 boolean doFallback = !an.fallback().equals("error");

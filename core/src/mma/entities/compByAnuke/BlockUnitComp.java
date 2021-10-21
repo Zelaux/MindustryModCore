@@ -7,13 +7,13 @@ import mindustry.gen.*;
 import static mindustry.Vars.*;
 import static mindustry.logic.LAccess.*;
 
-@mma.annotations.ModAnnotations.Component
+@Component
 abstract class BlockUnitComp implements Unitc {
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     Team team;
 
-    @mma.annotations.ModAnnotations.ReadOnly
+    @ReadOnly
     transient Building tile;
 
     public void tile(Building tile) {
@@ -32,7 +32,7 @@ abstract class BlockUnitComp implements Unitc {
         }
     }
 
-    @mma.annotations.ModAnnotations.Replace
+    @Replace
     @Override
     public TextureRegion icon() {
         return tile.block.fullIcon;
@@ -43,22 +43,22 @@ abstract class BlockUnitComp implements Unitc {
         tile.kill();
     }
 
-    @mma.annotations.ModAnnotations.Replace
+    @Replace
     public void damage(float v, boolean b) {
         tile.damage(v, b);
     }
 
-    @mma.annotations.ModAnnotations.Replace
+    @Replace
     public boolean dead() {
         return tile == null || tile.dead();
     }
 
-    @mma.annotations.ModAnnotations.Replace
+    @Replace
     public boolean isValid() {
         return tile != null && tile.isValid();
     }
 
-    @mma.annotations.ModAnnotations.Replace
+    @Replace
     public void team(Team team) {
         if (tile != null && this.team != team) {
             this.team = team;

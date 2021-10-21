@@ -18,8 +18,8 @@ import static mindustry.Vars.*;
 import static mindustry.entities.Puddles.*;
 import static mindustry.logic.LAccess.*;
 
-// @mma.annotations.ModAnnotations.EntityDef(value = { Puddlec.class }, pooled = true)
-@mma.annotations.ModAnnotations.Component(base = true)
+// @EntityDef(value = { Puddlec.class }, pooled = true)
+@Component(base = true)
 abstract class PuddleComp implements Posc, Puddlec, Drawc {
 
     private static final Rect rect = new Rect(), rect2 = new Rect();
@@ -40,13 +40,13 @@ abstract class PuddleComp implements Posc, Puddlec, Drawc {
         }
     };
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     int id;
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     float x, y;
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     boolean added;
 
     transient float accepting, updateTime, lastRipple = Time.time + Mathf.random(40f);
@@ -126,7 +126,7 @@ abstract class PuddleComp implements Posc, Puddlec, Drawc {
         }
     }
 
-    @mma.annotations.ModAnnotations.Replace
+    @Replace
     public float clipSize() {
         return 20;
     }

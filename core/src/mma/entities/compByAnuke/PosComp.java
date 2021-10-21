@@ -10,11 +10,11 @@ import mindustry.world.blocks.environment.*;
 import static mindustry.Vars.*;
 import static mindustry.logic.LAccess.*;
 
-@mma.annotations.ModAnnotations.Component
+@Component
 abstract class PosComp implements Position {
 
-    @mma.annotations.ModAnnotations.SyncField(true)
-    @mma.annotations.ModAnnotations.SyncLocal
+    @SyncField(true)
+    @SyncLocal
     float x, y;
 
     void set(float x, float y) {

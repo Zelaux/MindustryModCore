@@ -134,7 +134,7 @@ public class AnukeCompDownloader {
         for (AnnotationExpr annotationExpr : annotationExprs) {
             String identifier = annotationExpr.getName().getIdentifier();
              if (mindustryAnnotations.contains(identifier)) {
-                annotationExpr.getName().setQualifier(new Name(packageName + ".annotations." + annotationsClassName));
+//                annotationExpr.getName().setQualifier(new Name(packageName + ".annotations." + annotationsClassName));
             }
             if (identifier.equals("EntityDef")) {
                 Node parentNode = annotationExpr.getParentNode().get();

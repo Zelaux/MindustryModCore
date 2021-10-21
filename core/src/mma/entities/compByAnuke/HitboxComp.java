@@ -9,10 +9,10 @@ import mindustry.entities.*;
 import mindustry.gen.*;
 import static mindustry.logic.LAccess.*;
 
-@mma.annotations.ModAnnotations.Component
+@Component
 abstract class HitboxComp implements Posc, Sized, QuadTreeObject {
 
-    @mma.annotations.ModAnnotations.Import
+    @Import
     float x, y;
 
     transient float lastX, lastY, deltaX, deltaY, hitSize;
