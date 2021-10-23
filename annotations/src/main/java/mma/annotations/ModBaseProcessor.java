@@ -49,6 +49,7 @@ public abstract class ModBaseProcessor extends BaseProcessor {
             annotationProperties.put("classPrefix",classPrefixTxt.readString());
             try{
                 PropertiesUtils.store(annotationProperties,annotationPropertiesFile.writer(false),null);
+                classPrefixTxt.delete();
             }catch(IOException exception){
                 exception.printStackTrace();
             }
@@ -101,6 +102,6 @@ public abstract class ModBaseProcessor extends BaseProcessor {
     }
 
     public void debugLog(String text,Object... args){
-        System.out.print("[D]"+Strings.format(text, args));
+        System.out.println("[D]"+Strings.format(text, args));
     }
 }
