@@ -2,7 +2,6 @@ buildscript {
     ext {
         arcHash = 'v133'
         mindustryVersion = 'v133'
-        modsDirectory = "classic"
         jparcerVersion="3.22.1"
     }
     repositories {
@@ -297,27 +296,5 @@ task deploy(type: Jar) {
     doLast {
         delete { delete "$buildDir/libs/${project.archivesBaseName}Desktop.jar" }
         delete { delete "$buildDir/libs/${project.archivesBaseName}Android.jar" }
-    }
-}
-task mjar() {
-    dependsOn "jar"
-    doFirst {
-    }
-    doLast {
-        def intoPath = null
-        if ("classic".equals(modsDirectory)) {
-            intoPath = "${arc.util.OS.getAppDataDirectoryString("Mindustry")}/mods/"
-        } else if (modsDirectory != null) intoPath = modsDirectory;
-        if (intoPath != null) {
-            delete {
-                delete "${intoPath}/${project.archivesBaseName}Desktop.jar"
-            }
-            copy {
-                from "$buildDir/libs/${project.archivesBaseName}Desktop.jar"
-                into intoPath
-            }
-            def time = LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss"));
-            System.out.println("\tlast build time: ${time}")
-        }
     }
 }

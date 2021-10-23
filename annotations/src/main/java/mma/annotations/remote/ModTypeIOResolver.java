@@ -1,9 +1,8 @@
 package mma.annotations.remote;
 
 import arc.func.Cons;
-import arc.struct.ObjectMap;
-import arc.struct.Seq;
-import arc.util.Log;
+import arc.struct.*;
+import arc.util.*;
 import mindustry.annotations.Annotations;
 import mindustry.annotations.Annotations;
 import mindustry.annotations.util.Smethod;
@@ -22,28 +21,32 @@ public class ModTypeIOResolver extends TypeIOResolver {
         methods.clear();
         ClassSerializer out = new ClassSerializer(new ObjectMap<>(), new ObjectMap<>(), new ObjectMap<>());
         Seq<Stype> types = processor.types(Annotations.TypeIOHandler.class);
-        types.addAll(processor.types(Annotations.TypeIOHandler.class));
-        Seq<Smethod> usedMethods = new Seq<>();
-        Seq<Stype> newTypes = new Seq<>();
+        ObjectMap<String,Stype> typeMap = new ObjectMap<>();
         Cons<Stype> addNewType = nt -> {
-            if (!newTypes.contains(t -> t.fullName().equals(nt.fullName()))) {
-                newTypes.add(nt);
+            if (!typeMap.containsKey(nt.fullName())){
+                typeMap.put(nt.fullName(),nt);
             }
         };
-        for (Stype stype : types.copy()) {
+        for (Stype stype : types) {
             addNewType.get(stype);
             Seq<Stype> allSuperclasses = stype.allSuperclasses();
 //            allSuperclasses.reverse();
             for (Stype superclass : allSuperclasses) {
                 String superFullname = superclass.fullName();
-                if (superFullname.contains("TypeIO")) {
-                    addNewType.get(superclass);
-                }
+                if (superFullname.equals(Object.class.getName()))continue;
+                addNewType.get(superclass);
             }
         }
-        types.set(newTypes);
+        types.set(typeMap.values().toSeq());
+        boolean debug=false;
+        if(processor.annotationsSettings().getBool("debug")){
+            debug=true;
+        }
 //        types.reverse();
         for (Stype type : types) {
+            if (debug){
+                System.out.println(Strings.format("use methods from @",type.fullName()));
+            }
             //look at all TypeIOHandler methods
             for (Smethod method : type.methods()) {
                 addMethod(type, method);
@@ -64,9 +67,6 @@ public class ModTypeIOResolver extends TypeIOResolver {
     private static void processMethods(ClassSerializer out, Stype type, Seq<Smethod> methods) {
         for (Smethod meth : methods) {
 //            Log.info("meth: @",meth);
-            ObjectMap<String, String> copy1 = out.readers.copy();
-            ObjectMap<String, String> copy2 = out.writers.copy();
-            ObjectMap<String, String> copy3 = out.mutatorReaders.copy();
             if (meth.is(Modifier.PUBLIC) && meth.is(Modifier.STATIC)) {
                 Seq<Svar> params = meth.params();
                 //2 params, second one is type, first is writer
@@ -79,10 +79,6 @@ public class ModTypeIOResolver extends TypeIOResolver {
                     //2 params, one is reader, other is type, returns type - these are made to reduce garbage allocated
                     out.mutatorReaders.put(fix(meth.retn().toString()), type.fullName() + "." + meth.name());
                 }
-            }
-            ObjectMap<String, String> copy = out.readers.copy();
-            for (String key : copy1.keys()) {
-                copy.remove(key);
             }
 //            Log.info("readers added: @", copy);
         }

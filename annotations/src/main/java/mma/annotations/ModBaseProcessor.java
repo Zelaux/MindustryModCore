@@ -1,11 +1,12 @@
 package mma.annotations;
 
 import arc.files.Fi;
-import arc.struct.Seq;
+import arc.struct.*;
 import arc.util.Log;
 import arc.util.OS;
 import arc.util.Strings;
 import arc.util.Time;
+import arc.util.io.*;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeName;
@@ -31,8 +32,28 @@ import java.util.Set;
 public abstract class ModBaseProcessor extends BaseProcessor {
     static final String parentName = "mindustry.gen";
     public static String rootPackageName = null;
+    static final StringMap annotationProperties=new StringMap();
     {
         enableTimer=true;
+    }
+    public  StringMap annotationsSettings(){
+        Fi annotationPropertiesFile = rootDirectory.child("annotation.properties");
+
+        if (annotationPropertiesFile.exists()){
+            PropertiesUtils.load(annotationProperties,annotationPropertiesFile.reader());
+        } else {
+            annotationPropertiesFile.writeString("");
+        }
+        Fi classPrefixTxt = rootDirectory.child("annotations/classPrefix.txt");
+        if (classPrefixTxt.exists()) {
+            annotationProperties.put("classPrefix",classPrefixTxt.readString());
+            try{
+                PropertiesUtils.store(annotationProperties,annotationPropertiesFile.writer(false),null);
+            }catch(IOException exception){
+                exception.printStackTrace();
+            }
+        }
+        return annotationProperties;
     }
     public static void print(String obj, Object... args) {
         String message = Strings.format(obj.toString(), args);
@@ -55,18 +76,14 @@ public abstract class ModBaseProcessor extends BaseProcessor {
     public String classPrefix() {
         String classNamePrefix = "Mod";
         if (!rootPackageName.equals("mma")) {
-            classNamePrefix = Strings.capitalize(rootPackageName);
-            Fi child = rootDirectory.child("annotations/classPrefix.txt");
-            if (child.exists()) {
-                classNamePrefix = child.readString();
-            }
+            classNamePrefix = annotationsSettings().get("classPrefix",Strings.capitalize(rootPackageName));
         }
         return classNamePrefix;
     }
 
     @Override
     protected String getPackageName() {
-        packageName=(rootPackageName = rootDirectory.child("core/src").list()[0].name()) + ".gen";
+        packageName=(rootPackageName = annotationsSettings().get("rootPackage",rootDirectory.child("core/src").list()[0].name())) + ".gen";
         return packageName;
     }
 
