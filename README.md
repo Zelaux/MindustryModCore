@@ -1,17 +1,18 @@
-ZelauxModCore([last version](lastVersion.txt))
+ZelauxModCore([last version](versions/v133.txt))
 [![](https://jitpack.io/v/Zelaux/ZelauxModCore.svg)](https://jitpack.io/#Zelaux/ZelauxModCore)
 ========
-`ZelauxModCore` is a Mindustry java mod core for.
+`ZelauxModCore` is the core of Mindustry's Java mod for easy modding.
+### Modules
+- annotations
+- core
+- tools
+- plugins
 ### Usage/Examples
 ###### Using annotations
-
-## Mindustry Mod core By Zelaux
-
+You can create annotations.propecties file in root directory and change some [setting](annotations/src/main/java/mma/annotations/AnnotationSetting.java "look at this enum")
 ## Authors
 - Zelaux
-- 
-# Build Guide
-## PC
+# PC Build Guide
 
 * 1.Download intelijIDEA.
 
@@ -27,14 +28,9 @@ gradlew jar  | ./gradlew jar | ./gradlew jar
 Download
 --------
 
-Depend via Gradle:
+Depend via Gradle(replace MODULE_NAME with the required module name):
 ```groovy
 dependencies {
-        implementation 'com.github.Zelaux.ZelauxModCore:-SNAPSHOT'
+        implementation 'com.github.Zelaux.ZelauxModCore:MODULE_NAME:-SNAPSHOT'
 }
-```
-
-And don't forget to add the dependency to mod. (h).json
-```hjson
-dependencies: ["gas-library-java"]
 ```
