@@ -1,5 +1,5 @@
 mma.annotations.dependencies.DependenciesProc
-mma.annotations.entities.ModEntitiesProc
+mma.annotations.entities.ModEntityProcess
 mma.annotations.impl.ModAssetsProcess
 mma.annotations.impl.StructProcess
 mma.annotations.misc.LogicStatementProcessor
