@@ -45,7 +45,7 @@ public class ModTypeIOResolver extends TypeIOResolver {
 //        types.reverse();
         for (Stype type : types) {
             if (debug){
-                System.out.println(Strings.format("use methods from @",type.fullName()));
+                processor.debugLog("use methods from @",type.fullName());
             }
             //look at all TypeIOHandler methods
             for (Smethod method : type.methods()) {
@@ -60,6 +60,11 @@ public class ModTypeIOResolver extends TypeIOResolver {
         });
         for (Stype key : keys) {
             processMethods(out, key, methodsMap.get(key));
+        }
+        if (debug){
+            processor.debugLog("writes: @",out.writers);
+            processor.debugLog("readers: @",out.readers);
+            processor.debugLog("mutatorReaders: @",out.mutatorReaders);
         }
         return out;
     }

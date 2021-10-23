@@ -99,4 +99,8 @@ public abstract class ModBaseProcessor extends BaseProcessor {
     public void delete(String name) throws IOException {
         delete(packageName, name);
     }
+
+    public void debugLog(String text,Object... args){
+        System.out.print("[D]"+Strings.format(text, args));
+    }
 }
