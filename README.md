@@ -9,7 +9,7 @@ ZelauxModCore([last version](versions/v133.txt))
 - plugins
 ### Usage/Examples
 ###### Using annotations
-You can create `annotations.propecties` file in root directory and change some [setting](annotations/src/main/java/mma/annotations/AnnotationSetting.java "look at this enum")
+You can create `annotations.propecties` file in root directory and change some [settings](annotations/src/main/java/mma/annotations/AnnotationSetting.java "look at this enum")
 ## Authors
 - Zelaux
 # PC Build Guide
