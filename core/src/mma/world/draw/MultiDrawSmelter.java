@@ -11,6 +11,7 @@ import mindustry.world.draw.*;
 
 public class MultiDrawSmelter extends DrawSmelter{
     public FlamePoint[] flamePoints = {};
+    public boolean drawTopOnce=false;
 
     public void flamePoints(FlamePoint... flamePoints){
         this.flamePoints = flamePoints;
@@ -27,12 +28,18 @@ public class MultiDrawSmelter extends DrawSmelter{
             float cr = Mathf.random(0.1f);
 
             Draw.z(Layer.block + 0.01f);
+            if (drawTopOnce){
+                Draw.alpha(build.warmup);
+                Draw.rect(top, build.x, build.y);
+            }
 
             for(FlamePoint point : flamePoints){
                 float x = build.x + (point.x - 0.5f) * block.size * Vars.tilesize;
                 float y = build.y + (point.y - 0.5f) * block.size * Vars.tilesize;
-                Draw.alpha(build.warmup);
-                Draw.rect(top, x, y);
+                if (!drawTopOnce){
+                    Draw.alpha(build.warmup);
+                    Draw.rect(top, x, y);
+                }
 
                 Draw.alpha(((1f - g) + Mathf.absin(Time.time, 8f, g) + Mathf.random(r) - r) * build.warmup);
 
