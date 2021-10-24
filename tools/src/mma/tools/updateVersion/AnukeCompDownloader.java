@@ -105,7 +105,7 @@ public class AnukeCompDownloader {
             for (Fi file : outDirectory.list()) {
                 String compName = file.nameWithoutExtension();
                 String code = Strings.format("@",file.readString()
-                .replace("\"","\\\"").replace("\'","\\\'")
+                .replace("\"","\\\"").replace("'", "\\'").replace("\\n","\\\\n")
                 );
                 initializer.addAndGetStatement(Strings.format("compMap.put(\"@\",@)", compName, new StringLiteralExpr(code)));
             }
