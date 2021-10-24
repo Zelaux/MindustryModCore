@@ -2,7 +2,7 @@ package mma.tools.updateVersion;
 
 import arc.files.Fi;
 import arc.files.ZipFi;
-import arc.struct.Seq;
+import arc.struct.*;
 import arc.util.Log;
 import arc.util.Strings;
 import arc.util.Time;
@@ -10,14 +10,14 @@ import com.github.javaparser.ParseResult;
 import com.github.javaparser.Range;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Modifier;
+import com.github.javaparser.ast.Modifier.*;
 import com.github.javaparser.ast.Node;
-import com.github.javaparser.ast.body.AnnotationDeclaration;
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.comments.Comment;
 import com.github.javaparser.ast.comments.LineComment;
-import com.github.javaparser.ast.expr.AnnotationExpr;
-import com.github.javaparser.ast.expr.Name;
+import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.nodeTypes.NodeWithAnnotations;
+import com.github.javaparser.ast.stmt.*;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import mma.tools.parsers.LibrariesDownloader;
 
@@ -40,9 +40,9 @@ public class AnukeCompDownloader {
                     packageName = Fi.get("core/src").list()[0].nameWithoutExtension();
                 }
             }
-            Fi dir = new Fi("core/src/" + packageName + "/entities/compByAnuke");
+            Fi outDirectory = new Fi("core/src/" + packageName + "/entities/compByAnuke");
 
-            if (dir.exists()) dir.delete();
+            if (outDirectory.exists()) outDirectory.delete();
             folder.mkdirs();
             Fi compJava = folder.child("compJava");
             Fi finalComp = folder.child("finalComp");
@@ -88,17 +88,34 @@ public class AnukeCompDownloader {
             }
             Seq<String> names = new Seq<>();
             for (Fi fi : finalComp.list()) {
-                fi.copyTo(dir.child(fi.name()));
+                fi.copyTo(outDirectory.child(fi.name()));
                 names.add(fi.nameWithoutExtension());
             }
 
-            createAnnotationsConfigClass(dir, names);
-            Fi fi = Fi.get("anukeCompsList.txt");
-            fi.writeString("");
-            for (Fi file : dir.list()) {
-                fi.writeString(file.nameWithoutExtension()+"\n",true);
-            }
+            createAnnotationsConfigClass(outDirectory, names);
 
+            CompilationUnit compilationUnit = new CompilationUnit();
+            ClassOrInterfaceDeclaration compData = compilationUnit.addClass("CompData",new Keyword[0]);
+            Fi compDataFile = Fi.get("annotations/src/main/java/"+packageName+"/annotations/entities/CompData.java");
+            compilationUnit.addImport(ObjectMap.class);
+            compData.addField("ObjectMap<String,String>", "compMap", Keyword.STATIC,Keyword.FINAL);
+            compData.addField("String", "groupDefs", Keyword.STATIC,Keyword.FINAL);
+            BlockStmt initializer = compData.addStaticInitializer();
+            initializer.addAndGetStatement("compMap = new ObjectMap<>()");
+            for (Fi file : outDirectory.list()) {
+                String code = Strings.format("@",file.readString()
+                .replace("\"","\\\"").replace("\'","\\\'")
+                );
+                code=new StringLiteralExpr(code).toString().replace("\\n","\\n\"+\n\"");
+                initializer.addAndGetStatement(Strings.format("compMap.put(\"@\",@)",file.nameWithoutExtension(), code));
+            }
+            initializer.addAndGetStatement("groupDefs="+new StringLiteralExpr(
+            Fi.get("core/src/"+packageName+"/entities/GroupDefs.java").readString()
+            .replace("\"","\\\"").replace("\'","\\\'")
+            ));
+
+            compilationUnit.setPackageDeclaration(packageName+".annotations.entities");
+            compDataFile.writeString(compilationUnit.toString());
         } catch (Exception e) {
             e.printStackTrace();
         }

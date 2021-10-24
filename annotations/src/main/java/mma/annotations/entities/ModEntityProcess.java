@@ -3,6 +3,7 @@ package mma.annotations.entities;
 import arc.files.*;
 import arc.func.*;
 import arc.struct.*;
+import arc.struct.ObjectMap.*;
 import arc.util.*;
 import arc.util.io.*;
 import arc.util.pooling.*;
@@ -12,7 +13,6 @@ import mindustry.annotations.*;
 import mindustry.annotations.util.*;
 import mma.annotations.*;
 import mma.annotations.remote.*;
-import org.apache.commons.io.*;
 
 import javax.annotation.processing.*;
 import javax.lang.model.element.*;
@@ -20,7 +20,6 @@ import javax.lang.model.type.*;
 import javax.tools.*;
 import java.io.*;
 import java.lang.annotation.*;
-import java.net.*;
 
 @SupportedAnnotationTypes({
 "mindustry.annotations.Annotations.EntityDef",
@@ -50,7 +49,7 @@ public class ModEntityProcess extends ModBaseProcessor{
     TypeIOResolver.ClassSerializer serializer;
     //    Seq<String> anukeComponents = new Seq<>();
     boolean hasAnukeComps = false;
-    private String compByAnukePackage, compList[];
+    private String compByAnukePackage;
 
     {
         rounds = 4;
@@ -107,17 +106,16 @@ public class ModEntityProcess extends ModBaseProcessor{
             if(root) return;
             compByAnukePackage = "mma.entities.compByAnuke";
             Fi tmp = Fi.get("tmp");
-            FileUtils.copyURLToFile(new URL("https://raw.githubusercontent.com/Zelaux/ZelauxModCore/master/anukeCompsList.txt"), tmp.file());
-            compList = tmp.readString().split("\n");
-            for(String compName : compList){
-                String strUrl = Strings.format("https://raw.githubusercontent.com/Zelaux/ZelauxModCore/master/core/src/mma/entities/compByAnuke/@.java", compName);
-                FileUtils.copyURLToFile(new URL(strUrl), tmp.file());
+            for(Entry<String, String> entry : CompData.compMap){
+                String compName = entry.key;
+                String code = entry.value;
+                tmp.writeString(code);
                 JavaFileObject object = filer.createSourceFile(compByAnukePackage + "." + compName);
                 OutputStream stream = object.openOutputStream();
                 stream.write(tmp.readBytes());
                 stream.close();
             }
-            FileUtils.copyURLToFile(new URL("https://raw.githubusercontent.com/Zelaux/ZelauxModCore/master/core/src/mma/entities/GroupDefs.java"), tmp.file());
+            tmp.writeString(CompData.groupDefs);
 
             JavaFileObject object = filer.createSourceFile("mma.entities.GroupDefs");
             OutputStream stream = object.openOutputStream();
@@ -322,15 +320,15 @@ public class ModEntityProcess extends ModBaseProcessor{
                 String groupType = repr.annotation(Annotations.Component.class).base() ? baseName(repr) : interfaceName(repr);
 
                 boolean collides = an.collide();
-                boolean modGroup =  true;
+                boolean modGroup = true;
                 Element element = group.up();
-                while(element != null && !(element instanceof TypeElement)) {
-                    element=element.getEnclosingElement();
+                while(element != null && !(element instanceof TypeElement)){
+                    element = element.getEnclosingElement();
                 }
-                if (element != null && modGroup){
+                if(element != null && modGroup){
                     String string = element.toString();
-                    debugLog("groupFullName: @",string);
-                    modGroup= string.startsWith(rootPackageName) && !string.equals("mma.entities.GroupDefs") ;
+                    debugLog("groupFullName: @", string);
+                    modGroup = string.startsWith(rootPackageName) && !string.equals("mma.entities.GroupDefs");
                 }
                 groupDefs.add(new GroupDefinition(group.name().startsWith("g") ? group.name().substring(1) : group.name(),
                 ClassName.bestGuess(packageName + "." + groupType), types, an.spatial(), an.mapping(), collides, modGroup));
@@ -484,7 +482,7 @@ public class ModEntityProcess extends ModBaseProcessor{
             .addStatement("return $S + $L", name + "#", "id").build());
 
             ModEntityIO io = new ModEntityIO(type.name(), builder, allFieldSpecs, serializer,
-            rootDirectory.child(annotationsSettings(AnnotationSetting.revisionsPath,"annotations/src/main/resources/revisions")).child(type.name()));
+            rootDirectory.child(annotationsSettings(AnnotationSetting.revisionsPath, "annotations/src/main/resources/revisions")).child(type.name()));
             //entities with no sync comp and no serialization gen no code
             boolean hasIO = ann.genio() && (components.contains(s -> s.name().contains("Sync")) || ann.serialize());
 
@@ -809,7 +807,7 @@ public class ModEntityProcess extends ModBaseProcessor{
         groupsBuilder.addMethod(groupResize.build());
         groupsBuilder.addMethod(groupUpdate.build());
 
-        write(groupsBuilder,Seq.with("import mindustry.gen.*;"));
+        write(groupsBuilder, Seq.with("import mindustry.gen.*;"));
     }
 
     private void thirdRound() throws Exception{
