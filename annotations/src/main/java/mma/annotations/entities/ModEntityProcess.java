@@ -327,7 +327,7 @@ public class ModEntityProcess extends ModBaseProcessor{
                 }
                 if(element != null && modGroup){
                     String string = element.toString();
-                    debugLog("groupFullName: @", string);
+//                    debugLog("groupFullName: @", string);
                     modGroup = string.startsWith(rootPackageName) && !string.equals("mma.entities.GroupDefs");
                 }
                 groupDefs.add(new GroupDefinition(group.name().startsWith("g") ? group.name().substring(1) : group.name(),
