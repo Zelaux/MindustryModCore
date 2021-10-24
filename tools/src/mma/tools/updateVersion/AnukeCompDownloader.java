@@ -103,11 +103,11 @@ public class AnukeCompDownloader {
             BlockStmt initializer = compData.addStaticInitializer();
             initializer.addAndGetStatement("compMap = new ObjectMap<>()");
             for (Fi file : outDirectory.list()) {
+                String compName = file.nameWithoutExtension();
                 String code = Strings.format("@",file.readString()
                 .replace("\"","\\\"").replace("\'","\\\'")
                 );
-                code=new StringLiteralExpr(code).toString().replace("\\n","\\n\"+\n\"");
-                initializer.addAndGetStatement(Strings.format("compMap.put(\"@\",@)",file.nameWithoutExtension(), code));
+                initializer.addAndGetStatement(Strings.format("compMap.put(\"@\",@)", compName, new StringLiteralExpr(code)));
             }
             initializer.addAndGetStatement("groupDefs="+new StringLiteralExpr(
             Fi.get("core/src/"+packageName+"/entities/GroupDefs.java").readString()
