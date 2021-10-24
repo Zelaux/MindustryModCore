@@ -17,9 +17,9 @@ import mindustry.graphics.MultiPacker;
 import mindustry.world.blocks.production.Drill;
 import mma.customArc.cfunc.Cons3;
 import mma.type.Rotator;
-import mma.type.SelfIconGenerator;
+import mma.type.ImageGenerator;
 
-public class MultiRotatorDrill extends Drill implements SelfIconGenerator {
+public class MultiRotatorDrill extends Drill implements ImageGenerator{
     public Rotator[] rotators = {};
     public boolean drawRotator = true;
 

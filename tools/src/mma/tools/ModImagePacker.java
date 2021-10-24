@@ -2,6 +2,8 @@ package mma.tools;
 
 import arc.files.Fi;
 import arc.files.ZipFi;
+import arc.graphics.*;
+import arc.graphics.g2d.*;
 import arc.util.serialization.Json;
 import arc.util.serialization.Jval;
 import mindustry.Vars;
@@ -14,13 +16,51 @@ import mma.gen.ModContentRegions;
 import mma.gen.ModEntityMapping;
 import mma.tools.gen.MindustryImagePacker;
 import mma.tools.parsers.LibrariesDownloader;
+import mma.type.*;
 import org.apache.commons.io.FileUtils;
 
 import java.net.URL;
 
 public class ModImagePacker extends MindustryImagePacker {
     static Mods.ModMeta modMeta;
+    public static PixmapProcessor processor=new PixmapProcessor(){
+        @Override
+        public void save(Pixmap pixmap, String path){
+            MindustryImagePacker.save(pixmap,path);
+        }
 
+        @Override
+        public Pixmap get(String name){
+            return MindustryImagePacker.get(name);
+        }
+
+        @Override
+        public boolean has(String name){
+            return MindustryImagePacker.has(name);
+        }
+
+        @Override
+        public Pixmap get(TextureRegion region){
+            return MindustryImagePacker.get(region);
+        }
+
+        @Override
+        public void replace(String name, Pixmap image){
+            MindustryImagePacker.replace(name,image);
+
+        }
+
+        @Override
+        public void replace(TextureRegion name, Pixmap image){
+            MindustryImagePacker.replace(name,image);
+
+        }
+
+        @Override
+        public void delete(String name){
+            MindustryImagePacker.delete(name);
+        }
+    };
     public ModImagePacker() {
         try {
             start();
