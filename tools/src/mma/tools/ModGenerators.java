@@ -12,7 +12,6 @@ import arc.util.*;
 import arc.util.noise.*;
 import mindustry.game.*;
 import mindustry.gen.*;
-import mindustry.graphics.*;
 import mindustry.type.*;
 import mindustry.world.*;
 import mindustry.world.blocks.*;
@@ -21,6 +20,7 @@ import mindustry.world.blocks.legacy.*;
 import mindustry.world.meta.*;
 import mma.tools.gen.*;
 import mma.type.*;
+import mma.type.pixmap.*;
 
 import static mindustry.Vars.content;
 import static mma.tools.ModImagePacker.*;
@@ -191,7 +191,7 @@ public class ModGenerators extends MindustryGenerators{
                 type.loadIcon();
                 type.init();
                 Func<Pixmap, Pixmap> outline = i -> {
-                    return processor.outline(i);
+                    return PixmapProcessor.outline(i);
                 };
                 Cons<TextureRegion> outliner = t -> {
                     if(t != null && t.found()){
@@ -223,7 +223,7 @@ public class ModGenerators extends MindustryGenerators{
                     Pixmap pixmap = weapon.flipSprite ? outline.get(get(weapon.region)).flipX() : outline.get(get(weapon.region));
                     int x = (int)(weapon.x / Draw.scl + image.width / 2f - weapon.region.width / 2f);
                     int y = (int)(-weapon.y / Draw.scl + image.height / 2f - weapon.region.height / 2f);
-                    image = processor.drawScaleAt(image, pixmap, x, y);
+                    image = PixmapProcessor.drawScaleAt(image, pixmap, x, y);
                 }
 
                 //draw base region on top to mask weapons
@@ -244,7 +244,7 @@ public class ModGenerators extends MindustryGenerators{
                         wepReg = wepReg.flipX();
                     }
 
-                    image = processor.drawScaleAt(image, wepReg, (int)(weapon.x / Draw.scl + image.width / 2f - weapon.region.width / 2f), (int)(-weapon.y / Draw.scl + image.height / 2f - weapon.region.height / 2f));
+                    image = PixmapProcessor.drawScaleAt(image, wepReg, (int)(weapon.x / Draw.scl + image.width / 2f - weapon.region.width / 2f), (int)(-weapon.y / Draw.scl + image.height / 2f - weapon.region.height / 2f));
                 }
                 if(type instanceof ImageGenerator){
                     Pixmap generate = ((ImageGenerator)type).generate(image, processor);
@@ -253,9 +253,9 @@ public class ModGenerators extends MindustryGenerators{
                     }
                 }
 
-                image = processor.clearAlpha(image);
+                image = PixmapProcessor.clearAlpha(image);
                 save(image, /*"unit-" +*/ type.name + "-shadow");
-                image = processor.clearAlpha(image);
+                image = PixmapProcessor.clearAlpha(image);
                 save(image, /*"unit-" +*/ type.name + "-full");
                 Rand rand = new Rand();
                 rand.setSeed(type.name.hashCode());

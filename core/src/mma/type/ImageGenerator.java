@@ -3,7 +3,7 @@ package mma.type;
 import arc.func.Func;
 import arc.graphics.Pixmap;
 import arc.graphics.g2d.TextureRegion;
-import mindustry.ctype.*;
+import mma.type.pixmap.*;
 
 public interface ImageGenerator{
     default Pixmap generate(Pixmap icon, Func<TextureRegion,Pixmap> pixmapProvider){

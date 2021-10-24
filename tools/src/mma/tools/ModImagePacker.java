@@ -6,7 +6,6 @@ import arc.graphics.*;
 import arc.graphics.g2d.*;
 import arc.util.serialization.Json;
 import arc.util.serialization.Jval;
-import mindustry.Vars;
 import mindustry.ctype.Content;
 import mindustry.ctype.MappableContent;
 import mindustry.mod.Mods;
@@ -15,8 +14,7 @@ import mma.core.ModContentLoader;
 import mma.gen.ModContentRegions;
 import mma.gen.ModEntityMapping;
 import mma.tools.gen.MindustryImagePacker;
-import mma.tools.parsers.LibrariesDownloader;
-import mma.type.*;
+import mma.type.pixmap.*;
 import org.apache.commons.io.FileUtils;
 
 import java.net.URL;
