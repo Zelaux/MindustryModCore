@@ -27,121 +27,6 @@ import static mma.tools.ModImagePacker.*;
 
 public class ModGenerators extends MindustryGenerators{
 
-    protected static Pixmap clearAlpha(Pixmap image){
-        int x = 0, y = 0, topx = image.width, topy = image.height;
-        //check x-
-        for(int dx = 0; dx < image.width; dx++){
-            for(int dy = 0; dy < image.height; dy++){
-                if(image.getA(dx, dy) != 0){
-                    dx = topx;
-                    break;
-                }
-                x = dx;
-            }
-        }
-        //check y-
-        for(int dy = 0; dy < image.height; dy++){
-            for(int dx = 0; dx < image.width; dx++){
-                if(image.getA(dx, dy) != 0){
-                    dy = topy;
-                    break;
-                }
-                y = dy;
-            }
-        }
-        //check x+
-        for(int dx = image.width - 1; dx > -1; dx--){
-            for(int dy = image.height - 1; dy > -1; dy--){
-                if(image.getA(dx, dy) != 0){
-                    dx = -1;
-                    break;
-                }
-                topx = dx;
-
-            }
-        }
-        //check y+
-        for(int dy = image.height - 1; dy > -1; dy--){
-            for(int dx = image.width - 1; dx > -1; dx--){
-                if(image.getA(dx, dy) != 0){
-                    dy = -1;
-                    break;
-                }
-                topy = dy + 1;
-
-            }
-        }
-        if(x != 0 || y != 0 || topx != image.width || topy != image.height){
-            int width = Math.min(x, image.width - topx);
-            int height = Math.min(y, image.height - topy);
-            Pixmap pixmap = new Pixmap(image.width - width * 2, image.height - height * 2);
-//            pixmap.draw(image, 0, 0, x, y, topx, topy);
-            drawCenter(pixmap, image);
-            return pixmap;
-        }
-        return image;
-    }
-
-    protected static Pixmap drawScaleAt(Pixmap image, Pixmap other, int destx, int desty){
-        int widthScale = 0, heightScale = 0;
-        if(destx > image.width){
-            widthScale = destx - image.width + other.width;
-        }else if(destx + other.width < 0){
-            widthScale = -(destx);
-        }else if(destx + other.width > image.width || destx < 0){
-            int dif = destx + other.width - image.width;
-            int dx;
-            for(int y = 0; y < other.height; y++){
-                for(dx = 0; dx < dif; dx++){
-                    if(other.getA(other.width - dx - 1, y) == 0) continue;
-                    widthScale = Math.max(widthScale, dx);
-                }
-                for(dx = 0; dx < -destx; dx++){
-                    if(other.getA(dx, y) == 0) continue;
-                    widthScale = Math.max(widthScale, dx);
-                }
-            }
-        }
-
-        if(image.height < desty){
-            heightScale = desty - image.height + other.height;
-        }else if(desty + other.height < 0){
-            heightScale = -(desty + other.height);
-        }else if(desty + other.height > image.height || desty < 0){
-            int dif = desty + other.height - image.height;
-            int dy;
-            for(int x = 0; x < other.width; x++){
-                for(dy = 0; dy < dif; dy++){
-                    if(other.getA(x, other.height - dy - 1) == 0) continue;
-                    heightScale = Math.max(heightScale, dy);
-                }
-                for(dy = 0; dy < -destx; dy++){
-                    if(other.getA(x, dy) == 0) continue;
-                    heightScale = Math.max(heightScale, dy);
-                }
-            }
-        }
-        if(widthScale != 0 || heightScale != 0){
-            Pixmap pixmap;
-
-            try{
-                pixmap = new Pixmap(widthScale * 2 + image.width, image.height + heightScale * 2);
-            }catch(ArcRuntimeException arcRuntimeException){
-                Log.err(arcRuntimeException);
-                return image;
-            }
-            drawCenter(pixmap, image);
-            pixmap.draw(other, destx + widthScale, desty + heightScale, true);
-            return pixmap;
-        }
-        image.draw(other,
-        destx,
-        desty,
-        true
-        );
-        return image;
-    }
-
     @Override
     protected void setup(){
         disable();
@@ -293,32 +178,6 @@ public class ModGenerators extends MindustryGenerators{
         save(colors, "../../../assets/sprites/block_colors");
     }
 
-    protected Pixmap outline(Pixmap i){
-        int upScale = 0;
-        int x = 0, y = 0;
-        for(x = 0; x < i.width; x++){
-            for(y = 0; y < 3; y++){
-                boolean bool = i.getA(x, y) == 0 && i.getA(x, i.height - y - 1) == 0;
-                if(!bool){
-                    upScale = Math.max(y, upScale);
-                }
-            }
-        }
-        for(y = 0; y < i.height; y++){
-            for(x = 0; x < 3; x++){
-                boolean bool = i.getA(x, y) == 0 && i.getA(i.width - x - 1, y) == 0;
-                if(!bool){
-                    upScale = Math.max(x, upScale);
-                }
-            }
-        }
-        if(upScale != 0){
-            Pixmap pixmap = new Pixmap(i.width + upScale * 2, i.height + upScale * 2);
-            pixmap.draw(i, pixmap.width / 2 - i.width / 2, pixmap.height / 2 - i.height / 2);
-            i = pixmap;
-        }
-        return i.outline(Pal.darkerMetal, 3);
-    }
 
     @Override
     protected void unitIcons(){
@@ -332,7 +191,7 @@ public class ModGenerators extends MindustryGenerators{
                 type.loadIcon();
                 type.init();
                 Func<Pixmap, Pixmap> outline = i -> {
-                    return outline(i);
+                    return processor.outline(i);
                 };
                 Cons<TextureRegion> outliner = t -> {
                     if(t != null && t.found()){
@@ -364,7 +223,7 @@ public class ModGenerators extends MindustryGenerators{
                     Pixmap pixmap = weapon.flipSprite ? outline.get(get(weapon.region)).flipX() : outline.get(get(weapon.region));
                     int x = (int)(weapon.x / Draw.scl + image.width / 2f - weapon.region.width / 2f);
                     int y = (int)(-weapon.y / Draw.scl + image.height / 2f - weapon.region.height / 2f);
-                    image = drawScaleAt(image, pixmap, x, y);
+                    image = processor.drawScaleAt(image, pixmap, x, y);
                 }
 
                 //draw base region on top to mask weapons
@@ -385,7 +244,7 @@ public class ModGenerators extends MindustryGenerators{
                         wepReg = wepReg.flipX();
                     }
 
-                    image = drawScaleAt(image, wepReg, (int)(weapon.x / Draw.scl + image.width / 2f - weapon.region.width / 2f), (int)(-weapon.y / Draw.scl + image.height / 2f - weapon.region.height / 2f));
+                    image = processor.drawScaleAt(image, wepReg, (int)(weapon.x / Draw.scl + image.width / 2f - weapon.region.width / 2f), (int)(-weapon.y / Draw.scl + image.height / 2f - weapon.region.height / 2f));
                 }
                 if(type instanceof ImageGenerator){
                     Pixmap generate = ((ImageGenerator)type).generate(image, processor);
@@ -394,9 +253,9 @@ public class ModGenerators extends MindustryGenerators{
                     }
                 }
 
-                image = clearAlpha(image);
+                image = processor.clearAlpha(image);
                 save(image, /*"unit-" +*/ type.name + "-shadow");
-                image = clearAlpha(image);
+                image = processor.clearAlpha(image);
                 save(image, /*"unit-" +*/ type.name + "-full");
                 Rand rand = new Rand();
                 rand.setSeed(type.name.hashCode());
