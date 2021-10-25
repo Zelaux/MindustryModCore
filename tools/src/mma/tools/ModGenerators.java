@@ -198,6 +198,13 @@ public class ModGenerators extends MindustryGenerators{
                         replace(t, outline.get(get(t)));
                     }
                 };
+                if (unitOutlines){
+                    for (Weapon weapon : type.weapons) {
+                        if (outlined.add(weapon.name) && has(weapon.name)) {
+                            save(outline.get(get(weapon.name)), weapon.name + "-outline");
+                        }
+                    }
+                }
                 outliner.get(type.jointRegion);
                 outliner.get(type.footRegion);
                 outliner.get(type.legBaseRegion);
@@ -206,6 +213,9 @@ public class ModGenerators extends MindustryGenerators{
                 if(inst instanceof Legsc) outliner.get(type.legRegion);
 
                 Pixmap image = outline.get(get(type.region));
+                if (unitOutlines){
+                    save(image, type.name + "-outline");
+                }
 
                 //draw mech parts
                 if(inst instanceof Mechc){
