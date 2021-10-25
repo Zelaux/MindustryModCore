@@ -20,7 +20,7 @@ import org.apache.commons.io.FileUtils;
 import java.net.URL;
 
 public class ModImagePacker extends MindustryImagePacker {
-    public static boolean unitOutlines;
+    public static boolean unitOutlines=true;
     static Mods.ModMeta modMeta;
     public static PixmapProcessor processor=new PixmapProcessor(){
         @Override
