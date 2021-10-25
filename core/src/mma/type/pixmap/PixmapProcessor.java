@@ -7,6 +7,42 @@ import arc.util.*;
 import mindustry.graphics.*;
 
 public interface PixmapProcessor{
+ PixmapProcessor staticProcessor=new PixmapProcessor(){
+        @Override
+        public void save(Pixmap pixmap, String path){
+            throw new IllegalArgumentException();
+        }
+
+        @Override
+        public Pixmap get(String name){
+            throw new IllegalArgumentException();
+        }
+
+        @Override
+        public boolean has(String name){
+            throw new IllegalArgumentException();
+        }
+
+        @Override
+        public Pixmap get(TextureRegion region){
+            throw new IllegalArgumentException();
+        }
+
+        @Override
+        public void replace(String name, Pixmap image){
+            throw new IllegalArgumentException();
+        }
+
+        @Override
+        public void replace(TextureRegion name, Pixmap image){
+            throw new IllegalArgumentException();
+        }
+
+        @Override
+        public void delete(String name){
+            throw new IllegalArgumentException();
+        }
+    };
     void save(Pixmap pixmap, String path);
 
     Pixmap get(String name);
@@ -21,14 +57,14 @@ public interface PixmapProcessor{
 
     void delete(String name);
 
-    static void drawScaledFit(Pixmap base, Pixmap image) {
+    default void drawScaledFit(Pixmap base, Pixmap image) {
         Vec2 size = Scaling.fit.apply(image.width, image.height, base.width, base.height);
         int wx = (int) size.x, wy = (int) size.y;
         // TODO bad linear scaling
         base.draw(image, 0, 0, image.width, image.height, base.width / 2 - wx / 2, base.height / 2 - wy / 2, wx, wy, true, true);
     }
 
-    static void drawCenter(Pixmap pix, Pixmap other) {
+    default void drawCenter(Pixmap pix, Pixmap other) {
         pix.draw(other, pix.width / 2 - other.width / 2, pix.height / 2 - other.height / 2, true);
     }
 
@@ -39,7 +75,7 @@ public interface PixmapProcessor{
         save(scaled, name);
     }
 
-    static Pixmap clearAlpha(Pixmap image){
+    default Pixmap clearAlpha(Pixmap image){
         int x = 0, y = 0, topx = image.width, topy = image.height;
         //check x-
         for(int dx = 0; dx < image.width; dx++){
@@ -94,7 +130,7 @@ public interface PixmapProcessor{
         return image;
     }
 
-    static Pixmap drawScaleAt(Pixmap image, Pixmap other, int destx, int desty){
+    default Pixmap drawScaleAt(Pixmap image, Pixmap other, int destx, int desty){
         int widthScale = 0, heightScale = 0;
         if(destx > image.width){
             widthScale = destx - image.width + other.width;
@@ -154,7 +190,7 @@ public interface PixmapProcessor{
         return image;
     }
 
-    static Pixmap outline(Pixmap i){
+    default Pixmap outline(Pixmap i){
         int upScale = 0;
         int x = 0, y = 0;
         for(x = 0; x < i.width; x++){
