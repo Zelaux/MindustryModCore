@@ -7,7 +7,7 @@ import arc.util.*;
 import mindustry.graphics.*;
 
 public interface PixmapProcessor{
- PixmapProcessor staticProcessor=new PixmapProcessor(){
+    PixmapProcessor staticProcessor = new PixmapProcessor(){
         @Override
         public void save(Pixmap pixmap, String path){
             throw new IllegalArgumentException();
@@ -43,6 +43,7 @@ public interface PixmapProcessor{
             throw new IllegalArgumentException();
         }
     };
+
     void save(Pixmap pixmap, String path);
 
     Pixmap get(String name);
@@ -57,18 +58,18 @@ public interface PixmapProcessor{
 
     void delete(String name);
 
-    default void drawScaledFit(Pixmap base, Pixmap image) {
+    default void drawScaledFit(Pixmap base, Pixmap image){
         Vec2 size = Scaling.fit.apply(image.width, image.height, base.width, base.height);
-        int wx = (int) size.x, wy = (int) size.y;
+        int wx = (int)size.x, wy = (int)size.y;
         // TODO bad linear scaling
         base.draw(image, 0, 0, image.width, image.height, base.width / 2 - wx / 2, base.height / 2 - wy / 2, wx, wy, true, true);
     }
 
-    default void drawCenter(Pixmap pix, Pixmap other) {
+    default void drawCenter(Pixmap pix, Pixmap other){
         pix.draw(other, pix.width / 2 - other.width / 2, pix.height / 2 - other.height / 2, true);
     }
 
-    default void saveScaled(Pixmap pix, String name, int size) {
+    default void saveScaled(Pixmap pix, String name, int size){
         Pixmap scaled = new Pixmap(size, size);
         // TODO bad linear scaling
         scaled.draw(pix, 0, 0, pix.width, pix.height, 0, 0, size, size, true, true);
@@ -215,5 +216,23 @@ public interface PixmapProcessor{
             i = pixmap;
         }
         return i.outline(Pal.darkerMetal, 3);
+    }
+
+    default Pixmap rotatePixmap(Pixmap pixmap, int steps){
+        Pixmap copy = pixmap.copy();
+        int width = pixmap.getWidth();
+        int height = pixmap.getHeight();
+        Vec2 center = Tmp.v2.set(width - 1, height - 1).scl(0.5f);
+        for(int x = 0; x < width; x++){
+            for(int y = 0; y < height; y++){
+                Tmp.v1.set(x, y).rotateAround(center, steps * 90);
+//                pixmap.set(x,y,copy.get(Tmp.p3.x,Tmp.p3.y));
+                int nx = (int)Tmp.v1.x, ny = (int)Tmp.v1.y;
+                copy.getA(nx, ny);
+                pixmap.set(x, y, copy.get(nx, ny));
+//                pixmap.set(nx,ny,copy.get(x,y));
+            }
+        }
+        return pixmap;
     }
 }
