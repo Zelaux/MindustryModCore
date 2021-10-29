@@ -15,11 +15,12 @@ public class MultiDrawBlock extends DrawBlock{
         this.drawBlocks.addAll(drawBlocks);
     }
 
-    public void setIconProvider(DrawBlock other){
+    public MultiDrawBlock setIconProvider(DrawBlock other){
         if(drawBlocks.contains(other)){
             drawBlocks.remove(other);
         }
         drawBlocks.insert(0, other);
+        return this;
     }
 
     @Override
