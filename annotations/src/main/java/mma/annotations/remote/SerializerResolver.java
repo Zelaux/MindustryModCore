@@ -1,6 +1,7 @@
 package mma.annotations.remote;
 
 import arc.struct.Seq;
+import mindustry.annotations.*;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.type.TypeMirror;
@@ -17,6 +18,8 @@ public class SerializerResolver {
     }
 
     private static boolean isEntity(TypeMirror mirror) {
-        return !mirror.toString().contains(".") || (mirror.toString().startsWith("mindustry.gen.") || mirror.toString().startsWith("gas.gen.")) && !mirror.toString().startsWith("byte");
+        return !mirror.toString().contains(".") ||
+        (mirror.toString().startsWith("mindustry.gen.") ||
+        mirror.toString().startsWith(BaseProcessor.packageName+".")) && !mirror.toString().startsWith("byte");
     }
 }
