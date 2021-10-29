@@ -1,31 +1,26 @@
 package mma.tools;
 
-import arc.files.Fi;
-import arc.files.ZipFi;
+import arc.files.*;
 import arc.graphics.*;
 import arc.graphics.g2d.*;
-import arc.util.serialization.Json;
-import arc.util.serialization.Jval;
-import mindustry.ctype.Content;
-import mindustry.ctype.MappableContent;
-import mindustry.mod.Mods;
-import mma.ModVars;
-import mma.core.ModContentLoader;
-import mma.gen.ModContentRegions;
-import mma.gen.ModEntityMapping;
-import mma.tools.gen.MindustryImagePacker;
+import arc.util.serialization.*;
+import mindustry.ctype.*;
+import mindustry.mod.*;
+import mma.*;
+import mma.core.*;
+import mma.gen.*;
+import mma.tools.gen.*;
 import mma.type.pixmap.*;
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.*;
 
-import java.net.URL;
+import java.net.*;
 
-public class ModImagePacker extends MindustryImagePacker {
-    public static boolean unitOutlines=true;
-    static Mods.ModMeta modMeta;
-    public static PixmapProcessor processor=new PixmapProcessor(){
+public class ModImagePacker extends MindustryImagePacker{
+    public static boolean unitOutlines = true;
+    public static PixmapProcessor processor = new PixmapProcessor(){
         @Override
         public void save(Pixmap pixmap, String path){
-            MindustryImagePacker.save(pixmap,path);
+            MindustryImagePacker.save(pixmap, path);
         }
 
         @Override
@@ -45,13 +40,13 @@ public class ModImagePacker extends MindustryImagePacker {
 
         @Override
         public void replace(String name, Pixmap image){
-            MindustryImagePacker.replace(name,image);
+            MindustryImagePacker.replace(name, image);
 
         }
 
         @Override
         public void replace(TextureRegion name, Pixmap image){
-            MindustryImagePacker.replace(name,image);
+            MindustryImagePacker.replace(name, image);
 
         }
 
@@ -60,49 +55,54 @@ public class ModImagePacker extends MindustryImagePacker {
             MindustryImagePacker.delete(name);
         }
     };
-    public ModImagePacker() {
-        try {
+    static Mods.ModMeta modMeta;
+
+    public ModImagePacker(){
+        try{
             start();
-        } catch (Exception e) {
+        }catch(Exception e){
             throw new RuntimeException(e);
         }
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception{
         new ModImagePacker();
     }
 
-    public static String full(String name) {
+    public static String full(String name){
         return modMeta.name + "-" + name;
     }
 
-    protected void downloadMindustrySprites() {
+    protected void downloadMindustrySprites(){
         try{
             Fi zipFileLoc = Fi.tempFile("mindustrySprites.zip");
             zipFileLoc.delete();
             FileUtils.copyURLToFile(new URL("https://raw.githubusercontent.com/Zelaux/ZelauxModCore/master/core/mindustrySprites.zip"), zipFileLoc.file());
-            Fi mindustrySprites =Fi.tempDirectory("mindustrySprites");
-            for (Fi fi : new ZipFi(zipFileLoc).list()) {
+            Fi mindustrySprites = Fi.tempDirectory("mindustrySprites");
+            for(Fi fi : new ZipFi(zipFileLoc).list()){
                 fi.copyTo(mindustrySprites);
             }
             Fi sprites = Fi.get("../../../assets-raw/sprites_out/mindustrySprites");
             sprites.emptyDirectory();
-            String filePrefix=mindustrySprites.absolutePath()+"/";
+            String filePrefix = mindustrySprites.absolutePath() + "/";
             mindustrySprites.walk(fi -> {
                 fi.copyTo(sprites.child(fi.absolutePath().substring(filePrefix.length())));
 //                Log.info("fi: @", fi);
             });
-        } catch (Exception e){
+        }catch(Exception e){
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    protected void start() throws Exception {
+    protected void start() throws Exception{
         disableIconProcessing = true;
 
         Json json = new Json();
         Fi metaf = Fi.get("../../../../").child("mod.hjson");
+        if(!metaf.exists()){
+            metaf = Fi.get("../../../../").child("mod.json");
+        }
         modMeta = json.fromJson(Mods.ModMeta.class, Jval.read(metaf.readString()).toString(Jval.Jformat.plain));
 
         ModVars.packSprites = true;
@@ -112,30 +112,30 @@ public class ModImagePacker extends MindustryImagePacker {
         ModVars.packSprites = false;
     }
 
-    private void deleteMindustrySprites() {
-        Fi sprites=Fi.get("../../../assets-raw/sprites_out/mindustrySprites");
+    private void deleteMindustrySprites(){
+        Fi sprites = Fi.get("../../../assets-raw/sprites_out/mindustrySprites");
         sprites.deleteDirectory();
     }
 
     @Override
-    protected void preCreatingContent() {
+    protected void preCreatingContent(){
         super.preCreatingContent();
         ModEntityMapping.init();
     }
 
     @Override
-    protected void runGenerators() {
+    protected void runGenerators(){
         new ModGenerators();
     }
 
     @Override
-    protected void load() {
+    protected void load(){
         ModContentLoader.eachModContent(this::checkContent);
     }
 
-    protected void checkContent(Content content) {
-        if (content instanceof MappableContent) {
-            ModContentRegions.loadRegions((MappableContent) content);
+    protected void checkContent(Content content){
+        if(content instanceof MappableContent){
+            ModContentRegions.loadRegions((MappableContent)content);
         }
     }
 }
