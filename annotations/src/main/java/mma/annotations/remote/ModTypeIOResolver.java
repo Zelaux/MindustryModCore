@@ -96,6 +96,8 @@ public class ModTypeIOResolver{
                         return false;
                     }
                 }
+            } else {
+                return false;
             }
             return other.name().equals(method.name());
         })))
