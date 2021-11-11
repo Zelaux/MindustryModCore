@@ -10,6 +10,14 @@ ZelauxModCore([last version](versions/v133.txt))
 ### Usage/Examples
 ###### Using annotations
 You can create `annotations.propecties` file in root directory and change some [settings](annotations/src/main/java/mma/annotations/AnnotationSetting.java "look at this enum")
+### Guide to using the [ZelauxMindustryModTamplate](https://github.com/Zelaux/ZelauxMindustryModTamplate) Giude
+- Replace the `YourMod` prefix for all classes with the name of your mod.
+- Set your `classPrefix` for generated classes in `annotations.properties`
+- If you want a package like `com.company.CompanyName` you must add line bellow with our package name to the `annotations.properties`
+```properties
+rootPackage=YOUR_PACKAGE_NAME
+```
+- Do not forget to change package in `tools/build.gradle`(the variable named `imagePackerPath`)
 ## Authors
 - Zelaux
 # PC Build Guide
