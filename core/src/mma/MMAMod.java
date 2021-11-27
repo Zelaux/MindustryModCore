@@ -1,55 +1,59 @@
 package mma;
 
-import arc.Core;
-import arc.graphics.g2d.TextureRegion;
-import arc.struct.Seq;
-import mindustry.Vars;
-import mindustry.ctype.Content;
-import mindustry.ctype.MappableContent;
-import mindustry.ctype.UnlockableContent;
-import mindustry.mod.Mod;
-import mindustry.annotations.Annotations;
+import arc.*;
+import arc.graphics.g2d.*;
+import mindustry.*;
+import mindustry.ctype.*;
+import mindustry.mod.*;
+import mindustry.world.*;
 import mma.annotations.*;
-import mma.core.ModContentLoader;
-import mma.gen.ModContentRegions;
+import mma.core.*;
+import mma.gen.*;
 
-import static mindustry.Vars.content;
 import static mma.ModVars.*;
 
 @ModAnnotations.ModAssetsAnnotation
-public class MMAMod extends Mod {
+public class MMAMod extends Mod{
+    protected boolean disableBlockOutline = false;
 
-    public MMAMod() {
+    public MMAMod(){
 //        ModEntityMapping.init();
         modInfo = Vars.mods.getMod(getClass());
     }
 
-    public static TextureRegion getIcon() {
-        if (modInfo == null || modInfo.iconTexture == null) return Core.atlas.find("nomap");
+    public static TextureRegion getIcon(){
+        if(modInfo == null || modInfo.iconTexture == null) return Core.atlas.find("nomap");
         return new TextureRegion(modInfo.iconTexture);
     }
 
-    protected void modContent(Content content) {
+    protected void modContent(Content content){
 
-        if (content instanceof UnlockableContent) {
-            checkTranslate((UnlockableContent) content);
-        }
-        if (content instanceof MappableContent){
-            ModContentRegions.loadRegions((MappableContent) content);
+        if(content instanceof MappableContent){
+            ModContentRegions.loadRegions((MappableContent)content);
         }
     }
 
-    public void init() {
-        if (!loaded) return;
+    protected void created(Content content){
+
+        if(content instanceof UnlockableContent){
+            checkTranslate((UnlockableContent)content);
+        }
+        if(content instanceof Block && disableBlockOutline){
+            ((Block)content).outlineIcon = false;
+        }
+    }
+
+    public void init(){
+        if(!loaded) return;
 //        Seq<Content> all = Seq.with(content.getContentMap()).<Content>flatten().select(c -> c.minfo.mod == modInfo).as();
         ModContentLoader.eachModContent(this::modContent);
     }
 
-    public void loadContent() {
+    public void loadContent(){
         modInfo = Vars.mods.getMod(this.getClass());
         new ModContentLoader((load) -> {
             load.load();
-        });
+        },this::created);
         loaded = true;
     }
 }

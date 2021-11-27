@@ -55,21 +55,44 @@ public class ModContentLoader extends ContentLoader{
         this.modContent = ModVars.instance().getContentList();
         createModContent(cons);
     }
+    public ModContentLoader(Cons<ContentList> cons,Cons<Content> contentCons){
+        this.modContent = ModVars.instance().getContentList();
+        createModContent(cons,contentCons);
+    }
 
     public static void eachModContent(Cons<Content> cons){
         createdContent.each(cons);
-//        ContentList[] modContent = ModVars.instance().getContentList();
-//        for(ContentList contentList : modContent){
-//            for(Field field : contentList.getClass().getFields()){
-//                if(Content.class.isAssignableFrom(field.getType())){
-//                    try{
-//                        cons.get((Content)field.get(contentList));
-//                    }catch(IllegalAccessException e){
-//                        e.printStackTrace();
-//                    }
-//                }
-//            }
-//        }
+    }
+
+    /**
+     * Creates mod content, if applicable.
+     */
+    @Override
+    public void createModContent(){
+        createModContent(ContentList::load);
+    }
+    public void createModContent(Cons<ContentList> cons){
+        createModContent(cons,c->{});
+    }
+    public void createModContent(Cons<ContentList> cons,Cons<Content> contentCons){
+        loadModContent = true;
+        ContentLoader prev = Vars.content;
+        createdContent.clear();
+        Vars.content = new ContentLoaderWrapper(prev){
+            @Override
+            public void handleContent(Content content){
+                content.minfo=new ModedModContentInfo();
+                contentCons.get(content);
+                super.handleContent(content);
+                createdContent.add(content);
+            }
+        };
+        for(ContentList list : modContent){
+            cons.get(list);
+//            list.load();
+        }
+        Vars.content = prev;
+        loadModContent = false;
     }
 
     /**
@@ -93,33 +116,6 @@ public class ModContentLoader extends ContentLoader{
         for(ContentList list : content){
             list.load();
         }
-    }
-
-    /**
-     * Creates mod content, if applicable.
-     */
-    @Override
-    public void createModContent(){
-        createModContent(ContentList::load);
-    }
-    public void createModContent(Cons<ContentList> cons){
-        loadModContent = true;
-        ContentLoader prev = Vars.content;
-        createdContent.clear();
-        Vars.content = new ContentLoaderWrapper(prev){
-            @Override
-            public void handleContent(Content content){
-                content.minfo=new ModedModContentInfo();
-                super.handleContent(content);
-                createdContent.add(content);
-            }
-        };
-        for(ContentList list : modContent){
-            cons.get(list);
-//            list.load();
-        }
-        Vars.content = prev;
-        loadModContent = false;
     }
 
     /**
