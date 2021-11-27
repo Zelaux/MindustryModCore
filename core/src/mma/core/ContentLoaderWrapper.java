@@ -13,11 +13,13 @@ public class ContentLoaderWrapper extends ContentLoader{
 public final ContentLoader wrapped;
 
     public ContentLoaderWrapper(ContentLoader wrapped){
+        super();
         this.wrapped = wrapped;
     }
 
     @Override
     public void clear(){
+        if (wrapped==null)return;
         wrapped.clear();
     }
 
