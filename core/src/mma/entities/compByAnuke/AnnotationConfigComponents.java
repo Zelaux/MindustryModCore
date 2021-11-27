@@ -167,4 +167,8 @@ public class AnnotationConfigComponents {
     @ModAnnotations.EntitySuperClass()
     public interface Weaponsc extends mindustry.gen.Weaponsc {
     }
+
+    @ModAnnotations.EntitySuperClass()
+    public interface WorldLabelc extends mindustry.gen.WorldLabelc {
+    }
 }

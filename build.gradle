@@ -1,7 +1,7 @@
 buildscript {
     ext {
-        arcHash = 'v133'
-        mindustryVersion = 'v133'
+        arcHash = 'v135'
+        mindustryVersion = 'v135'
         jparcerVersion="3.22.1"
     }
     repositories {
