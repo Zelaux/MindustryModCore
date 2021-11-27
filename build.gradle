@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        arcHash = 'v135'
+//        arcHash = 'v135'
         mindustryVersion = 'v135'
         jparcerVersion="3.22.1"
     }
@@ -15,7 +15,7 @@ buildscript {
         classpath "com.github.Anuken.Mindustry:core:$mindustryVersion"
         classpath "com.github.Anuken.Mindustry:tools:$mindustryVersion"
         classpath "com.github.Anuken.Arc:arc-core:$mindustryVersion"
-        classpath "com.github.Anuken.Arc:packer:128"
+        classpath "com.github.Anuken.Arc:packer:$mindustryVersion"
     }
 }
 
@@ -34,7 +34,7 @@ allprojects {
         arcModule = { String name ->
             //skip to last submodule
             if (name.contains(':')) name = name.split(':').last()
-            return "com.github.Anuken.Arc:$name:$arcHash"
+            return "com.github.Anuken.Arc:$name:$mindustryVersion"
         }
         mindustryModule = { String name ->
             //skip to last submodule

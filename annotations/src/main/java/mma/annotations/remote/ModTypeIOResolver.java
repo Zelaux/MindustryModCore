@@ -33,7 +33,8 @@ public class ModTypeIOResolver{
                 addNewType.get(superclass);
             }
         }
-        types.set(typeMap.values().toSeq());
+        Seq<Stype> array = typeMap.values().toSeq();
+        types.set(array);
         boolean debug = false;
         if(processor.annotationsSettings().getBool("debug")){
             debug = true;
