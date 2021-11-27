@@ -98,17 +98,18 @@ public class ModContentLoader extends ContentLoader{
     /**
      * Creates mod content, if applicable.
      */
+    @Override
     public void createModContent(){
         createModContent(ContentList::load);
     }
-
     public void createModContent(Cons<ContentList> cons){
         loadModContent = true;
         ContentLoader prev = Vars.content;
         createdContent.clear();
-        Vars.content = new ContentLoader(){
+        Vars.content = new ContentLoaderWrapper(prev){
             @Override
             public void handleContent(Content content){
+                content.minfo=new ModedModContentInfo();
                 super.handleContent(content);
                 createdContent.add(content);
             }
@@ -296,7 +297,7 @@ public class ModContentLoader extends ContentLoader{
     }
 
     public <T extends Content> Seq<T> getBy(ContentType type){
-        return (Seq<T>)contentMap[type.ordinal()].select(c -> c.minfo instanceof ModedModContentInfo);
+        return contentMap[type.ordinal()].select(c -> c.minfo instanceof ModedModContentInfo).as();
     }
 
     public Seq<Block> blocks(){
