@@ -1045,7 +1045,6 @@ public class ModEntityProcess extends ModBaseProcessor{
 
     String createName(Selement<?> elem){
         Seq<Stype> comps = types(elem.annotation(Annotations.EntityDef.class), Annotations.EntityDef::value).map(this::interfaceToComp);
-        ;
         comps.sortComparing(Selement::name);
         return comps.toString("", s -> s.name().replace("Comp", ""));
     }

@@ -240,6 +240,13 @@ project(":plugins") {
         compileOnly mindustryModule("server")
     }
 }
+project(":graphics") {
+    apply plugin: "java-library"
+    dependencies {
+        implementation 'commons-io:commons-io:2.5'
+        compileOnly arcModule('arc-core')
+    }
+}
 configure(project.getSubprojects()) {
     java {
         if (!name.equals("annotations")){

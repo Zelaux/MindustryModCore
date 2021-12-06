@@ -10,5 +10,5 @@ public enum AnnotationSetting{
     /**root package name
      * @default the name of the first folder in "core/src"*/
     rootPackage
-    ;
+
 }

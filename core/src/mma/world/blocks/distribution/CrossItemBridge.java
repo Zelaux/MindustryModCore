@@ -30,7 +30,7 @@ import mindustry.world.Tile;
 import mindustry.world.blocks.distribution.ItemBridge;
 import mindustry.world.meta.Stat;
 import mindustry.world.meta.StatUnit;
-import mma.graphics.ModLines;
+import mma.graphics.ALines;
 
 import static arc.util.Tmp.v1;
 import static arc.util.Tmp.v2;
@@ -122,8 +122,8 @@ public class CrossItemBridge extends ItemBridge {
             Lines.stroke(1.0F);
             float rectX = (float) (x + link.x) / 2.0F * 8.0F - w / 2.0F,
                     rectY = (float) (y + link.y) / 2.0F * 8.0F - h / 2.0F;
-//            Lines.poly(ModLines.rotRect(rectX, rectY, w, h, angle).toArray(Vec2.class), 0, 0, 1f);
-            ModLines.rect(rectX, rectY, w, h, angle);
+//            Lines.poly(ALines.rotRect(rectX, rectY, w, h, angle).toArray(Vec2.class), 0, 0, 1f);
+            ALines.rect(rectX, rectY, w, h, angle);
             v1.set(x, y).sub(link.x, link.y).setLength(4.0F).scl(-1.0F);
             Vec2 arrowOffset = new Vec2(v1).scl(1f).setLength(1f);
             Draw.rect("bridge-arrow", link.x * 8f - arrowOffset.x * 8f, link.y * 8f - arrowOffset.y * 8f, angle - 90f);

@@ -19,7 +19,7 @@ import mindustry.type.Item;
 import mindustry.world.Block;
 import mindustry.world.DirectionalItemBuffer;
 import mindustry.world.meta.BlockGroup;
-import mma.graphics.ModLines;
+import mma.graphics.ALines;
 
 public class SideJunction extends Block {
     public float speed = 26.0F;
@@ -57,9 +57,9 @@ public class SideJunction extends Block {
         Vec2 trns = (new Vec2()).trns(rotation, -radius, radius);
         Draw.color(Pal.accent);
         Lines.stroke(1.0F);
-        ModLines.swirl(trns.x + x, trns.y + y, radius, 0.25F, 180.0F + rotation + 90.0F);
+        ALines.swirl(trns.x + x, trns.y + y, radius, 0.25F, 180.0F + rotation + 90.0F);
         trns.rotate(180.0F);
-        ModLines.swirl(trns.x + x, trns.y + y, radius, 0.25F, rotation + 90.0F);
+        ALines.swirl(trns.x + x, trns.y + y, radius, 0.25F, rotation + 90.0F);
     }
     public class SideJunctionBuild extends Building {
         public DirectionalItemBuffer buffer;
@@ -81,9 +81,9 @@ public class SideJunction extends Block {
             Vec2 trns = (new Vec2()).trns(rotation, -radius, radius);
 //            Draw.color(Pal.accent);
 //            Lines.stroke(2.0F);
-//            ModLines.swirl(trns.x + x, trns.y + y, radius, 0.25F, 180.0F + rotation + 90.0F);
+//            ALines.swirl(trns.x + x, trns.y + y, radius, 0.25F, 180.0F + rotation + 90.0F);
 //            trns.rotate(180.0F);
-//            ModLines.swirl(trns.x + x, trns.y + y, radius, 0.25F, rotation + 90.0F);
+//            ALines.swirl(trns.x + x, trns.y + y, radius, 0.25F, rotation + 90.0F);
         }
 
         public void updateTile() {

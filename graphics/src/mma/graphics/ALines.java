@@ -6,14 +6,14 @@ import arc.math.geom.*;
 import arc.struct.*;
 
 
-public class ModLines extends Lines{
+public class ALines extends Lines{
     static FloatSeq floats = new FloatSeq();
     private static Vec2 vector = new Vec2();
 
     public static void crystal(float x, float y, float radius1, float radius2, float angle, int count){
         if(count == 0) return;
         final float stroke = getStroke();
-        ModFill.crystalLine(x, y, radius1, radius2, angle, count, stroke);
+        AFill.crystalLine(x, y, radius1, radius2, angle, count, stroke);
     }
 
     public static void swirl(float x, float y, float radius, float finion){
@@ -23,7 +23,7 @@ public class ModLines extends Lines{
     public static void swirl(float x, float y, float radius, float finion, float angle){
         float stroke = getStroke();
         float halfStroke = stroke / 2.0F;
-        ModFill.donut(x, y, radius - halfStroke, radius + halfStroke, finion, angle);
+        AFill.donut(x, y, radius - halfStroke, radius + halfStroke, finion, angle);
     }
 
     public static void square(float x, float y, float rad){
@@ -41,7 +41,7 @@ public class ModLines extends Lines{
             floats.add(points1[index2].x, points1[index2].y);
             floats.add(points2[index2].x, points2[index2].y);
             floats.add(points2[index].x, points2[index].y);
-            ModFill.quad(floats);
+            AFill.quad(floats);
         };
         side.get(0);
         side.get(1);

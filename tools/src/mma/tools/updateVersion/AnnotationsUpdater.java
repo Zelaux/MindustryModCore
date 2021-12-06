@@ -31,7 +31,7 @@ public class AnnotationsUpdater {
         }
         root.child("Annotations.java").copyTo(dir.child("Annotations.java"));
         processBaseProcessor(root.child("BaseProcessor.java"), dir.child("BaseProcessor.java"));
-        ;
+
         String prefix = root.absolutePath() + "/";
         root.child("util").walk(fi -> {
             if (fi.isDirectory()) return;

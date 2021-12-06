@@ -351,7 +351,6 @@ public class AnukeCompDownloader {
                 }
             }
         } catch (Exception e) {
-            ;
             if (debug) {
                 Log.err("cannot transform line: [" + line + "] reason: @", e);
             } else {

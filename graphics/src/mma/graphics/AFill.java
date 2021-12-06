@@ -5,7 +5,7 @@ import arc.graphics.g2d.*;
 import arc.math.geom.*;
 import arc.struct.*;
 
-public class ModFill extends Fill{
+public class AFill extends Fill{
     private static Vec2 vector = new Vec2();
     private static Vec2 u = new Vec2();
     private static Vec2 v = new Vec2();

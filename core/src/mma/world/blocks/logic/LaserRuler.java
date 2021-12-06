@@ -22,7 +22,7 @@ import mindustry.graphics.Pal;
 import mindustry.logic.LAccess;
 import mindustry.logic.Ranged;
 import mindustry.world.Tile;
-import mma.graphics.ModDraw;
+import mma.graphics.*;
 import mma.world.ModBlock;
 
 import static arc.util.Tmp.v1;
@@ -102,7 +102,7 @@ public class LaserRuler extends ModBlock {
 //            Draw.color(color);
 //            Lines.stroke(stroke);
 //            float half = tilesize / 2f;
-//            ModLines.rect(tile.worldx() - half, tile.worldy() - half, tilesize, tilesize);
+//            ALines.rect(tile.worldx() - half, tile.worldy() - half, tilesize, tilesize);
         }
 
         protected void drawLinePart(Tile cur, Tile next, Color color) {
@@ -160,7 +160,7 @@ public class LaserRuler extends ModBlock {
             Draw.draw(Layer.flyingUnit + 4, () -> {
                 Tile targetTile = targetTile();
                 Tmp.v1.trns(tile.angleTo(targetTile), size * tilesize);
-                ModDraw.drawLabel(x + Tmp.v1.x, y + Tmp.v1.y, Pal.heal, "" + dstTileToTarget());
+                ADrawf.drawText(x + Tmp.v1.x, y + Tmp.v1.y, Pal.heal, "" + dstTileToTarget());
                 drawTiles(xtiles);
                 drawTiles(ytiles);
             });
@@ -170,7 +170,7 @@ public class LaserRuler extends ModBlock {
         protected void drawTiles(Seq<Tile> tiles) {
             if (tiles.size > 2) {
                 Tile tile = tiles.getFrac(0.5f);
-                ModDraw.drawLabel(tile.worldx(), tile.worldy(), Pal.heal, "" + (tiles.size - 2));
+                ADrawf.drawText(tile.worldx(), tile.worldy(), Pal.heal, "" + (tiles.size - 2));
             }
         }
 
