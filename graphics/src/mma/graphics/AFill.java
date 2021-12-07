@@ -23,41 +23,9 @@ public class AFill extends Fill{
     public static void swirl(float x, float y, float radius, float finion, float angle){
         pie(x, y, radius, finion, angle);
     }
-
-    public static void pie(float x, float y, float radius, float finion, float angle){
-        final float sides = 50;
-        int max = (int)(sides * (finion + 0.001F));
-        vector.set(0.0F, 0.0F);
-        floats.clear();
-
-        floats.add(x, y);
-        Cons<Float> cons = (i) -> {
-            vector.set(radius, 0.0F).setAngle(360.0F / sides * i + angle);
-            floats.add(vector.x + x, vector.y + y);
-        };
-        int startI = 0;
-        if(max % 2 != 0){
-            startI = 1;
-            cons.get(0f);
-            cons.get(1f);
-            cons.get(1f);
-//            cons.get(2f);
-        }
-        for(float i = startI; i < (max); i += 2f){
-            cons.get(i);
-            cons.get(i + 1f);
-            cons.get(i + 2f);
-        }
-        poly(floats);
-    }
-
     @Deprecated
     public static void circleRect(float x, float y, float radius){
         polyCircle(x, y, radius);
-    }
-
-    public static void polyCircle(float x, float y, float radius){
-        swirl(x, y, radius, 1f, 0f);
     }
 
     public static void spikedDonut(float x, float y, float radius1, float length, float finion, float angle){
@@ -104,25 +72,83 @@ public class AFill extends Fill{
         donut(x, y, radius1, radius2, finion, angle);
     }
 
-    public static void donut(float x, float y, float innerRadius, float outerRadius, float finion, float angle){
-        float sides = 50.0F;
-        float max = 50.0F;
+    //ellipse region
+    public static void polyCircle(float x, float y, float radius){
+        pie(x, y, radius, 1f, 0f);
+    }
+
+    public static void pie(float x, float y, float radius, float finion, float rotation){
+        ellipse(x, y, radius * 2f, radius * 2f, finion, 0,rotation);
+    }
+
+    public static void ellipse(float x, float y, float width, float height, float finion,  float rotation){
+        ellipse(x, y, width, height, finion, 0, rotation);
+    }
+    public static void ellipse(float x, float y, float width, float height, float finion, float angle, float rotation){
+        donutEllipse(x,y,0,0,width,height,finion,angle,rotation);
+       /* final float sides = 60;
+        finion = Mathf.clamp(finion);
+        int max = (int)(sides * (finion + 0.001F));
+        vector.set(0.0F, 0.0F);
+        floats.clear();
+
+        floats.add(x, y);
+        Cons<Float> cons = (i) -> {
+            float degrees = 360.0F / sides * i + angle;
+            vector.set(1, 0.0F).setAngle(degrees);
+            vector.scl(width, height);
+//            floats.add(Mathf.cos(degrees) * width + x, Mathf.sin(degrees) * height + y);
+            floats.add(vector.x + x, vector.y + y);
+        };
+        int startI = 0;
+        if(max % 2 != 0){
+            startI = 1;
+            cons.get(0f);
+            cons.get(1f);
+            cons.get(1f);
+//            cons.get(2f);
+        }
+        for(float i = startI; i < (max); i += 2f){
+            cons.get(i);
+            cons.get(i + 1f);
+            cons.get(i + 2f);
+        }
+        if(max > 0) poly(floats);
+*/
+    }
+
+    public static void donut(float x, float y, float radius1, float radius2, float finion, float rotation){
+        donutEllipse(x, y, radius1 * 2, radius1 * 2, radius2 * 2, radius2 * 2, finion, 0f, rotation);
+
+    }
+
+    public static void donutEllipse(float x, float y, float width, float height, float width2, float height2, float finion, float rotation){
+        donutEllipse(x, y, width, height, width2, height2, finion, 0f, rotation);
+    }
+
+    /**
+     * @param rotation ellipse rotation
+     * @param angleOffset ellipse start offset
+     */
+    public static void donutEllipse(float x, float y, float width, float height, float width2, float height2, float finion, float angleOffset, float rotation){
+        final float sides = 50.0F;
+        float max =sides;
         vector.set(0.0F, 0.0F);
         floats.clear();
         Cons<Float> cons = (ix) -> {
             float v = 7.2F * ix;
-            v = 360.0F * finion / 50.0F * ix;
-            vector.set(innerRadius, 0.0F).setAngle(v + angle);
+            v = 360.0F * finion / max * ix;
+            vector.set(1, 0.0F).setAngle(v + angleOffset).scl(width, height).rotate(rotation);
             floats.add(vector.x + x, vector.y + y);
-            vector.set(outerRadius, 0.0F).setAngle(v + angle);
+            vector.set(1, 0.0F).setAngle(v + angleOffset).scl(width2, height2).rotate(rotation);
             floats.add(vector.x + x, vector.y + y);
         };
         Cons<Float> undoCons = (ix) -> {
             float v = 7.2F * ix;
-            v = 360.0F * finion / 50.0F * ix;
-            vector.set(outerRadius, 0.0F).setAngle(v + angle);
+            v = 360.0F * finion / max * ix;
+            vector.set(1, 0.0F).setAngle(v + angleOffset).scl(width2, height2).rotate(rotation);
             floats.add(vector.x + x, vector.y + y);
-            vector.set(innerRadius, 0.0F).setAngle(v + angle);
+            vector.set(1, 0.0F).setAngle(v + angleOffset).scl(width, height).rotate(rotation);
             floats.add(vector.x + x, vector.y + y);
         };
         Runnable flush = () -> {
@@ -151,6 +177,7 @@ public class AFill extends Fill{
 
     }
 
+    //end region
     public static void tri(FloatSeq floats){
         if(floats.size < 6) return;
         float[] items = floats.items;
@@ -180,7 +207,7 @@ public class AFill extends Fill{
 //            Vec2 cpy2 = vector.trns(oneAngle * i + angle, radius1-width, 0.0F).cpy();
             point.get(i, radius2 * ((radius1 - width) / radius1));
             point.get(i2, radius1 - width);
-            ModFill.quad(floats);
+            AFill.quad(floats);
         };
         floats.clear();
         for(float i = 0; i < count; i++){
