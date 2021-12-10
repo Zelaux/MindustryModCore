@@ -78,13 +78,22 @@ public class ModContentLoader extends ContentLoader{
         loadModContent = true;
         ContentLoader prev = Vars.content;
         createdContent.clear();
+        Content[] prevContent={null};
         Vars.content = new ContentLoaderWrapper(prev){
             @Override
             public void handleContent(Content content){
                 content.minfo=new ModedModContentInfo();
-                contentCons.get(content);
+                if (!(content instanceof MappableContent)){
+                    contentCons.get(content);
+                }
                 super.handleContent(content);
                 createdContent.add(content);
+            }
+
+            @Override
+            public void handleMappableContent(MappableContent content){
+                contentCons.get(content);
+                super.handleMappableContent(content);
             }
         };
         for(ContentList list : modContent){
