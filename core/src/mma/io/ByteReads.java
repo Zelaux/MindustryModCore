@@ -1,12 +1,11 @@
 package mma.io;
 
-import arc.util.io.Reads;
-import arc.util.io.ReusableByteInStream;
+import arc.util.io.*;
 
-import java.io.DataInputStream;
+import java.io.*;
 
 public class ByteReads extends Reads {
-    final ReusableByteInStream r = new ReusableByteInStream();
+    public final ReusableByteInStream r = new ReusableByteInStream();
 
     public ByteReads() {
         super(null);

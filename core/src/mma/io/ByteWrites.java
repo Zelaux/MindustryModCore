@@ -1,23 +1,22 @@
 package mma.io;
 
-import arc.util.io.ReusableByteOutStream;
-import arc.util.io.Writes;
+import arc.util.io.*;
 
-import java.io.DataOutputStream;
+import java.io.*;
 
-public class ByteWrites extends Writes {
-    final ReusableByteOutStream r = new ReusableByteOutStream(8192);
+public class ByteWrites extends Writes{
+    public final ReusableByteOutStream r = new ReusableByteOutStream(8192);
 
-    public ByteWrites() {
+    public ByteWrites(){
         super(null);
         output = new DataOutputStream(r);
     }
 
-    public void reset() {
+    public void reset(){
         r.reset();
     }
 
-    public byte[] getBytes() {
-        return r.getBytes();
+    public byte[] getBytes(){
+        return  r.toByteArray();
     }
 }
