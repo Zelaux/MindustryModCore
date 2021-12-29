@@ -1,4 +1,4 @@
-ZelauxModCore([last version](versions/v133.txt))
+ZelauxModCore([last version](versions/lastVersion.txt))
 [![](https://jitpack.io/v/Zelaux/ZelauxModCore.svg)](https://jitpack.io/#Zelaux/ZelauxModCore)
 ========
 `ZelauxModCore` is the core of Mindustry's Java mod for easy modding.
