@@ -59,7 +59,7 @@ public class ADraw extends Draw{
         cache.clear();
         GlyphLayout layout = cache.addText(text, x, y);
 
-        font.draw(text, y - layout.width / 2f, x + layout.height / 2f);
+        font.draw(text, x - layout.width / 2f, y + layout.height / 2f);
 //        font.draw(text+"-", pos.getX(), pos.getY());
         Draw.z(z);
 
