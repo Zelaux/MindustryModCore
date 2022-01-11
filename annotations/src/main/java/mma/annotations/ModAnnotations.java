@@ -1,13 +1,10 @@
 package mma.annotations;
 
-import mindustry.annotations.Annotations;
+import mindustry.annotations.*;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
-public class ModAnnotations extends Annotations {
+public class ModAnnotations extends Annotations{
     //Zelaux annotations
 
     /** The return statement of a method with this annotation will not be replaced. */
@@ -16,25 +13,41 @@ public class ModAnnotations extends Annotations {
     public @interface GlobalReturn{
     }
 
-//    @Retention(RetentionPolicy.SOURCE)
-    public @interface EntitySuperClass {
+    //Used for generate entity classes
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface IgnoreImplementation{
+        Class[] value();
+    }
+
+    //Used for generate entity classes
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface UseOnlyImplementation{
+        Class[] value();
+
+        String methodName() default "\n\n\n";
     }
 
     @Retention(RetentionPolicy.SOURCE)
-    public @interface EntitySuperInterface {
+    public @interface EntitySuperClass{
+    }
+
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface EntitySuperInterface{
     }
 
 
     @Retention(RetentionPolicy.SOURCE)
-    public @interface ModAssetsAnnotation {
+    public @interface ModAssetsAnnotation{
     }
 
     @Retention(RetentionPolicy.SOURCE)
-    public @interface DependenciesAnnotation {
+    public @interface DependenciesAnnotation{
     }
 
     @Retention(RetentionPolicy.SOURCE)
-    public @interface AnnotationProcessor {
+    public @interface AnnotationProcessor{
     }
 
 

@@ -12,6 +12,7 @@ import com.squareup.javapoet.*;
 import mindustry.annotations.*;
 import mindustry.annotations.util.*;
 import mma.annotations.*;
+import mma.annotations.ModAnnotations.*;
 import mma.annotations.remote.*;
 
 import javax.annotation.processing.*;
@@ -20,6 +21,7 @@ import javax.lang.model.type.*;
 import javax.tools.*;
 import java.io.*;
 import java.lang.annotation.*;
+import java.util.*;
 
 @SupportedAnnotationTypes({
 "mindustry.annotations.Annotations.EntityDef",
@@ -593,6 +595,55 @@ public class ModEntityProcess extends ModBaseProcessor{
                     }
                 }
 
+                ObjectSet<String> ignoreClasses = new ObjectSet<>();
+                entry.value.each(m -> {
+                    if(m.has(IgnoreImplementation.class)){
+                        if(m.has(UseOnlyImplementation.class)){
+                            err("One method can not use IgnoreImplementation and UseOnlyImplementation annotation", m);
+                        }
+
+                        try{
+                            for(Class clazz : m.annotation(IgnoreImplementation.class).value()){
+                                ignoreClasses.add(clazz.getName());
+                            }
+                        }catch(MirroredTypesException exception){
+                            for(TypeMirror mirror : exception.getTypeMirrors()){
+                                ignoreClasses.add(mirror.toString());
+                            }
+                        }
+                    }
+                });
+                if(entry.value.contains(m -> m.has(UseOnlyImplementation.class))){
+
+                    if(entry.value.count(m -> m.has(UseOnlyImplementation.class)) > 1){
+                        err("Type " + type + " has multiple components replacing method " + entry.key + ".");
+                    }
+                    Smethod root = entry.value.find(m -> m.has(UseOnlyImplementation.class));
+                    final Seq<String> interfaces = new Seq<>();
+                    try{
+                        interfaces.set(Seq.with(root.annotation(UseOnlyImplementation.class).value()).map(Class::getName));
+                    }catch(MirroredTypesException exception){
+                        TypeMirror[] mirrors = exception.getTypeMirrors().toArray(new TypeMirror[0]);
+                        interfaces.set(Seq.with(mirrors).map(Object::toString));
+
+                    }
+
+                    entry.value.filter(m -> m == root || interfaces.contains(interfaceName -> {
+                        String mirrorName = interfaceToComp(interfaceName);
+                        String methodTypeName = m.up().toString().replace("mma.entities.compByAnuke", "mindustry.gen");
+                        return methodTypeName.equals(mirrorName);
+                    }));
+//                    root.e.getAnnotationMirrors()
+//                    entry.value.filter(m->m==root|| Structs.contains(classes,c->m.up().toString().contains(c)));
+                }else{
+                    Seq<String> ignoreSeq = ignoreClasses.iterator().toSeq();
+                    entry.value.removeAll(m -> ignoreSeq.contains(interfaceName -> {
+                        String mirrorName = interfaceToComp(interfaceName);
+                        String methodTypeName = m.up().toString().replace("mma.entities.compByAnuke", "mindustry.gen");
+                        return methodTypeName.equals(mirrorName);
+                    }));
+//                    entry.value.filter(m->m.up())
+                }
                 for(Smethod elem : entry.value){
                     String descStr = elem.descString();
 
@@ -982,6 +1033,13 @@ public class ModEntityProcess extends ModBaseProcessor{
         return componentNames.get(name);
     }
 
+    @Nullable
+    String interfaceToComp(String type){
+//        print("interfaceToComp to @",type.fullName());
+        //example: IBlock -> BlockComp
+        return type.substring(0, type.length() - 1) + "Comp";
+    }
+
     /**
      * @return all components that a entity def has
      */
@@ -1056,6 +1114,11 @@ public class ModEntityProcess extends ModBaseProcessor{
             return Seq.with(e.getTypeMirrors()).map(Stype::of);
         }
         throw new IllegalArgumentException("Missing types.");
+    }
+
+    private class MethodField{
+        String code;
+
     }
 
     class GroupDefinition{
