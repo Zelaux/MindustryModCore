@@ -9,7 +9,7 @@ import mma.gen.*;
 
 @Annotations.EntityDef({TestAnnotationsc.class})
 @Annotations.Component
-abstract class TestAnnotationsComp implements Entityc,Velc{
+abstract class TestAnnotationsComp implements Entityc{
     public Vec2 vec2Test;
     Unit testUnit;
 
