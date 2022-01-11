@@ -25,8 +25,6 @@ public class ModAnnotations extends Annotations{
     @Retention(RetentionPolicy.SOURCE)
     public @interface UseOnlyImplementation{
         Class[] value();
-
-        String methodName() default "\n\n\n";
     }
 
     @Retention(RetentionPolicy.SOURCE)
