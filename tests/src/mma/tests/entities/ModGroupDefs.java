@@ -1,7 +1,6 @@
-package mma.entities;
+package mma.tests.entities;
 
 import mindustry.annotations.Annotations.*;
-import mindustry.gen.*;
 import mma.gen.*;
 
 class ModGroupDefs<G>{

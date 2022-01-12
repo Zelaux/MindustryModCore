@@ -21,7 +21,6 @@ import javax.lang.model.type.*;
 import javax.tools.*;
 import java.io.*;
 import java.lang.annotation.*;
-import java.util.*;
 
 @SupportedAnnotationTypes({
 "mindustry.annotations.Annotations.EntityDef",
@@ -105,7 +104,7 @@ public class ModEntityProcess extends ModBaseProcessor{
     private void zeroRound(){
         try{
             boolean root = rootPackageName.equals("mma");
-            if(root) return;
+            if(root && !getFilesFi(StandardLocation.CLASS_OUTPUT).absolutePath().contains("mma.tests/build")) return;
             compByAnukePackage = "mma.entities.compByAnuke";
             Fi tmp = Fi.get("tmp");
             for(Entry<String, String> entry : CompData.compMap){
@@ -311,6 +310,7 @@ public class ModEntityProcess extends ModBaseProcessor{
             try{
                 Annotations.GroupDef an = group.annotation(Annotations.GroupDef.class);
                 Seq<Stype> types = types(an, Annotations.GroupDef::value).map(stype -> {
+//                    Log.info("type: @",stype);
                     Stype result = interfaceToComp(stype);
                     if(result == null)
                         throw new IllegalArgumentException("Interface " + stype + " does not have an associated component!");
@@ -344,6 +344,7 @@ public class ModEntityProcess extends ModBaseProcessor{
         //look at each definition
         if(hasAnukeComps) for(Selement<?> type : allDefs){
             Annotations.EntityDef ann = type.annotation(Annotations.EntityDef.class);
+            Log.info("Annotation: @",type);
             //all component classes (not interfaces)
             Seq<Stype> components = allComponents(type);
             Seq<GroupDefinition> groups = groupDefs.select(g -> (!g.components.isEmpty() && !g.components.contains(s -> !components.contains(s))) || g.manualInclusions.contains(type));
@@ -601,16 +602,7 @@ public class ModEntityProcess extends ModBaseProcessor{
                         if(m.has(UseOnlyImplementation.class)){
                             err("One method can not use IgnoreImplementation and UseOnlyImplementation annotation", m);
                         }
-
-                        try{
-                            for(Class clazz : m.annotation(IgnoreImplementation.class).value()){
-                                ignoreClasses.add(clazz.getName());
-                            }
-                        }catch(MirroredTypesException exception){
-                            for(TypeMirror mirror : exception.getTypeMirrors()){
-                                ignoreClasses.add(mirror.toString());
-                            }
-                        }
+                        types(m.annotation(IgnoreImplementation.class),IgnoreImplementation::value).map(Stype::fullName).each(ignoreClasses::add);
                     }
                 });
                 if(entry.value.contains(m -> m.has(UseOnlyImplementation.class))){
@@ -619,14 +611,7 @@ public class ModEntityProcess extends ModBaseProcessor{
                         err("Type " + type + " has multiple components replacing method " + entry.key + ".");
                     }
                     Smethod root = entry.value.find(m -> m.has(UseOnlyImplementation.class));
-                    final Seq<String> interfaces = new Seq<>();
-                    try{
-                        interfaces.set(Seq.with(root.annotation(UseOnlyImplementation.class).value()).map(Class::getName));
-                    }catch(MirroredTypesException exception){
-                        TypeMirror[] mirrors = exception.getTypeMirrors().toArray(new TypeMirror[0]);
-                        interfaces.set(Seq.with(mirrors).map(Object::toString));
-
-                    }
+                    final Seq<String> interfaces = types(root.annotation(UseOnlyImplementation.class), UseOnlyImplementation::value).map(Stype::fullName);
 
                     entry.value.filter(m -> m == root || interfaces.contains(interfaceName -> {
                         String mirrorName = interfaceToComp(interfaceName);

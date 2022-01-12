@@ -1,4 +1,4 @@
-package mma.entities;
+package mma.tests.entities.comp;
 
 import arc.math.geom.*;
 import mindustry.annotations.*;
@@ -15,7 +15,7 @@ abstract class TestAnnotationsComp implements Entityc{
 
     @Override
     @Annotations.MethodPriority(1000)
-//    @UseOnlyImplementation({Velc.class})
+    @UseOnlyImplementation({Velc.class})
 //    @IgnoreImplementation({Minerc.class,Unitc.class,Commanderc.class})
     public void update(){
         throw new RuntimeException();
@@ -34,6 +34,10 @@ abstract class TestAnnotationsComp implements Entityc{
     }
 
     public void test(){
+
+    }
+
+    class AnyCompClass{
 
     }
 }
