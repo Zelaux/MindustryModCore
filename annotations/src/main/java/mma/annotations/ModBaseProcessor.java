@@ -4,8 +4,12 @@ import arc.files.*;
 import arc.struct.*;
 import arc.util.*;
 import arc.util.io.*;
+import arc.util.serialization.*;
+import arc.util.serialization.Jval.*;
 import com.squareup.javapoet.*;
 import mindustry.annotations.*;
+import mindustry.io.*;
+import mindustry.mod.Mods.*;
 
 import javax.annotation.processing.*;
 import javax.lang.model.*;
@@ -39,6 +43,39 @@ public abstract class ModBaseProcessor extends BaseProcessor{
     protected static Fi getFilesFi(StandardLocation location, String packageName, String className) throws IOException{
         return Fi.get(filer.getResource(location, packageName, className)
         .toUri().toURL().toString().substring(OS.isWindows ? 6 : "file:".length()));
+    }
+
+    public ModMeta modInfo(){
+        ModMeta meta = modInfoNull();
+        if(meta == null) err("Cannot find mod info file");
+
+        return meta;
+    }@Nullable
+    public ModMeta modInfoNull(){
+        String[] paths = {
+        "mod.json",
+        "mod.hjson",
+        "plugin.json",
+        "plugin.hjson",
+        };
+        Fi file = null;
+        for(int i = 0; i < paths.length * 2; i++){
+            boolean coreAssets = i >= paths.length;
+            int index = i % paths.length;
+            if(coreAssets){
+                file = rootDirectory.child("core/assets").child(paths[index]);
+            }else{
+
+                file = rootDirectory.child(paths[index]);
+            }
+            if(file.exists()){
+                break;
+            }
+            file = null;
+        }
+        if(file == null) return null;
+
+        return JsonIO.json.fromJson(ModMeta.class, Jval.read(file.readString()).toString(Jformat.plain));
     }
 
     /**

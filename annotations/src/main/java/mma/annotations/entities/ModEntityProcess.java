@@ -9,8 +9,11 @@ import arc.util.io.*;
 import arc.util.pooling.*;
 import arc.util.pooling.Pool.*;
 import com.squareup.javapoet.*;
+import com.squareup.javapoet.TypeSpec.*;
 import mindustry.annotations.*;
+import mindustry.annotations.Annotations.*;
 import mindustry.annotations.util.*;
+import mindustry.mod.Mods.*;
 import mma.annotations.*;
 import mma.annotations.ModAnnotations.*;
 import mma.annotations.remote.*;
@@ -21,6 +24,7 @@ import javax.lang.model.type.*;
 import javax.tools.*;
 import java.io.*;
 import java.lang.annotation.*;
+import java.util.*;
 
 @SupportedAnnotationTypes({
 "mindustry.annotations.Annotations.EntityDef",
@@ -104,7 +108,7 @@ public class ModEntityProcess extends ModBaseProcessor{
     private void zeroRound(){
         try{
             boolean root = rootPackageName.equals("mma");
-            if(root && !getFilesFi(StandardLocation.CLASS_OUTPUT).absolutePath().contains("mma.tests/build")) return;
+            if(root && !getFilesFi(StandardLocation.CLASS_OUTPUT).absolutePath().contains("tests/build")) return;
             compByAnukePackage = "mma.entities.compByAnuke";
             Fi tmp = Fi.get("tmp");
             for(Entry<String, String> entry : CompData.compMap){
@@ -343,8 +347,8 @@ public class ModEntityProcess extends ModBaseProcessor{
         ObjectMap<Selement, ObjectSet<String>> extraNames = new ObjectMap<>();
         //look at each definition
         if(hasAnukeComps) for(Selement<?> type : allDefs){
-            Annotations.EntityDef ann = type.annotation(Annotations.EntityDef.class);
-            Log.info("Annotation: @",type);
+            EntityDef ann = type.annotation(EntityDef.class);
+            Log.info("Annotation: @", type);
             //all component classes (not interfaces)
             Seq<Stype> components = allComponents(type);
             Seq<GroupDefinition> groups = groupDefs.select(g -> (!g.components.isEmpty() && !g.components.contains(s -> !components.contains(s))) || g.manualInclusions.contains(type));
@@ -393,9 +397,13 @@ public class ModEntityProcess extends ModBaseProcessor{
                 extraNames.get(type, ObjectSet::new).add(type.name());
             }
 
-            TypeSpec.Builder builder = TypeSpec.classBuilder(name).addModifiers(Modifier.PUBLIC);
+            Builder builder = TypeSpec.classBuilder(name).addModifiers(Modifier.PUBLIC);
             //add serialize() boolean
-            builder.addMethod(MethodSpec.methodBuilder("serialize").addModifiers(Modifier.PUBLIC).returns(boolean.class).addStatement("return " + ann.serialize()).build());
+            if(!components.contains(t -> t.methods().contains(m -> {
+                return m.name().equals("serialize") && m.params().isEmpty() && m.has(ReplaceInternalImpl.class);
+            }))){
+                builder.addMethod(MethodSpec.methodBuilder("serialize").addModifiers(Modifier.PUBLIC).returns(boolean.class).addStatement("return " + ann.serialize()).build());
+            }
 
             //all SyncField fields
             Seq<Svar> syncedFields = new Seq<>();
@@ -491,186 +499,76 @@ public class ModEntityProcess extends ModBaseProcessor{
 
             //add all methods from components
             for(ObjectMap.Entry<String, Seq<Smethod>> entry : methods){
-                if(entry.value.contains(m -> m.has(Annotations.Replace.class))){
+                Seq<Smethod> smethods = entry.value.copy();
+                String methodFullName = entry.key;
+                if(smethods.contains(m -> m.has(Annotations.Replace.class))){
                     //check replacements
-                    if(entry.value.count(m -> m.has(Annotations.Replace.class)) > 1){
-                        err("Type " + type + " has multiple components replacing method " + entry.key + ".");
+                    if(smethods.count(m -> m.has(Annotations.Replace.class)) > 1){
+                        err("Type " + type + " has multiple components replacing method " + methodFullName + ".");
                     }
-                    Smethod base = entry.value.find(m -> m.has(Annotations.Replace.class));
-                    entry.value.clear();
-                    entry.value.add(base);
+                    Smethod base = smethods.find(m -> m.has(Annotations.Replace.class));
+                    smethods.clear();
+                    smethods.add(base);
                 }
+                if(smethods.contains(m -> m.has(SuperMethod.class))){
+                    //check replacements
+                    if(smethods.size > 1){
+                        err("Type " + type + " has multiple components replacing method " + methodFullName + ".");
+                    }
+                    Smethod base = smethods.first();
+                    SuperMethod annotation = base.annotation(SuperMethod.class);
+                    Seq<Stype> parentParams = types(annotation, SuperMethod::params);
+                    String parentName = annotation.parentName() + "(" + parentParams.toString(",") + ")";
+                    Seq<Smethod> parent = methods.get(parentName, (Seq<Smethod>)null);
+                    if(parent == null){
+                        err("Cannot find implementation for method " + parentName);
+                        continue;
+                    }
+                    parent = parent.copy().removeAll(m -> {
+                        return m.up().toString().equals(base.up().toString());
+                    });
+                    if(parent.isEmpty()){
+                        Log.err("Cannot find any implementation for method " + parentName);
 
-                //check multi return
-                if(entry.value.count(m -> !m.isAny(Modifier.NATIVE, Modifier.ABSTRACT) && !m.isVoid()) > 1){
-                    err("Type " + type + " has multiple components implementing non-void method " + entry.key + ".");
-                }
+                        MethodSpec.Builder mbuilder = MethodSpec.methodBuilder(annotation.parentName())
+                        .addModifiers(base.is(Modifier.PRIVATE) ? Modifier.PRIVATE : Modifier.PUBLIC);
+                        //if(isFinal || entry.value.contains(s -> s.has(Final.class))) mbuilder.addModifiers(Modifier.FINAL);
+                        if(smethods.contains(s -> s.has(Annotations.CallSuper.class)))
+                            mbuilder.addAnnotation(Annotations.CallSuper.class); //add callSuper here if necessary
+                        if(base.is(Modifier.STATIC)) mbuilder.addModifiers(Modifier.STATIC);
 
-                entry.value.sort(Structs.comps(Structs.comparingFloat(m -> m.has(Annotations.MethodPriority.class) ? m.annotation(Annotations.MethodPriority.class).value() : 0), Structs.comparing(Selement::name)));
+                        mbuilder.addTypeVariables(base.typeVariables().map(TypeVariableName::get));
+                        mbuilder.returns(base.retn());
+                        mbuilder.addExceptions(base.thrownt());
 
-                //representative method
-                Smethod first = entry.value.first();
+                        int paramID = 0;
+                        for(Stype parentParam : parentParams){
+                            mbuilder.addParameter(parentParam.tname(), "var" + paramID);
+                            paramID++;
+                        }
 
-                //skip internal impl
-                if(first.has(Annotations.InternalImpl.class)){
+                        builder.addMethod(mbuilder.build());
+                        continue;
+                    }
+
+                    List<MethodSpec> methodSpecs = builder.methodSpecs;
+                    int beforeSize = methodSpecs.size();
+                    generateMethod(type, ann, groups, builder, syncedFields, allFields, io, hasIO, parent, parentName);
+                    if(methodSpecs.size() > beforeSize){
+                        MethodSpec spec = methodSpecs.get(beforeSize);
+                        methodSpecs.set(beforeSize, spec.toBuilder().setName(base.name()).build());
+                    }
+//                    Log.info("MethodSpecs: @",methodSpecs.toString());
                     continue;
+//                    entry.value.clear();
+//                    entry.value.add(base);
+                }
+                //check multi return
+                if(smethods.count(m -> !m.isAny(Modifier.NATIVE, Modifier.ABSTRACT) && !m.isVoid()) > 1){
+                    err("Type " + type + " has multiple components implementing non-void method " + methodFullName + ".");
                 }
 
-                //build method using same params/returns
-                MethodSpec.Builder mbuilder = MethodSpec.methodBuilder(first.name()).addModifiers(first.is(Modifier.PRIVATE) ? Modifier.PRIVATE : Modifier.PUBLIC);
-                //if(isFinal || entry.value.contains(s -> s.has(Final.class))) mbuilder.addModifiers(Modifier.FINAL);
-                if(entry.value.contains(s -> s.has(Annotations.CallSuper.class)))
-                    mbuilder.addAnnotation(Annotations.CallSuper.class); //add callSuper here if necessary
-                if(first.is(Modifier.STATIC)) mbuilder.addModifiers(Modifier.STATIC);
-                mbuilder.addTypeVariables(first.typeVariables().map(TypeVariableName::get));
-                mbuilder.returns(first.retn());
-                mbuilder.addExceptions(first.thrownt());
-                for(Svar var : first.params()){
-
-                    mbuilder.addParameter(var.tname(), var.name());
-                }
-
-                //only write the block if it's a void method with several entries
-                boolean writeBlock = first.ret().toString().equals("void") && entry.value.size > 1;
-
-                if((entry.value.first().is(Modifier.ABSTRACT) || entry.value.first().is(Modifier.NATIVE)) && entry.value.size == 1 && !entry.value.first().has(Annotations.InternalImpl.class)){
-                    err(entry.value.first().up().getSimpleName() + "#" + entry.value.first() + " is an abstract method and must be implemented in some component", type);
-                }
-
-                //SPECIAL CASE: inject group add/remove code
-                if(first.name().equals("add") || first.name().equals("remove")){
-                    mbuilder.addStatement("if(added == $L) return", first.name().equals("add"));
-
-                    for(GroupDefinition def : groups){
-                        //remove/add from each group, assume imported
-                        if(def.mod){
-                            mbuilder.addStatement("$L.gen.$LGroups.$L.$L(this)", rootPackageName, classPrefix(), def.name, first.name());
-                        }else{
-                            mbuilder.addStatement("mindustry.gen.Groups.$L.$L(this)", def.name, first.name());
-                        }
-                    }
-                }
-
-                if(hasIO){
-                    //SPECIAL CASE: I/O code
-                    //note that serialization is generated even for non-serializing entities for manual usage
-                    if((first.name().equals("read") || first.name().equals("write"))){
-                        io.write(mbuilder, first.name().equals("write"));
-                    }
-
-                    //SPECIAL CASE: sync I/O code
-                    if((first.name().equals("readSync") || first.name().equals("writeSync"))){
-                        io.writeSync(mbuilder, first.name().equals("writeSync"), syncedFields, allFields);
-                    }
-
-                    //SPECIAL CASE: sync I/O code for writing to/from a manual buffer
-                    if((first.name().equals("readSyncManual") || first.name().equals("writeSyncManual"))){
-                        io.writeSyncManual(mbuilder, first.name().equals("writeSyncManual"), syncedFields);
-                    }
-
-                    //SPECIAL CASE: interpolate method implementation
-                    if(first.name().equals("interpolate")){
-                        io.writeInterpolate(mbuilder, syncedFields);
-                    }
-
-                    //SPECIAL CASE: method to snap to target position after being read for the first time
-                    if(first.name().equals("snapSync")){
-                        mbuilder.addStatement("updateSpacing = 16");
-                        mbuilder.addStatement("lastUpdated = $T.millis()", Time.class);
-                        for(Svar field : syncedFields){
-                            //reset last+current state to target position
-                            mbuilder.addStatement("$L = $L", field.name() + ModEntityIO.lastSuf, field.name() + ModEntityIO.targetSuf);
-                            mbuilder.addStatement("$L = $L", field.name(), field.name() + ModEntityIO.targetSuf);
-                        }
-                    }
-
-                    //SPECIAL CASE: method to snap to current position so interpolation doesn't go wild
-                    if(first.name().equals("snapInterpolation")){
-                        mbuilder.addStatement("updateSpacing = 16");
-                        mbuilder.addStatement("lastUpdated = $T.millis()", Time.class);
-                        for(Svar field : syncedFields){
-                            //reset last+current state to target position
-                            mbuilder.addStatement("$L = $L", field.name() + ModEntityIO.lastSuf, field.name());
-                            mbuilder.addStatement("$L = $L", field.name() + ModEntityIO.targetSuf, field.name());
-                        }
-                    }
-                }
-
-                ObjectSet<String> ignoreClasses = new ObjectSet<>();
-                entry.value.each(m -> {
-                    if(m.has(IgnoreImplementation.class)){
-                        if(m.has(UseOnlyImplementation.class)){
-                            err("One method can not use IgnoreImplementation and UseOnlyImplementation annotation", m);
-                        }
-                        types(m.annotation(IgnoreImplementation.class),IgnoreImplementation::value).map(Stype::fullName).each(ignoreClasses::add);
-                    }
-                });
-                if(entry.value.contains(m -> m.has(UseOnlyImplementation.class))){
-
-                    if(entry.value.count(m -> m.has(UseOnlyImplementation.class)) > 1){
-                        err("Type " + type + " has multiple components replacing method " + entry.key + ".");
-                    }
-                    Smethod root = entry.value.find(m -> m.has(UseOnlyImplementation.class));
-                    final Seq<String> interfaces = types(root.annotation(UseOnlyImplementation.class), UseOnlyImplementation::value).map(Stype::fullName);
-
-                    entry.value.filter(m -> m == root || interfaces.contains(interfaceName -> {
-                        String mirrorName = interfaceToComp(interfaceName);
-                        String methodTypeName = m.up().toString().replace("mma.entities.compByAnuke", "mindustry.gen");
-                        return methodTypeName.equals(mirrorName);
-                    }));
-//                    root.e.getAnnotationMirrors()
-//                    entry.value.filter(m->m==root|| Structs.contains(classes,c->m.up().toString().contains(c)));
-                }else{
-                    Seq<String> ignoreSeq = ignoreClasses.iterator().toSeq();
-                    entry.value.removeAll(m -> ignoreSeq.contains(interfaceName -> {
-                        String mirrorName = interfaceToComp(interfaceName);
-                        String methodTypeName = m.up().toString().replace("mma.entities.compByAnuke", "mindustry.gen");
-                        return methodTypeName.equals(mirrorName);
-                    }));
-//                    entry.value.filter(m->m.up())
-                }
-                for(Smethod elem : entry.value){
-                    String descStr = elem.descString();
-
-                    if(elem.is(Modifier.ABSTRACT) || elem.is(Modifier.NATIVE) || !methodBlocks.containsKey(descStr))
-                        continue;
-
-                    //get all statements in the method, copy them over
-                    String str = methodBlocks.get(descStr);
-                    //name for code blocks in the methods
-                    String blockName = elem.up().getSimpleName().toString().toLowerCase().replace("comp", "");
-
-                    //skip empty blocks
-                    if(str.replace("{", "").replace("\n", "").replace("}", "").replace("\t", "").replace(" ", "").isEmpty()){
-                        continue;
-                    }
-
-                    //wrap scope to prevent variable leakage
-                    if(writeBlock){
-                        //replace return; with block break
-                        if(!elem.has(ModAnnotations.GlobalReturn.class)){
-                            str = str.replace("return;", "break " + blockName + ";");
-                        }
-                        mbuilder.addCode(blockName + ": {\n");
-                    }
-
-                    //trim block
-                    str = str.substring(2, str.length() - 1);
-
-                    //make sure to remove braces here
-                    mbuilder.addCode(str);
-
-                    //end scope
-                    if(writeBlock) mbuilder.addCode("}\n");
-                }
-
-                //add free code to remove methods - always at the end
-                //this only gets called next frame.
-                if(first.name().equals("remove") && ann.pooled()){
-                    mbuilder.addStatement("mindustry.gen.Groups.queueFree(($T)this)", Pool.Poolable.class);
-                }
-
-                builder.addMethod(mbuilder.build());
+                generateMethod(type, ann, groups, builder, syncedFields, allFields, io, hasIO, smethods, methodFullName);
             }
 
             //add pool reset method and implement Poolable
@@ -709,67 +607,249 @@ public class ModEntityProcess extends ModBaseProcessor{
         }
         generateGroups();
 
-        if(true){
-            //load map of sync IDs
-            StringMap map = new StringMap();
-            Fi idProps = rootDirectory.child("annotations/src/main/resources/classids.properties");
-            if(!idProps.exists()) idProps.writeString("");
-            PropertiesUtils.load(map, idProps.reader());
-            //next ID to be used in generation
-            Integer max = map.values().toSeq().map(Integer::parseInt).max(i -> i);
-            int maxID = max == null ? 0 : max + 1;
+        //load map of sync IDs
+        StringMap map = new StringMap();
+        Fi idProps = rootDirectory.child("annotations/src/main/resources/classids.properties");
+        if(!idProps.exists()) idProps.writeString("");
+        PropertiesUtils.load(map, idProps.reader());
+        //next ID to be used in generation
+        Integer max = map.values().toSeq().map(Integer::parseInt).max(i -> i);
+        int maxID = max == null ? 0 : max + 1;
 
-            //assign IDs
-            definitions.sort(Structs.comparing(t -> t.naming.toString()));
-            for(EntityDefinition def : definitions){
-                String name = def.naming.fullName();
-                if(map.containsKey(name)){
-                    def.classID = map.getInt(name);
+        //assign IDs
+        definitions.sort(Structs.comparing(t -> t.naming.toString()));
+        for(EntityDefinition def : definitions){
+            String name = def.naming.fullName();
+            if(map.containsKey(name)){
+                def.classID = map.getInt(name);
+            }else{
+                def.classID = maxID++;
+                map.put(name, def.classID + "");
+            }
+        }
+
+        OrderedMap<String, String> res = new OrderedMap<>();
+        res.putAll(map);
+        res.orderedKeys().sort();
+
+        //write assigned IDs
+        PropertiesUtils.store(res, idProps.writer(false), "Maps entity names to IDs. Autogenerated.");
+
+
+        //build mapping class for sync IDs
+        Builder idBuilder = TypeSpec.classBuilder(classPrefix() + "EntityMapping").addModifiers(Modifier.PUBLIC);
+
+        MethodSpec.Builder idStore = MethodSpec.methodBuilder("init").addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+        .returns(TypeName.get(void.class));
+        ModMeta modMeta = modInfoNull();
+        //store the mappings
+        for(EntityDefinition def : definitions){
+            //store mapping
+            idStore.addStatement("mindustry.gen.EntityMapping.register($S,$L::new)", def.name.substring(def.name.lastIndexOf(".") + 1), def.name);
+            /* idStore.addStatement("idMap[$L] = $L::new", def.classID, def.name);*/
+            extraNames.get(def.naming).each(extra -> {
+                idStore.addStatement("mindustry.gen.EntityMapping.nameMap.put($S, $L::new)", extra, def.name);
+                if (modMeta!=null){
+                    idStore.addStatement("mindustry.gen.EntityMapping.nameMap.put($S, $L::new)", modMeta.name + "-" + extra, def.name);
+                }
+                if(!Strings.camelToKebab(extra).equals(extra)){
+                    idStore.addStatement("mindustry.gen.EntityMapping.nameMap.put($S, $L::new)", Strings.camelToKebab(extra), def.name);
+                    if (modMeta!=null){
+                        idStore.addStatement("mindustry.gen.EntityMapping.nameMap.put($S, $L::new)", modMeta.name + "-" + Strings.camelToKebab(extra), def.name);
+                    }
+                }
+            });
+            //return mapping
+            def.builder.addMethod(MethodSpec.methodBuilder("classId").addAnnotation(Override.class)
+//                            .returns(int.class).addModifiers(Modifier.PUBLIC).addStatement("return " + def.classID).build());
+            .returns(int.class).addModifiers(Modifier.PUBLIC).addStatement("return " + rootPackageName + ".gen." + classPrefix() + "EntityMapping.getId(getClass())").build());
+        }
+        MethodSpec.Builder idGet = MethodSpec.methodBuilder("getId").addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+        .returns(TypeName.get(int.class)).addParameter(TypeName.get(Class.class), "name");
+        idGet.addStatement("return mindustry.gen.EntityMapping.customIdMap.findKey(name.getSimpleName(),false,-1)");
+
+        idBuilder.addMethod(idStore.build());
+        idBuilder.addMethod(idGet.build());
+
+        write(idBuilder);
+
+    }
+
+
+    private void generateMethod(Selement<?> type, EntityDef ann, Seq<ModEntityProcess.GroupDefinition> groups, Builder builder, Seq<Svar> syncedFields, Seq<Svar> allFields, ModEntityIO io, boolean hasIO, Seq<Smethod> smethods, String methodName) throws Exception{
+        smethods.sort(Structs.comps(Structs.comparingFloat(m -> m.has(Annotations.MethodPriority.class) ? m.annotation(Annotations.MethodPriority.class).value() : 0), Structs.comparing(Selement::name)));
+        smethods = smethods.copy();
+
+        //representative method
+        Smethod first = smethods.first();
+        boolean customInternal = false;
+
+        //skip internal impl
+        if(first.has(Annotations.InternalImpl.class) && !smethods.contains(m -> m.has(ReplaceInternalImpl.class))){
+            return;
+        }else if(first.has(Annotations.InternalImpl.class)){
+            if(smethods.count(m->m.has(ReplaceInternalImpl.class) && !m.has(InternalImpl.class)) > 1){
+                err("Type " + type + " has multiple components replacing method " + methodName + ".");
+            }
+            customInternal = true;
+        }
+
+        //build method using same params/returns
+        MethodSpec.Builder mbuilder = MethodSpec.methodBuilder(first.name()).addModifiers(first.is(Modifier.PRIVATE) ? Modifier.PRIVATE : Modifier.PUBLIC);
+        //if(isFinal || entry.value.contains(s -> s.has(Final.class))) mbuilder.addModifiers(Modifier.FINAL);
+        if(smethods.contains(s -> s.has(Annotations.CallSuper.class)))
+            mbuilder.addAnnotation(Annotations.CallSuper.class); //add callSuper here if necessary
+        if(first.is(Modifier.STATIC)) mbuilder.addModifiers(Modifier.STATIC);
+        mbuilder.addTypeVariables(first.typeVariables().map(TypeVariableName::get));
+        mbuilder.returns(first.retn());
+        mbuilder.addExceptions(first.thrownt());
+        for(Svar var : first.params()){
+
+            mbuilder.addParameter(var.tname(), var.name());
+        }
+
+        //only write the block if it's a void method with several entries
+        boolean writeBlock = first.ret().toString().equals("void") && smethods.size > 1;
+
+        if((smethods.first().is(Modifier.ABSTRACT) || smethods.first().is(Modifier.NATIVE)) && smethods.size == 1 && !smethods.first().has(Annotations.InternalImpl.class)){
+            err(smethods.first().up().getSimpleName() + "#" + smethods.first() + " is an abstract method and must be implemented in some component", type);
+        }
+
+        //SPECIAL CASE: inject group add/remove code
+        if(first.name().equals("add") || first.name().equals("remove")){
+            mbuilder.addStatement("if(added == $L) return", first.name().equals("add"));
+
+            for(GroupDefinition def : groups){
+                //remove/add from each group, assume imported
+                if(def.mod){
+                    mbuilder.addStatement("$L.gen.$LGroups.$L.$L(this)", rootPackageName, classPrefix(), def.name, first.name());
                 }else{
-                    def.classID = maxID++;
-                    map.put(name, def.classID + "");
+                    mbuilder.addStatement("mindustry.gen.Groups.$L.$L(this)", def.name, first.name());
+                }
+            }
+        }
+
+        if(hasIO && !customInternal){
+            //SPECIAL CASE: I/O code
+            //note that serialization is generated even for non-serializing entities for manual usage
+            if((first.name().equals("read") || first.name().equals("write"))){
+                io.write(mbuilder, first.name().equals("write"));
+            }
+
+            //SPECIAL CASE: sync I/O code
+            if((first.name().equals("readSync") || first.name().equals("writeSync"))){
+                io.writeSync(mbuilder, first.name().equals("writeSync"), syncedFields, allFields);
+            }
+
+            //SPECIAL CASE: sync I/O code for writing to/from a manual buffer
+            if((first.name().equals("readSyncManual") || first.name().equals("writeSyncManual"))){
+                io.writeSyncManual(mbuilder, first.name().equals("writeSyncManual"), syncedFields);
+            }
+
+            //SPECIAL CASE: interpolate method implementation
+            if(first.name().equals("interpolate")){
+                io.writeInterpolate(mbuilder, syncedFields);
+            }
+
+            //SPECIAL CASE: method to snap to target position after being read for the first time
+            if(first.name().equals("snapSync")){
+                mbuilder.addStatement("updateSpacing = 16");
+                mbuilder.addStatement("lastUpdated = $T.millis()", Time.class);
+                for(Svar field : syncedFields){
+                    //reset last+current state to target position
+                    mbuilder.addStatement("$L = $L", field.name() + ModEntityIO.lastSuf, field.name() + ModEntityIO.targetSuf);
+                    mbuilder.addStatement("$L = $L", field.name(), field.name() + ModEntityIO.targetSuf);
                 }
             }
 
-            OrderedMap<String, String> res = new OrderedMap<>();
-            res.putAll(map);
-            res.orderedKeys().sort();
-
-            //write assigned IDs
-            PropertiesUtils.store(res, idProps.writer(false), "Maps entity names to IDs. Autogenerated.");
-
-
-            //build mapping class for sync IDs
-            TypeSpec.Builder idBuilder = TypeSpec.classBuilder(classPrefix() + "EntityMapping").addModifiers(Modifier.PUBLIC);
-
-            MethodSpec.Builder idStore = MethodSpec.methodBuilder("init").addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-            .returns(TypeName.get(void.class));
-            //store the mappings
-            for(EntityDefinition def : definitions){
-                //store mapping
-                idStore.addStatement("mindustry.gen.EntityMapping.register($S,$L::new)", def.name.substring(def.name.lastIndexOf(".") + 1), def.name);
-                /* idStore.addStatement("idMap[$L] = $L::new", def.classID, def.name);*/
-                extraNames.get(def.naming).each(extra -> {
-                    idStore.addStatement("mindustry.gen.EntityMapping.nameMap.put($S, $L::new)", extra, def.name);
-                    if(!Strings.camelToKebab(extra).equals(extra)){
-                        idStore.addStatement("mindustry.gen.EntityMapping.nameMap.put($S, $L::new)", Strings.camelToKebab(extra), def.name);
-                    }
-                });
-                //return mapping
-                def.builder.addMethod(MethodSpec.methodBuilder("classId").addAnnotation(Override.class)
-//                            .returns(int.class).addModifiers(Modifier.PUBLIC).addStatement("return " + def.classID).build());
-                .returns(int.class).addModifiers(Modifier.PUBLIC).addStatement("return " + rootPackageName + ".gen." + classPrefix() + "EntityMapping.getId(getClass())").build());
+            //SPECIAL CASE: method to snap to current position so interpolation doesn't go wild
+            if(first.name().equals("snapInterpolation")){
+                mbuilder.addStatement("updateSpacing = 16");
+                mbuilder.addStatement("lastUpdated = $T.millis()", Time.class);
+                for(Svar field : syncedFields){
+                    //reset last+current state to target position
+                    mbuilder.addStatement("$L = $L", field.name() + ModEntityIO.lastSuf, field.name());
+                    mbuilder.addStatement("$L = $L", field.name() + ModEntityIO.targetSuf, field.name());
+                }
             }
-            MethodSpec.Builder idGet = MethodSpec.methodBuilder("getId").addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-            .returns(TypeName.get(int.class)).addParameter(TypeName.get(Class.class), "name");
-            idGet.addStatement("return mindustry.gen.EntityMapping.customIdMap.findKey(name.getSimpleName(),false,-1)");
-
-            idBuilder.addMethod(idStore.build());
-            idBuilder.addMethod(idGet.build());
-
-            write(idBuilder);
-
         }
+
+        ObjectSet<String> ignoreClasses = new ObjectSet<>();
+        smethods.each(m -> {
+            if(m.has(IgnoreImplementation.class)){
+                if(m.has(UseOnlyImplementation.class)){
+                    err("One method can not use IgnoreImplementation and UseOnlyImplementation annotation", m);
+                }
+                types(m.annotation(IgnoreImplementation.class), IgnoreImplementation::value).map(Stype::fullName).each(ignoreClasses::add);
+            }
+        });
+        if(smethods.contains(m -> m.has(UseOnlyImplementation.class))){
+
+            if(smethods.count(m -> m.has(UseOnlyImplementation.class)) > 1){
+                err("Type " + type + " has multiple components replacing method " + methodName + ".");
+            }
+            Smethod root = smethods.find(m -> m.has(UseOnlyImplementation.class));
+            final Seq<String> interfaces = types(root.annotation(UseOnlyImplementation.class), UseOnlyImplementation::value).map(Stype::fullName);
+
+            smethods.filter(m -> m == root || interfaces.contains(interfaceName -> {
+                String mirrorName = interfaceToComp(interfaceName);
+                String methodTypeName = m.up().toString().replace("mma.entities.compByAnuke", "mindustry.gen");
+                return methodTypeName.equals(mirrorName);
+            }));
+//                    root.e.getAnnotationMirrors()
+//                    entry.value.filter(m->m==root|| Structs.contains(classes,c->m.up().toString().contains(c)));
+        }else{
+            Seq<String> ignoreSeq = ignoreClasses.iterator().toSeq();
+            smethods.removeAll(m -> ignoreSeq.contains(interfaceName -> {
+                String mirrorName = interfaceToComp(interfaceName);
+                String methodTypeName = m.up().toString().replace("mma.entities.compByAnuke", "mindustry.gen");
+                return methodTypeName.equals(mirrorName);
+            }));
+//                    entry.value.filter(m->m.up())
+        }
+        for(Smethod elem : smethods){
+            String descStr = elem.descString();
+
+            if(elem.is(Modifier.ABSTRACT) || elem.is(Modifier.NATIVE) || !methodBlocks.containsKey(descStr))
+                continue;
+
+            //get all statements in the method, copy them over
+            String str = methodBlocks.get(descStr);
+            //name for code blocks in the methods
+            String blockName = elem.up().getSimpleName().toString().toLowerCase().replace("comp", "");
+
+            //skip empty blocks
+            if(str.replace("{", "").replace("\n", "").replace("}", "").replace("\t", "").replace(" ", "").isEmpty()){
+                continue;
+            }
+
+            //wrap scope to prevent variable leakage
+            if(writeBlock){
+                //replace return; with block break
+                if(!elem.has(ModAnnotations.GlobalReturn.class)){
+                    str = str.replace("return;", "break " + blockName + ";");
+                }
+                mbuilder.addCode(blockName + ": {\n");
+            }
+
+            //trim block
+            str = str.substring(2, str.length() - 1);
+
+            //make sure to remove braces here
+            mbuilder.addCode(str);
+
+            //end scope
+            if(writeBlock) mbuilder.addCode("}\n");
+        }
+
+        //add free code to remove methods - always at the end
+        //this only gets called next frame.
+        if(first.name().equals("remove") && ann.pooled()){
+            mbuilder.addStatement("mindustry.gen.Groups.queueFree(($T)this)", Pool.Poolable.class);
+        }
+
+        builder.addMethod(mbuilder.build());
+
     }
 
     private void generateGroups() throws Exception{

@@ -27,12 +27,9 @@ public class ModAnnotations extends Annotations{
         Class[] value();
     }
 
+    @Target(ElementType.TYPE)
     @Retention(RetentionPolicy.SOURCE)
     public @interface EntitySuperClass{
-    }
-
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface EntitySuperInterface{
     }
 
 
@@ -44,9 +41,27 @@ public class ModAnnotations extends Annotations{
     public @interface DependenciesAnnotation{
     }
 
+    /*@Target(ElementType.METHOD)
     @Retention(RetentionPolicy.SOURCE)
-    public @interface AnnotationProcessor{
+    public @interface AddImplementationFrom{
+        Class[] interfaces();
+
+        String methodName();
+    }*/
+
+
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface SuperMethod{
+        String parentName();
+
+        Class[] params() default {};
     }
 
+
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ReplaceInternalImpl{
+    }
 
 }

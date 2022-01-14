@@ -270,7 +270,7 @@ project(":annotations") {
         implementation 'com.squareup:javapoet:1.12.1'
         implementation arcModule('arc-core')
 //        compileOnly project(":core")
-        compileOnly mindustryModule("core")
+        implementation mindustryModule("core")
         compileOnly mindustryModule("tools")
 //                if(name!="tools")compile  project(":tools")
 //        implementation  project(":core")
