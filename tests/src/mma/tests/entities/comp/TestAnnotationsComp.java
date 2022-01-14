@@ -2,6 +2,7 @@ package mma.tests.entities.comp;
 
 import arc.math.geom.*;
 import arc.util.*;
+import arc.util.io.*;
 import mindustry.annotations.*;
 import mindustry.annotations.Annotations.*;
 import mindustry.entities.EntityCollisions.*;
@@ -33,11 +34,18 @@ abstract class TestAnnotationsComp implements Entityc, Velc{
     @Override
     @ReplaceInternalImpl
     public boolean serialize(){
+        int i=0;
         return Time.time>10;
     }
 
-    @SuperMethod(parentName = "update")
-    abstract void superUpdate();
+    @Override
+    @ReplaceInternalImpl
+    public void write(Writes write){
+        superWrite(write);
+    }
+
+    @SuperMethod(parentName = "write")
+   private void superWrite(Writes write){}
 
     @Replace
     public void move(float cx, float cy){

@@ -63,5 +63,9 @@ public class ModAnnotations extends Annotations{
     @Retention(RetentionPolicy.SOURCE)
     public @interface ReplaceInternalImpl{
     }
+  /*  @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface BeforeInternalImpl{
+    }*/
 
 }

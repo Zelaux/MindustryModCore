@@ -348,7 +348,6 @@ public class ModEntityProcess extends ModBaseProcessor{
         //look at each definition
         if(hasAnukeComps) for(Selement<?> type : allDefs){
             EntityDef ann = type.annotation(EntityDef.class);
-            Log.info("Annotation: @", type);
             //all component classes (not interfaces)
             Seq<Stype> components = allComponents(type);
             Seq<GroupDefinition> groups = groupDefs.select(g -> (!g.components.isEmpty() && !g.components.contains(s -> !components.contains(s))) || g.manualInclusions.contains(type));
@@ -518,9 +517,13 @@ public class ModEntityProcess extends ModBaseProcessor{
                     Smethod base = smethods.first();
                     SuperMethod annotation = base.annotation(SuperMethod.class);
                     Seq<Stype> parentParams = types(annotation, SuperMethod::params);
+                    if (parentParams.isEmpty() && base.params().size>0){
+                        base.params().each(v->parentParams.add(Stype.of(v.e.asType())));
+                    }
                     String parentName = annotation.parentName() + "(" + parentParams.toString(",") + ")";
                     Seq<Smethod> parent = methods.get(parentName, (Seq<Smethod>)null);
                     if(parent == null){
+//                        Log.info("methods: @",methods.keys().toSeq());
                         err("Cannot find implementation for method " + parentName);
                         continue;
                     }
@@ -556,7 +559,12 @@ public class ModEntityProcess extends ModBaseProcessor{
                     generateMethod(type, ann, groups, builder, syncedFields, allFields, io, hasIO, parent, parentName);
                     if(methodSpecs.size() > beforeSize){
                         MethodSpec spec = methodSpecs.get(beforeSize);
-                        methodSpecs.set(beforeSize, spec.toBuilder().setName(base.name()).build());
+                        MethodSpec.Builder mbuilder = spec.toBuilder().setName(base.name());
+//                        mbuilder.modifiers.clear();
+                        mbuilder.modifiers.remove(Modifier.PUBLIC);
+                        mbuilder.modifiers.remove(Modifier.PRIVATE);
+                        mbuilder.modifiers.add(0,base.is(Modifier.PRIVATE) ? Modifier.PRIVATE : Modifier.PUBLIC);
+                        methodSpecs.set(beforeSize, mbuilder.build());
                     }
 //                    Log.info("MethodSpecs: @",methodSpecs.toString());
                     continue;
@@ -685,9 +693,10 @@ public class ModEntityProcess extends ModBaseProcessor{
         boolean customInternal = false;
 
         //skip internal impl
-        if(first.has(Annotations.InternalImpl.class) && !smethods.contains(m -> m.has(ReplaceInternalImpl.class))){
+        boolean anyReplaceInternal = smethods.contains(m -> m.has(ReplaceInternalImpl.class));
+        if(first.has(Annotations.InternalImpl.class) && !anyReplaceInternal){
             return;
-        }else if(first.has(Annotations.InternalImpl.class)){
+        }else if(anyReplaceInternal){
             if(smethods.count(m->m.has(ReplaceInternalImpl.class) && !m.has(InternalImpl.class)) > 1){
                 err("Type " + type + " has multiple components replacing method " + methodName + ".");
             }
