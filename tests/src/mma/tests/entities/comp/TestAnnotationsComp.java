@@ -5,12 +5,9 @@ import arc.util.*;
 import arc.util.io.*;
 import mindustry.annotations.*;
 import mindustry.annotations.Annotations.*;
-import mindustry.entities.EntityCollisions.*;
 import mindustry.gen.*;
 import mma.annotations.ModAnnotations.*;
 import mma.gen.*;
-
-import static mindustry.Vars.*;
 
 @Annotations.EntityDef({TestAnnotationsc.class})
 @Annotations.Component
@@ -18,11 +15,12 @@ abstract class TestAnnotationsComp implements Entityc, Velc{
     public Vec2 vec2Test;
     Unit testUnit;
 
+    public static int someStaticMethod(TestAnnotationsc testAnnotationsc){
+        return (int)Time.timeSinceMillis(0);
+    }
+
     @Override
     @Annotations.MethodPriority(-1_000_000_000)
-//    @UseOnlyImplementation({Velc.class})
-//    @IgnoreImplementation({Minerc.class,Unitc.class,Commanderc.class})
-//    @Replace
     @GlobalReturn
     public void update(){
         if(testUnit == null){
@@ -30,12 +28,11 @@ abstract class TestAnnotationsComp implements Entityc, Velc{
         }
     }
 
-
     @Override
     @ReplaceInternalImpl
     public boolean serialize(){
-        int i=0;
-        return Time.time>10;
+        int i = 0;
+        return Time.time > 10;
     }
 
     @Override
@@ -45,11 +42,13 @@ abstract class TestAnnotationsComp implements Entityc, Velc{
     }
 
     @SuperMethod(parentName = "write")
-   private void superWrite(Writes write){}
+    private void superWrite(Writes write){
+    }
 
     @Replace
     public void move(float cx, float cy){
     }
+
     @Override
     @Annotations.MethodPriority(1000)
     public void add(){

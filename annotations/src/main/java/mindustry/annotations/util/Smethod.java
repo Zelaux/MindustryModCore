@@ -4,6 +4,7 @@ import arc.struct.*;
 import com.squareup.javapoet.*;
 import com.sun.source.tree.*;
 import mindustry.annotations.*;
+import mma.annotations.*;
 
 import javax.lang.model.element.*;
 import javax.lang.model.type.*;
@@ -22,7 +23,7 @@ public class Smethod extends Selement<ExecutableElement>{
     }
 
     public String descString(){
-        return up().asType().toString() + "#" + super.toString().replace("mindustry.gen.", "");
+        return up().asType().toString() + "#" + super.toString().replace("mindustry.gen.", "").replace(ModBaseProcessor.rootPackageName+".gen.","");
     }
 
     public boolean is(Modifier mod){
