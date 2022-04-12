@@ -89,7 +89,7 @@ public abstract class ModBaseProcessor extends BaseProcessor{
     public StringMap annotationsSettings(){
         Fi annotationPropertiesFile = rootDirectory.child("annotation.properties");
         Fi[] list = rootDirectory.child("core/src").list();
-        boolean debug = list[0].name().equals("mma") && list.length == 1;
+        boolean debug = list.length == 1 && list[0].name().equals("mma");
         if(debug){
 //            annotationProperties.put("debug", "true");
             return annotationProperties;
@@ -133,7 +133,7 @@ public abstract class ModBaseProcessor extends BaseProcessor{
     protected String getPackageName(){
         packageName = (rootPackageName = annotationsSettings(AnnotationSetting.rootPackage, () -> {
             Fi[] list = rootDirectory.child("core/src").list();
-            if (list.length==0)err("Cannot find rootPackage, please write rootPackage in annotation.properties");
+            if(list.length == 0) err("Cannot find rootPackage, please write rootPackage in annotation.properties");
             return list[0].name();
         })) + ".gen";
         return packageName;
