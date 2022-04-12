@@ -1,6 +1,7 @@
 package mma.annotations;
 
 import arc.files.*;
+import arc.func.*;
 import arc.struct.*;
 import arc.util.*;
 import arc.util.io.*;
@@ -50,7 +51,9 @@ public abstract class ModBaseProcessor extends BaseProcessor{
         if(meta == null) err("Cannot find mod info file");
 
         return meta;
-    }@Nullable
+    }
+
+    @Nullable
     public ModMeta modInfoNull(){
         String[] paths = {
         "mod.json",
@@ -121,9 +124,18 @@ public abstract class ModBaseProcessor extends BaseProcessor{
         return annotationsSettings().get(settings.name(), defvalue);
     }
 
+    public String annotationsSettings(AnnotationSetting settings, Prov<String> defvalue){
+        StringMap map = annotationsSettings();
+        return map.containsKey(settings.name()) ? map.get(settings.name()) : defvalue.get();
+    }
+
     @Override
     protected String getPackageName(){
-        packageName = (rootPackageName = annotationsSettings(AnnotationSetting.rootPackage, rootDirectory.child("core/src").list()[0].name())) + ".gen";
+        packageName = (rootPackageName = annotationsSettings(AnnotationSetting.rootPackage, () -> {
+            Fi[] list = rootDirectory.child("core/src").list();
+            if (list.length==0)err("Cannot find rootPackage, please write rootPackage in annotation.properties");
+            return list[0].name();
+        })) + ".gen";
         return packageName;
     }
 

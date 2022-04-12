@@ -78,7 +78,7 @@ public abstract class ModVars {
      */
     public abstract ContentList[] getContentList();
 
-    public abstract String getFullName(String name);
+//    public abstract String getFullName(String name);
 
     public interface ThrowableRunnable {
         void run() throws Exception;

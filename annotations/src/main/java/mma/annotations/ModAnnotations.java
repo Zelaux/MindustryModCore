@@ -63,6 +63,14 @@ public class ModAnnotations extends Annotations{
     @Retention(RetentionPolicy.SOURCE)
     public @interface ReplaceInternalImpl{
     }
+
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface MainClass{
+        /**local path from project directory
+         * */
+        String modInfoPath() default "\n";
+    }
   /*  @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.SOURCE)
     public @interface BeforeInternalImpl{
