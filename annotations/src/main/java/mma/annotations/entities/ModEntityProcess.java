@@ -234,7 +234,7 @@ public class ModEntityProcess extends ModBaseProcessor{
 
                     //setter
                     if(!field.is(Modifier.FINAL) && !signatures.contains(cname + "(" + field.mirror().toString() + ")") &&
-                    !field.annotations().contains(f -> f.toString().equals("@mindustry.annotations.Annotations.ReadOnly"))){
+                       !field.annotations().contains(f -> f.toString().equals("@mindustry.annotations.Annotations.ReadOnly"))){
                         inter.addMethod(MethodSpec.methodBuilder(cname).addModifiers(Modifier.ABSTRACT, Modifier.PUBLIC)
                         .addJavadoc(field.doc() == null ? "" : field.doc())
                         .addParameter(ParameterSpec.builder(field.tname(), field.name())
@@ -313,8 +313,10 @@ public class ModEntityProcess extends ModBaseProcessor{
         for(Selement<?> group : allGroups){
             try{
                 Annotations.GroupDef an = group.annotation(Annotations.GroupDef.class);
-                Seq<Stype> types = types(an, Annotations.GroupDef::value).map(stype -> {
+                Seq<Stype> rawTypes = new Seq<>();
+                Seq<Stype> types = rawTypes.set(types(an, Annotations.GroupDef::value)).map(stype -> {
 //                    Log.info("type: @",stype);
+//                    rawTypes.add(stype);
                     Stype result = interfaceToComp(stype);
                     if(result == null)
                         throw new IllegalArgumentException("Interface " + stype + " does not have an associated component!");
@@ -336,8 +338,16 @@ public class ModEntityProcess extends ModBaseProcessor{
 //                    debugLog("groupFullName: @", string);
                     modGroup = string.startsWith(rootPackageName) && !string.equals("mma.entities.GroupDefs");
                 }
+//                System.out.println("rawTypes: +" + string);
+//                ClassName baseType = ClassName.bestGuess((repr.fullName().startsWith("mma.entities.compByAnuke") ? "mindustry.gen" : packageName) + "." + groupType);
+                ClassName baseType = (rawTypes.first().toString().contains("<any?>"))?ClassName.get(packageName,groupType):ClassName.get(rawTypes.first().cname().packageName(),groupType);
+//                System.out.println("rawTypes: "+rawTypes.first().toString());
+                /*if(rawTypes.first().toString().contains("<any?>")){
+
+                }*/
+//                System.out.println("FullName: " + repr.fullName());
                 groupDefs.add(new GroupDefinition(group.name().startsWith("g") ? group.name().substring(1) : group.name(),
-                ClassName.bestGuess(packageName + "." + groupType), types, an.spatial(), an.mapping(), collides, modGroup));
+                baseType, types, an.spatial(), an.mapping(), collides, modGroup));
             }catch(RuntimeException e){
                 Log.err("@", e);
             }
@@ -517,8 +527,8 @@ public class ModEntityProcess extends ModBaseProcessor{
                     Smethod base = smethods.first();
                     SuperMethod annotation = base.annotation(SuperMethod.class);
                     Seq<Stype> parentParams = types(annotation, SuperMethod::params);
-                    if (parentParams.isEmpty() && base.params().size>0){
-                        base.params().each(v->parentParams.add(Stype.of(v.e.asType())));
+                    if(parentParams.isEmpty() && base.params().size > 0){
+                        base.params().each(v -> parentParams.add(Stype.of(v.e.asType())));
                     }
                     String parentName = annotation.parentName() + "(" + parentParams.toString(",") + ")";
                     Seq<Smethod> parent = methods.get(parentName, (Seq<Smethod>)null);
@@ -563,7 +573,7 @@ public class ModEntityProcess extends ModBaseProcessor{
 //                        mbuilder.modifiers.clear();
                         mbuilder.modifiers.remove(Modifier.PUBLIC);
                         mbuilder.modifiers.remove(Modifier.PRIVATE);
-                        mbuilder.modifiers.add(0,base.is(Modifier.PRIVATE) ? Modifier.PRIVATE : Modifier.PUBLIC);
+                        mbuilder.modifiers.add(0, base.is(Modifier.PRIVATE) ? Modifier.PRIVATE : Modifier.PUBLIC);
                         methodSpecs.set(beforeSize, mbuilder.build());
                     }
 //                    Log.info("MethodSpecs: @",methodSpecs.toString());
@@ -657,12 +667,12 @@ public class ModEntityProcess extends ModBaseProcessor{
             /* idStore.addStatement("idMap[$L] = $L::new", def.classID, def.name);*/
             extraNames.get(def.naming).each(extra -> {
                 idStore.addStatement("mindustry.gen.EntityMapping.nameMap.put($S, $L::new)", extra, def.name);
-                if (modMeta!=null){
+                if(modMeta != null){
                     idStore.addStatement("mindustry.gen.EntityMapping.nameMap.put($S, $L::new)", modMeta.name + "-" + extra, def.name);
                 }
                 if(!Strings.camelToKebab(extra).equals(extra)){
                     idStore.addStatement("mindustry.gen.EntityMapping.nameMap.put($S, $L::new)", Strings.camelToKebab(extra), def.name);
-                    if (modMeta!=null){
+                    if(modMeta != null){
                         idStore.addStatement("mindustry.gen.EntityMapping.nameMap.put($S, $L::new)", modMeta.name + "-" + Strings.camelToKebab(extra), def.name);
                     }
                 }
@@ -697,7 +707,7 @@ public class ModEntityProcess extends ModBaseProcessor{
         if(first.has(Annotations.InternalImpl.class) && !anyReplaceInternal){
             return;
         }else if(anyReplaceInternal){
-            if(smethods.count(m->m.has(ReplaceInternalImpl.class) && !m.has(InternalImpl.class)) > 1){
+            if(smethods.count(m -> m.has(ReplaceInternalImpl.class) && !m.has(InternalImpl.class)) > 1){
                 err("Type " + type + " has multiple components replacing method " + methodName + ".");
             }
             customInternal = true;
@@ -864,7 +874,9 @@ public class ModEntityProcess extends ModBaseProcessor{
     private void generateGroups() throws Exception{
         Seq<GroupDefinition> groupDefs = this.groupDefs.select(GroupDefinition::mod);
         if(groupDefs.isEmpty()) return;
+
         TypeSpec.Builder groupsBuilder = TypeSpec.classBuilder(classPrefix() + "Groups").addModifiers(Modifier.PUBLIC);
+
         MethodSpec.Builder groupInit = MethodSpec.methodBuilder("init").addModifiers(Modifier.PUBLIC, Modifier.STATIC);
         for(GroupDefinition group : groupDefs){
             //class names for interface/group
@@ -932,7 +944,7 @@ public class ModEntityProcess extends ModBaseProcessor{
         groupsBuilder.addMethod(groupResize.build());
         groupsBuilder.addMethod(groupUpdate.build());
 
-        write(groupsBuilder, Seq.with("import mindustry.gen.*;"));
+        write(groupsBuilder, allGroups.map(s -> new Stype((TypeElement)s.up())).asSet().asArray().flatMap(s -> getImports(s.e)).addAll("import mindustry.gen.*;"));
     }
 
     private void thirdRound() throws Exception{
@@ -1064,6 +1076,7 @@ public class ModEntityProcess extends ModBaseProcessor{
     }
 
     Seq<String> getImports(Element elem){
+//        System.out.println("elem: "+elem.asType().toString());
         return Seq.with(trees.getPath(elem).getCompilationUnit().getImports()).map(Object::toString);
     }
 
@@ -1250,10 +1263,10 @@ public class ModEntityProcess extends ModBaseProcessor{
         @Override
         public String toString(){
             return "Definition{" +
-            "groups=" + groups +
-            "components=" + components +
-            ", base=" + naming +
-            '}';
+                   "groups=" + groups +
+                   "components=" + components +
+                   ", base=" + naming +
+                   '}';
         }
     }
 }
