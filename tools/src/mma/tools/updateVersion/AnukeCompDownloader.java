@@ -154,19 +154,23 @@ public class AnukeCompDownloader {
 //                annotationExpr.getName().setQualifier(new Name(packageName + ".annotations." + annotationsClassName));
             }
             if (identifier.equals("EntityDef")) {
-                Node parentNode = annotationExpr.getParentNode().get();
-                NodeWithAnnotations<?> parent = (NodeWithAnnotations<?>) parentNode;
-                int i = parent.getAnnotations().indexOf(annotationExpr);
-                Comment comment = new LineComment(annotationExpr.toString());
-                if (i == parent.getAnnotations().size() - 1) {
-                    addComment(parentNode, comment,true);
-                } else {
-                    AnnotationExpr next = parent.getAnnotations().get(i + 1);
-                    addComment(next, comment,true);
-                }
+                if (true){
+                    annotationExpr.setName(packageName+".annotations."+annotationsClassName+".MindustryEntityDef");
+                } else{
+                    Node parentNode = annotationExpr.getParentNode().get();
+                    NodeWithAnnotations<?> parent = (NodeWithAnnotations<?>) parentNode;
+                    int i = parent.getAnnotations().indexOf(annotationExpr);
+                    Comment comment = new LineComment(annotationExpr.toString());
+                    if (i == parent.getAnnotations().size() - 1) {
+                        addComment(parentNode, comment,true);
+                    } else {
+                        AnnotationExpr next = parent.getAnnotations().get(i + 1);
+                        addComment(next, comment,true);
+                    }
 
 //                parent.addOrphanComment();
-                annotationExpr.remove();
+                    annotationExpr.remove();
+                }
             }
         }
         return compilationUnit.toString();

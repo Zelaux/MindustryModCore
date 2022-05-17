@@ -119,7 +119,6 @@ public class AFill extends Fill{
 
     public static void donut(float x, float y, float radius1, float radius2, float finion, float rotation){
         donutEllipse(x, y, radius1 * 2, radius1 * 2, radius2 * 2, radius2 * 2, finion, 0f, rotation);
-
     }
 
     public static void donutEllipse(float x, float y, float width, float height, float width2, float height2, float finion, float rotation){

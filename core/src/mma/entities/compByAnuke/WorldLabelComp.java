@@ -14,7 +14,7 @@ import static mindustry.logic.LAccess.*;
 /**
  * Component/entity for labels in world space. Useful for servers. Does not save in files - create only on world load.
  */
-// @EntityDef(value = { WorldLabelc.class }, serialize = false)
+@mma.annotations.ModAnnotations.MindustryEntityDef(value = { WorldLabelc.class }, serialize = false)
 @Component(base = true)
 public abstract class WorldLabelComp implements Posc, Drawc, Syncc {
 

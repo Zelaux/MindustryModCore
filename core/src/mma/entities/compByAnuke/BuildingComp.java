@@ -42,7 +42,7 @@ import mindustry.world.modules.*;
 import static mindustry.Vars.*;
 import static mindustry.logic.LAccess.*;
 
-// @EntityDef(value = { Buildingc.class }, isFinal = false, genio = false, serialize = false)
+@mma.annotations.ModAnnotations.MindustryEntityDef(value = { Buildingc.class }, isFinal = false, genio = false, serialize = false)
 @Component(base = true)
 abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, QuadTreeObject, Displayable, Senseable, Controllable, Sized {
 

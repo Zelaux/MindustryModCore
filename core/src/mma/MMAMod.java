@@ -7,12 +7,14 @@ import mindustry.ctype.*;
 import mindustry.mod.*;
 import mindustry.world.*;
 import mma.annotations.*;
+import mma.annotations.ModAnnotations.*;
 import mma.core.*;
 import mma.gen.*;
 
 import static mma.ModVars.*;
 
 @ModAnnotations.ModAssetsAnnotation
+@CreateMindustrySerialization
 public class MMAMod extends Mod{
     protected boolean disableBlockOutline = false;
 

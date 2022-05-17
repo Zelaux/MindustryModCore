@@ -23,7 +23,7 @@ import mindustry.world.blocks.storage.CoreBlock.*;
 import static mindustry.Vars.*;
 import static mindustry.logic.LAccess.*;
 
-// @EntityDef(value = { Playerc.class }, serialize = false)
+@mma.annotations.ModAnnotations.MindustryEntityDef(value = { Playerc.class }, serialize = false)
 @Component(base = true)
 abstract class PlayerComp implements UnitController, Entityc, Syncc, Timerc, Drawc {
 

@@ -18,7 +18,7 @@ import mindustry.world.blocks.environment.*;
 import static mindustry.Vars.*;
 import static mindustry.logic.LAccess.*;
 
-// @EntityDef(value = { Bulletc.class }, pooled = true, serialize = false)
+@mma.annotations.ModAnnotations.MindustryEntityDef(value = { Bulletc.class }, pooled = true, serialize = false)
 @Component(base = true)
 abstract class BulletComp implements Timedc, Damagec, Hitboxc, Teamc, Posc, Drawc, Shielderc, Ownerc, Velc, Bulletc, Timerc {
 

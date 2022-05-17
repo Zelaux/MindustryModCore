@@ -32,7 +32,8 @@ import java.util.*;
 "mindustry.annotations.Annotations.BaseComponent",
 "mindustry.annotations.Annotations.Component",
 "mindustry.annotations.Annotations.TypeIOHandler",
-"mma.annotations.ModAnnotations.EntitySuperClass"
+"mma.annotations.ModAnnotations.EntitySuperClass",
+"mma.annotations.ModAnnotations.CreateMindustrySerialization",
 })
 public class ModEntityProcess extends ModBaseProcessor{
     final Seq<Stype> baseComponents = new Seq<>();
@@ -42,6 +43,7 @@ public class ModEntityProcess extends ModBaseProcessor{
     Seq<Stype> anukeSuperInterfaces = new Seq<>();
     Seq<Selement> allGroups = new Seq<>();
     Seq<Selement> allDefs = new Seq<>();
+    Seq<Selement> mindustryDefs = new Seq<>();
     Seq<GroupDefinition> groupDefs = new Seq<>();
     ObjectMap<String, Stype> componentNames = new ObjectMap<>();
     ObjectMap<Stype, Seq<Stype>> componentDependencies = new ObjectMap<>();
@@ -52,6 +54,7 @@ public class ModEntityProcess extends ModBaseProcessor{
     ObjectSet<String> imports = new ObjectSet<>();
     Seq<TypeSpec.Builder> baseClasses = new Seq<>();
     TypeIOResolver.ClassSerializer serializer;
+    CreateMindustrySerialization createMindustrySerialization;
     //    Seq<String> anukeComponents = new Seq<>();
     boolean hasAnukeComps = false;
     private String compByAnukePackage;
@@ -62,7 +65,9 @@ public class ModEntityProcess extends ModBaseProcessor{
 
     @Override
     public void process(RoundEnvironment env) throws Exception{
+//        System.out.println("pre process: "+this.round+"/"+rounds);
         updateRounds();
+//        System.out.println("\ncreateMindustrySerialization: "+createMindustrySerialization);
         for(Stype type : types(ModAnnotations.EntitySuperClass.class)){
             if(!hasAnukeComps){
                 Log.info("anukeComp exists");
@@ -71,8 +76,12 @@ public class ModEntityProcess extends ModBaseProcessor{
             allInterfaces.add(type.superclasses().peek());
         }
         int round = this.round - 1;
-        if(allComponents.isEmpty() && allDefs.isEmpty()){
-            round = rounds;
+        if(rootPackageName.equals("mma")){
+            if(round == 0) rounds -= 1;
+            round++;
+        }
+        if(allComponents.isEmpty() && allDefs.isEmpty() && createMindustrySerialization == null){
+            this.round = rounds;
             return;
         }
         try{
@@ -83,11 +92,19 @@ public class ModEntityProcess extends ModBaseProcessor{
             if(round == 2) secondRound();
             if(round == 3){
                 thirdRound();
+                if(createMindustrySerialization != null){
+                    boolean root = rootPackageName.equals("mma");
+//                  if(!root) throw new RuntimeException("You cannot use createMindustrySerialization")
+                    if(root){
+                        new MindustrySerializationGenerator().generate(this);
+                    }
+                }
                 clearZeroRound();
             }
         }catch(Exception e){
             throw e;
         }
+        System.out.println("post process: " + this.round + "/" + rounds);
     }
 
     private void clearZeroRound(){
@@ -137,11 +154,15 @@ public class ModEntityProcess extends ModBaseProcessor{
         allGroups.addAll(elements(Annotations.GroupDef.class));
         allInterfaces.addAll(types(Annotations.EntityInterface.class));
         allDefs.addAll(elements(Annotations.EntityDef.class));
+        mindustryDefs.addAll(elements(MindustryEntityDef.class));
         if(serializer == null){
             serializer = ModTypeIOResolver.resolve(this);
         }
         baseComponents.addAll(types(Annotations.BaseComponent.class));
         allComponents.addAll(types(Annotations.Component.class));
+        if(createMindustrySerialization == null){
+            createMindustrySerialization = types(CreateMindustrySerialization.class).first().annotation(CreateMindustrySerialization.class);
+        }
     }
 
     private void firstRound() throws Exception{
@@ -340,7 +361,7 @@ public class ModEntityProcess extends ModBaseProcessor{
                 }
 //                System.out.println("rawTypes: +" + string);
 //                ClassName baseType = ClassName.bestGuess((repr.fullName().startsWith("mma.entities.compByAnuke") ? "mindustry.gen" : packageName) + "." + groupType);
-                ClassName baseType = (rawTypes.first().toString().contains("<any?>"))?ClassName.get(packageName,groupType):ClassName.get(rawTypes.first().cname().packageName(),groupType);
+                ClassName baseType = (rawTypes.first().toString().contains("<any?>")) ? ClassName.get(packageName, groupType) : ClassName.get(rawTypes.first().cname().packageName(), groupType);
 //                System.out.println("rawTypes: "+rawTypes.first().toString());
                 /*if(rawTypes.first().toString().contains("<any?>")){
 
@@ -566,7 +587,7 @@ public class ModEntityProcess extends ModBaseProcessor{
 
                     List<MethodSpec> methodSpecs = builder.methodSpecs;
                     int beforeSize = methodSpecs.size();
-                    generateMethod(type, ann, groups, builder, syncedFields, allFields, io, hasIO, parent, parentName);
+                    generateMethod(type, ann.pooled(), groups, builder, syncedFields, allFields, io, hasIO, parent, parentName);
                     if(methodSpecs.size() > beforeSize){
                         MethodSpec spec = methodSpecs.get(beforeSize);
                         MethodSpec.Builder mbuilder = spec.toBuilder().setName(base.name());
@@ -586,7 +607,7 @@ public class ModEntityProcess extends ModBaseProcessor{
                     err("Type " + type + " has multiple components implementing non-void method " + methodFullName + ".");
                 }
 
-                generateMethod(type, ann, groups, builder, syncedFields, allFields, io, hasIO, smethods, methodFullName);
+                generateMethod(type, ann.pooled(), groups, builder, syncedFields, allFields, io, hasIO, smethods, methodFullName);
             }
 
             //add pool reset method and implement Poolable
@@ -693,8 +714,15 @@ public class ModEntityProcess extends ModBaseProcessor{
 
     }
 
+    @Nullable
+    void generateMethod(Selement<?> type, boolean pooled, Seq<GroupDefinition> groups, Builder builder, Seq<Svar> syncedFields, Seq<Svar> allFields, ModEntityIO io, boolean hasIO, Seq<Smethod> smethods, String methodName) throws Exception{
+        MethodSpec.Builder method = generateMethod(type, pooled, groups, syncedFields, allFields, io, hasIO, smethods, methodName);
+        if(method == null) return;
+        builder.addMethod(method.build());
+    }
 
-    private void generateMethod(Selement<?> type, EntityDef ann, Seq<ModEntityProcess.GroupDefinition> groups, Builder builder, Seq<Svar> syncedFields, Seq<Svar> allFields, ModEntityIO io, boolean hasIO, Seq<Smethod> smethods, String methodName) throws Exception{
+    @Nullable
+    MethodSpec.Builder generateMethod(Selement<?> type, boolean pooled, Seq<GroupDefinition> groups, Seq<Svar> syncedFields, Seq<Svar> allFields, ModEntityIO io, boolean hasIO, Seq<Smethod> smethods, String methodName) throws Exception{
         smethods.sort(Structs.comps(Structs.comparingFloat(m -> m.has(Annotations.MethodPriority.class) ? m.annotation(Annotations.MethodPriority.class).value() : 0), Structs.comparing(Selement::name)));
         smethods = smethods.copy();
 
@@ -705,7 +733,7 @@ public class ModEntityProcess extends ModBaseProcessor{
         //skip internal impl
         boolean anyReplaceInternal = smethods.contains(m -> m.has(ReplaceInternalImpl.class));
         if(first.has(Annotations.InternalImpl.class) && !anyReplaceInternal){
-            return;
+            return null;
         }else if(anyReplaceInternal){
             if(smethods.count(m -> m.has(ReplaceInternalImpl.class) && !m.has(InternalImpl.class)) > 1){
                 err("Type " + type + " has multiple components replacing method " + methodName + ".");
@@ -718,7 +746,14 @@ public class ModEntityProcess extends ModBaseProcessor{
         //if(isFinal || entry.value.contains(s -> s.has(Final.class))) mbuilder.addModifiers(Modifier.FINAL);
         if(smethods.contains(s -> s.has(Annotations.CallSuper.class)))
             mbuilder.addAnnotation(Annotations.CallSuper.class); //add callSuper here if necessary
-        if(first.is(Modifier.STATIC)) mbuilder.addModifiers(Modifier.STATIC);
+        if(first.is(Modifier.STATIC)){
+//            System.out.println("Static: " + first.descString());
+//            System.out.println(methodBlocks.keys().toSeq());
+//            System.out.println(methodBlocks.get(first.descString()));
+//            System.out.println(methodBlocks.get(first.descString().replace(packageName + ".", "")));
+//            methodBlocks.get(smethods.first().descString())
+            mbuilder.addModifiers(Modifier.STATIC);
+        }
         mbuilder.addTypeVariables(first.typeVariables().map(TypeVariableName::get));
         mbuilder.returns(first.retn());
         mbuilder.addExceptions(first.thrownt());
@@ -829,11 +864,11 @@ public class ModEntityProcess extends ModBaseProcessor{
         for(Smethod elem : smethods){
             String descStr = elem.descString();
 
-            if(elem.is(Modifier.ABSTRACT) || elem.is(Modifier.NATIVE) || !methodBlocks.containsKey(descStr))
+            if(elem.is(Modifier.ABSTRACT) || elem.is(Modifier.NATIVE) || !(methodBlocks.containsKey(descStr) || methodBlocks.containsKey(descStr.replace(packageName + ".", ""))))
                 continue;
 
             //get all statements in the method, copy them over
-            String str = methodBlocks.get(descStr);
+            String str = methodBlocks.get(descStr, methodBlocks.get(descStr.replace(packageName + ".", "")));
             //name for code blocks in the methods
             String blockName = elem.up().getSimpleName().toString().toLowerCase().replace("comp", "");
 
@@ -863,11 +898,10 @@ public class ModEntityProcess extends ModBaseProcessor{
 
         //add free code to remove methods - always at the end
         //this only gets called next frame.
-        if(first.name().equals("remove") && ann.pooled()){
+        if(first.name().equals("remove") && pooled){
             mbuilder.addStatement("mindustry.gen.Groups.queueFree(($T)this)", Pool.Poolable.class);
         }
-
-        builder.addMethod(mbuilder.build());
+        return mbuilder;
 
     }
 
@@ -1117,6 +1151,7 @@ public class ModEntityProcess extends ModBaseProcessor{
 //        print("interfaceToComp to @",type.fullName());
         //example: IBlock -> BlockComp
         String name = type.name().substring(0, type.name().length() - 1) + "Comp";
+//        System.out.println(componentNames.keys().toSeq());
         return componentNames.get(name);
     }
 
@@ -1133,7 +1168,7 @@ public class ModEntityProcess extends ModBaseProcessor{
     Seq<Stype> allComponents(Selement<?> type){
         if(!defComponents.containsKey(type)){
             //get base defs
-            Seq<Stype> interfaces = types(type.annotation(Annotations.EntityDef.class), Annotations.EntityDef::value);
+            Seq<Stype> interfaces = type.has(MindustryEntityDef.class) ? types(type.annotation(MindustryEntityDef.class), MindustryEntityDef::value) : types(type.annotation(Annotations.EntityDef.class), Annotations.EntityDef::value);
             Seq<Stype> components = new Seq<>();
             for(Stype i : interfaces){
                 Stype comp = interfaceToComp(i);

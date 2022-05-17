@@ -155,4 +155,8 @@ public abstract class ModBaseProcessor extends BaseProcessor{
     public void debugLog(String text, Object... args){
         System.out.println("[D]" + Strings.format(text, args));
     }
+
+    public Fi rootDirectory(){
+        return rootDirectory;
+    }
 }

@@ -10,7 +10,7 @@ import mindustry.graphics.*;
 import mindustry.world.*;
 import static mindustry.logic.LAccess.*;
 
-// @EntityDef(value = LaunchCorec.class, serialize = false)
+@mma.annotations.ModAnnotations.MindustryEntityDef(value = LaunchCorec.class, serialize = false)
 @Component
 abstract class LaunchCoreComp implements Drawc, Timedc {
 

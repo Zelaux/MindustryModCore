@@ -6,7 +6,7 @@ import mindustry.entities.*;
 import mindustry.gen.*;
 import static mindustry.logic.LAccess.*;
 
-// @EntityDef(value = { EffectStatec.class, Childc.class }, pooled = true, serialize = false)
+@mma.annotations.ModAnnotations.MindustryEntityDef(value = { EffectStatec.class, Childc.class }, pooled = true, serialize = false)
 @Component(base = true)
 abstract class EffectStateComp implements Posc, Drawc, Timedc, Rotc, Childc {
 

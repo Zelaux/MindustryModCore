@@ -18,7 +18,7 @@ import static mindustry.Vars.*;
 import static mindustry.entities.Puddles.*;
 import static mindustry.logic.LAccess.*;
 
-// @EntityDef(value = { Puddlec.class }, pooled = true)
+@mma.annotations.ModAnnotations.MindustryEntityDef(value = { Puddlec.class }, pooled = true)
 @Component(base = true)
 abstract class PuddleComp implements Posc, Puddlec, Drawc {
 

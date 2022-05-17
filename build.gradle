@@ -273,6 +273,7 @@ project(":annotations") {
         implementation arcModule('arc-core')
 //        compileOnly project(":core")
         implementation mindustryModule("core")
+        implementation "com.github.javaparser:javaparser-symbol-solver-core:$jparcerVersion"
         compileOnly mindustryModule("tools")
 //                if(name!="tools")compile  project(":tools")
 //        implementation  project(":core")

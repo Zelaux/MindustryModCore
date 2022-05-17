@@ -17,7 +17,7 @@ import mindustry.world.meta.*;
 import static mindustry.Vars.*;
 import static mindustry.logic.LAccess.*;
 
-// @EntityDef(value = { Firec.class }, pooled = true)
+@mma.annotations.ModAnnotations.MindustryEntityDef(value = { Firec.class }, pooled = true)
 @Component(base = true)
 abstract class FireComp implements Timedc, Posc, Syncc, Drawc {
 

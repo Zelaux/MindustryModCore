@@ -8,7 +8,7 @@ import mindustry.gen.*;
 import mindustry.graphics.*;
 import static mindustry.logic.LAccess.*;
 
-// @EntityDef(value = { Decalc.class }, pooled = true, serialize = false)
+@mma.annotations.ModAnnotations.MindustryEntityDef(value = { Decalc.class }, pooled = true, serialize = false)
 @Component(base = true)
 abstract class DecalComp implements Drawc, Timedc, Rotc, Posc {
 
