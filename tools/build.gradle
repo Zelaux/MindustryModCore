@@ -2,7 +2,11 @@
 apply plugin: "java"
 sourceSets.main.java.srcDirs = ["src/"]
 
-
+jar{
+    from(rootDir){
+        include("core/mindustrySprites.zip")
+    }
+}
 import arc.files.Fi
 import arc.graphics.Color
 import arc.graphics.Pixmap

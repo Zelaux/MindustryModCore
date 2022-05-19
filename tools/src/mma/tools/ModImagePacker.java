@@ -77,7 +77,8 @@ public class ModImagePacker extends MindustryImagePacker{
         try{
             Fi zipFileLoc = Fi.tempFile("mindustrySprites.zip");
             zipFileLoc.delete();
-            FileUtils.copyURLToFile(new URL("https://raw.githubusercontent.com/Zelaux/ZelauxModCore/master/core/mindustrySprites.zip"), zipFileLoc.file());
+//            FileUtils.copyURLToFile(new URL("https://raw.githubusercontent.com/Zelaux/ZelauxModCore/master/core/mindustrySprites.zip"), zipFileLoc.file());
+            zipFileLoc.write(getClass().getResourceAsStream("mindustrySprites.zip"),false);
             Fi mindustrySprites = Fi.tempDirectory("mindustrySprites");
             for(Fi fi : new ZipFi(zipFileLoc).list()){
                 fi.copyTo(mindustrySprites);
