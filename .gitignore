@@ -157,5 +157,6 @@ android/libs/
 
 ## Zeluax
 cmp.py
+modsDirectories.txt
 #gradle.properties
 core/build/
