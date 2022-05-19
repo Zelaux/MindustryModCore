@@ -161,7 +161,8 @@ public class ModEntityProcess extends ModBaseProcessor{
         baseComponents.addAll(types(Annotations.BaseComponent.class));
         allComponents.addAll(types(Annotations.Component.class));
         if(createMindustrySerialization == null){
-            createMindustrySerialization = types(CreateMindustrySerialization.class).first().annotation(CreateMindustrySerialization.class);
+            Seq<Stype> types = types(CreateMindustrySerialization.class);
+            if(types.any()) createMindustrySerialization = types.first().annotation(CreateMindustrySerialization.class);
         }
     }
 
@@ -255,7 +256,7 @@ public class ModEntityProcess extends ModBaseProcessor{
 
                     //setter
                     if(!field.is(Modifier.FINAL) && !signatures.contains(cname + "(" + field.mirror().toString() + ")") &&
-                       !field.annotations().contains(f -> f.toString().equals("@mindustry.annotations.Annotations.ReadOnly"))){
+                    !field.annotations().contains(f -> f.toString().equals("@mindustry.annotations.Annotations.ReadOnly"))){
                         inter.addMethod(MethodSpec.methodBuilder(cname).addModifiers(Modifier.ABSTRACT, Modifier.PUBLIC)
                         .addJavadoc(field.doc() == null ? "" : field.doc())
                         .addParameter(ParameterSpec.builder(field.tname(), field.name())
@@ -1298,10 +1299,10 @@ public class ModEntityProcess extends ModBaseProcessor{
         @Override
         public String toString(){
             return "Definition{" +
-                   "groups=" + groups +
-                   "components=" + components +
-                   ", base=" + naming +
-                   '}';
+            "groups=" + groups +
+            "components=" + components +
+            ", base=" + naming +
+            '}';
         }
     }
 }
