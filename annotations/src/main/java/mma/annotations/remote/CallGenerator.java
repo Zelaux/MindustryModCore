@@ -87,23 +87,26 @@ public class CallGenerator{
             }
 
             //write the completed packet class
-            try {
+            /*try {
                 ModBaseProcessor.write(packet);
             } catch (Exception e) {
                 e.printStackTrace();
-            }
-//            JavaFile.builder(packageName, packet.build()).build().writeTo(BaseProcessor.filer);
+            }*/
+            JavaFile.builder(packageName, packet.build()).build().writeTo(BaseProcessor.filer);
         }
 
         callBuilder.addMethod(register.build());
 
         //build and write resulting class
-        TypeSpec spec = callBuilder.build();
+       /* TypeSpec spec = callBuilder.build();
         try {
             ModBaseProcessor.write(callBuilder);
         } catch (Exception e) {
             e.printStackTrace();
-        }
+        }*/
+
+        TypeSpec spec = callBuilder.build();
+        JavaFile.builder(packageName, spec).build().writeTo(BaseProcessor.filer);
 //        JavaFile.builder(packageName, spec).build().writeTo(BaseProcessor.filer);
     }
 
@@ -137,7 +140,7 @@ public class CallGenerator{
                 builder.addStatement("WRITE.$L($L)", typeName.equals("boolean") ? "bool" : typeName.charAt(0) + "", varName);
             }else{
                 //else, try and find a serializer
-                String ser = serializer.writers.get(typeName.replace("mindustry.gen.", ""), SerializerResolver.locate(ent.element.e, var.mirror(), true));
+                String ser = serializer.getNetWriter(typeName.replace("mindustry.gen.", ""), SerializerResolver.locate(ent.element.e, var.mirror(), true));
 
                 if(ser == null){ //make sure a serializer exists!
                     ModBaseProcessor.err("No method to write class type: '" + typeName + "'", var);
@@ -162,7 +165,7 @@ public class CallGenerator{
             .addModifiers(Modifier.PUBLIC).addAnnotation(Override.class);
 
         //read only into temporary data buffer
-        readbuilder.addStatement("DATA = READ.b(new byte[LENGTH])");
+        readbuilder.addStatement("DATA = READ.b(LENGTH)");
 
         typespec.addMethod(readbuilder.build());
 
@@ -294,8 +297,7 @@ public class CallGenerator{
         method.beginControlFlow("if(" + getCheckString(ent.where) + ")");
 
         //add statement to create packet from pool
-//        method.addStatement("$1T packet = new $1T()", tname("mindustry.gen." + ent.packetClassName));
-        method.addStatement("$1T packet = new $1T()", tname(rootPackageName+".gen." + ent.packetClassName));
+        method.addStatement("$1T packet = new $1T()", tname(rootPackageName+".gen." + ent.packetClassName));//method.addStatement("$1T packet = new $1T()", tname("mindustry.gen." + ent.packetClassName));
 
         method.addTypeVariables(Seq.with(elem.e.getTypeParameters()).map(BaseProcessor::getTVN));
 

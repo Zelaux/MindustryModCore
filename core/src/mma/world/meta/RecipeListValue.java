@@ -31,8 +31,10 @@ public class RecipeListValue implements StatValue {
                 table.add(" "+recipe.outputItem.item.localizedName).padRight(10.0F).left().top();
             }
             if (recipe.outputLiquid != null) {
-                table.image(icon(recipe.outputLiquid.liquid)).size(24.0F).padRight(4.0F).right().top();
-                table.add(recipe.outputLiquid.liquid.localizedName).padRight(10.0F).left().top();
+                StatValues.liquid(recipe.outputLiquid.liquid,recipe.outputLiquid.amount,true).display(table);
+
+//                table.image(icon(recipe.outputLiquid.liquid)).size(24.0F).padRight(4.0F).right().top();
+//                table.add(recipe.outputLiquid.liquid.localizedName).padRight(10.0F).left().top();
             }
 
             (table.table((bt) -> {
@@ -43,6 +45,7 @@ public class RecipeListValue implements StatValue {
                 }
 
                 if (recipe.consumeLiquids.length > 0) {
+//                    StatValues()
                     new LiquidListValue(false, recipe.consumeLiquids).display(bt.table().get());
                     bt.row();
                 }

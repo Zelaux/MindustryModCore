@@ -2,6 +2,7 @@ package mma.world.draw;
 
 import arc.graphics.g2d.*;
 import arc.struct.*;
+import mindustry.gen.*;
 import mindustry.world.*;
 import mindustry.world.blocks.production.GenericCrafter.*;
 import mindustry.world.draw.*;
@@ -24,13 +25,13 @@ public class MultiDrawBlock extends DrawBlock{
     }
 
     @Override
-    public void draw(GenericCrafterBuild build){
+    public void draw(Building build){
         super.draw(build);
         drawBlocks.each(d -> d.draw(build));
     }
 
     @Override
-    public void drawLight(GenericCrafterBuild build){
+    public void drawLight(Building build){
         super.drawLight(build);
         drawBlocks.each(d -> d.drawLight(build));
     }

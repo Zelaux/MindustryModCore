@@ -1,7 +1,6 @@
 package mma.tests.entities;
 
 import mindustry.annotations.Annotations.*;
-import mma.entities.compByAnuke.AnnotationConfigComponents.*;
 import mma.gen.*;
 
 class ModGroupDefs<G>{

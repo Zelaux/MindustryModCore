@@ -2,10 +2,10 @@ package mma.tests;
 
 import arc.struct.*;
 import mindustry.*;
-import mindustry.ctype.*;
 import mma.*;
+import mma.tests.content.*;
 
-public  class TestVars extends ModVars{
+public class TestVars extends ModVars{
     private static final Seq<Runnable> onLoad = new Seq<>();
 
     static{
@@ -33,7 +33,8 @@ public  class TestVars extends ModVars{
     }
 
     @Override
-    public ContentList[] getContentList(){
-        return new ContentList[0];
+    public void loadContent(){
+        TestItems.load();
+        TestBlocks.load();
     }
 }

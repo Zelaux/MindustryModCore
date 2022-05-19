@@ -85,6 +85,7 @@ public class MultiBar extends Bar {
         return f;
     }
     Seq<BarPart> barParts=new Seq<>();
+    @Override
     public void draw() {
         if (this.barParts != null && this.barParts.size>0) {
             Drawable bar = Tex.bar;

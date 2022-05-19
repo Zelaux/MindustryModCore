@@ -37,7 +37,7 @@ abstract class WaterMoveComp implements Posc, Velc, Hitboxc, Flyingc, Unitc {
             Trail t = i == 0 ? tleft : tright;
             t.length = type.trailLength;
             int sign = i == 0 ? -1 : 1;
-            float cx = Angles.trnsx(rotation - 90, type.trailX * sign, type.trailY) + x, cy = Angles.trnsy(rotation - 90, type.trailX * sign, type.trailY) + y;
+            float cx = Angles.trnsx(rotation - 90, type.waveTrailX * sign, type.waveTrailY) + x, cy = Angles.trnsy(rotation - 90, type.waveTrailX * sign, type.waveTrailY) + y;
             t.update(cx, cy, world.floorWorld(cx, cy).isLiquid && !flying ? 1 : 0);
         }
     }

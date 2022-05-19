@@ -42,14 +42,14 @@ public class SideJunction extends Block {
     public void drawPlace(int x, int y, int rotation, boolean valid) {
         super.drawPlace(x, y, rotation, valid);
     }
-    public void drawRequestRegion(BuildPlan req, Eachable<BuildPlan> list) {
-        TextureRegion reg = this.getRequestRegion(req, list);
+    public void drawPlanRegion(BuildPlan req, Eachable<BuildPlan> list) {
+        TextureRegion reg = this.getPlanRegion(req, list);
         float x = req.drawx();
         float y = req.drawy();
         float halfTile = 4.0F;
         Draw.rect(reg, x, y, (float)(this.size * 8), (float)(this.size * 8), 0.0F);
         if (req.config != null) {
-            this.drawRequestConfig(req, list);
+            this.drawPlanConfig(req, list);
         }
 
         float rotation = (float)req.rotation * 90.0F;

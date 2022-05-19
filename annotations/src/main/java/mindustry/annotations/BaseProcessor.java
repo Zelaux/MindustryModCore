@@ -137,8 +137,14 @@ public abstract class BaseProcessor extends AbstractProcessor {
     }
 
     public static void write(TypeSpec.Builder builder, String packageName, Seq<String> imports) throws Exception {
+        builder.superinterfaces.sort(Structs.comparing(t -> t.toString()));
+        builder.methodSpecs.sort(Structs.comparing(m -> m.toString()));
+        builder.fieldSpecs.sort(Structs.comparing(f -> f.name));
         JavaFile file = JavaFile.builder(packageName, builder.build()).skipJavaLangImports(true).build();
+        String writeString;
         if (imports != null) {
+            imports = imports.map(m -> Seq.with(m.split("\n")).sort().toString("\n"));
+            imports.sort();
             String rawSource = file.toString();
             Seq<String> result = new Seq<>();
             for (String s : rawSource.split("\n", -1)) {
@@ -150,14 +156,14 @@ public abstract class BaseProcessor extends AbstractProcessor {
                     }
                 }
             }
-            String out = result.toString("\n");
-            JavaFileObject object = filer.createSourceFile(file.packageName + "." + file.typeSpec.name, file.typeSpec.originatingElements.toArray(new Element[0]));
-            OutputStream stream = object.openOutputStream();
-            stream.write(out.getBytes());
-            stream.close();
+            writeString = result.toString("\n");
         } else {
-            file.writeTo(filer);
+            writeString = file.toString();
         }
+        JavaFileObject object = filer.createSourceFile(file.packageName + "." + file.typeSpec.name, file.typeSpec.originatingElements.toArray(new Element[0]));
+        Writer stream = object.openWriter();
+        stream.write(writeString);
+        stream.close();
     }
 
     public Seq<Selement> elements(Class<? extends Annotation> type) {

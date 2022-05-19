@@ -21,6 +21,10 @@ public class AnnotationConfigComponents {
     }
 
     @ModAnnotations.EntitySuperClass()
+    public interface BuildingTetherc extends mindustry.gen.BuildingTetherc {
+    }
+
+    @ModAnnotations.EntitySuperClass()
     public interface Bulletc extends mindustry.gen.Bulletc {
     }
 
@@ -29,7 +33,7 @@ public class AnnotationConfigComponents {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Commanderc extends mindustry.gen.Commanderc {
+    public interface Crawlc extends mindustry.gen.Crawlc {
     }
 
     @ModAnnotations.EntitySuperClass()
@@ -113,6 +117,10 @@ public class AnnotationConfigComponents {
     }
 
     @ModAnnotations.EntitySuperClass()
+    public interface PowerGraphUpdaterc extends mindustry.gen.PowerGraphUpdaterc {
+    }
+
+    @ModAnnotations.EntitySuperClass()
     public interface Puddlec extends mindustry.gen.Puddlec {
     }
 
@@ -137,6 +145,10 @@ public class AnnotationConfigComponents {
     }
 
     @ModAnnotations.EntitySuperClass()
+    public interface Tankc extends mindustry.gen.Tankc {
+    }
+
+    @ModAnnotations.EntitySuperClass()
     public interface Teamc extends mindustry.gen.Teamc {
     }
 
@@ -145,11 +157,11 @@ public class AnnotationConfigComponents {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Timerc extends mindustry.gen.Timerc {
+    public interface TimedKillc extends mindustry.gen.TimedKillc {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Trailc extends mindustry.gen.Trailc {
+    public interface Timerc extends mindustry.gen.Timerc {
     }
 
     @ModAnnotations.EntitySuperClass()

@@ -17,11 +17,6 @@ public final ContentLoader wrapped;
         this.wrapped = wrapped;
     }
 
-    @Override
-    public void clear(){
-        if (wrapped==null)return;
-        wrapped.clear();
-    }
 
     @Override
     public void createBaseContent(){
@@ -139,6 +134,11 @@ public final ContentLoader wrapped;
     }
 
     @Override
+    public Item item(String name){
+        return wrapped.item(name);
+    }
+
+    @Override
     public Seq<Liquid> liquids(){
         return wrapped.liquids();
     }
@@ -146,6 +146,11 @@ public final ContentLoader wrapped;
     @Override
     public Liquid liquid(int id){
         return wrapped.liquid(id);
+    }
+
+    @Override
+    public Liquid liquid(String name){
+        return wrapped.liquid(name);
     }
 
     @Override
@@ -164,8 +169,18 @@ public final ContentLoader wrapped;
     }
 
     @Override
+    public StatusEffect statusEffect(String name){
+        return wrapped.statusEffect(name);
+    }
+
+    @Override
     public Seq<SectorPreset> sectors(){
         return wrapped.sectors();
+    }
+
+    @Override
+    public SectorPreset sector(String name){
+        return wrapped.sector(name);
     }
 
     @Override
@@ -179,7 +194,17 @@ public final ContentLoader wrapped;
     }
 
     @Override
+    public UnitType unit(String name){
+        return wrapped.unit(name);
+    }
+
+    @Override
     public Seq<Planet> planets(){
         return wrapped.planets();
+    }
+
+    @Override
+    public Planet planet(String name){
+        return wrapped.planet(name);
     }
 }

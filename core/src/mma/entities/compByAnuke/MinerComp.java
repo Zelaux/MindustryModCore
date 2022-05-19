@@ -30,7 +30,9 @@ abstract class MinerComp implements Itemsc, Posc, Teamc, Rotc, Drawc {
     @SyncLocal
     Tile mineTile;
 
-    public boolean canMine(Item item) {
+    public boolean canMine(@Nullable Item item) {
+        if (item == null)
+            return false;
         return type.mineTier >= item.hardness;
     }
 
@@ -42,8 +44,28 @@ abstract class MinerComp implements Itemsc, Posc, Teamc, Rotc, Drawc {
         return mineTile != null && !this.<Unit>self().activelyBuilding();
     }
 
+    @Nullable
+    public Item getMineResult(@Nullable Tile tile) {
+        if (tile == null)
+            return null;
+        Item result;
+        if (type.mineFloor && tile.block() == Blocks.air) {
+            result = tile.drop();
+        } else if (type.mineWalls) {
+            result = tile.wallDrop();
+        } else {
+            return null;
+        }
+        return canMine(result) ? result : null;
+    }
+
     public boolean validMine(Tile tile, boolean checkDst) {
-        return !(tile == null || tile.block() != Blocks.air || (!within(tile.worldx(), tile.worldy(), type.miningRange) && checkDst) || tile.drop() == null || !canMine(tile.drop()));
+        if (tile == null)
+            return false;
+        if (checkDst && !within(tile.worldx(), tile.worldy(), type.mineRange)) {
+            return false;
+        }
+        return getMineResult(tile) != null;
     }
 
     public boolean validMine(Tile tile) {
@@ -56,8 +78,11 @@ abstract class MinerComp implements Itemsc, Posc, Teamc, Rotc, Drawc {
 
     @Override
     public void update() {
+        if (mineTile == null)
+            return;
         Building core = closestCore();
-        if (core != null && mineTile != null && mineTile.drop() != null && !acceptsItem(mineTile.drop()) && within(core, mineTransferRange) && !offloadImmediately()) {
+        Item item = getMineResult(mineTile);
+        if (core != null && item != null && !acceptsItem(item) && within(core, mineTransferRange) && !offloadImmediately()) {
             int accepted = core.acceptStack(item(), stack().amount, this);
             if (accepted > 0) {
                 Call.transferItemTo(self(), item(), accepted, mineTile.worldx() + Mathf.range(tilesize / 2f), mineTile.worldy() + Mathf.range(tilesize / 2f), core);
@@ -67,13 +92,12 @@ abstract class MinerComp implements Itemsc, Posc, Teamc, Rotc, Drawc {
         if ((!net.client() || isLocal()) && !validMine(mineTile)) {
             mineTile = null;
             mineTimer = 0f;
-        } else if (mining()) {
-            Item item = mineTile.drop();
+        } else if (mining() && item != null) {
             mineTimer += Time.delta * type.mineSpeed;
             if (Mathf.chance(0.06 * Time.delta)) {
                 Fx.pulverizeSmall.at(mineTile.worldx() + Mathf.range(tilesize / 2f), mineTile.worldy() + Mathf.range(tilesize / 2f), 0f, item.color);
             }
-            if (mineTimer >= 50f + item.hardness * 15f) {
+            if (mineTimer >= 50f + (type.mineHardnessScaling ? item.hardness * 15f : 15f)) {
                 mineTimer = 0;
                 if (state.rules.sector != null && team() == state.rules.defaultTeam)
                     state.rules.sector.info.handleProduction(item, 1);
@@ -109,7 +133,7 @@ abstract class MinerComp implements Itemsc, Posc, Teamc, Rotc, Drawc {
         float ey = mineTile.worldy() + Mathf.sin(Time.time + 48, swingScl + 2f, swingMag);
         Draw.z(Layer.flyingUnit + 0.1f);
         Draw.color(Color.lightGray, Color.white, 1f - flashScl + Mathf.absin(Time.time, 0.5f, flashScl));
-        Drawf.laser(team(), Core.atlas.find("minelaser"), Core.atlas.find("minelaser-end"), px, py, ex, ey, 0.75f);
+        Drawf.laser(Core.atlas.find("minelaser"), Core.atlas.find("minelaser-end"), px, py, ex, ey, 0.75f);
         if (isLocal()) {
             Lines.stroke(1f, Pal.accent);
             Lines.poly(mineTile.worldx(), mineTile.worldy(), 4, tilesize / 2f * Mathf.sqrt2, Time.time);

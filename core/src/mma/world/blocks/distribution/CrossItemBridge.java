@@ -73,7 +73,7 @@ public class CrossItemBridge extends ItemBridge {
     @Override
     public void setBars() {
         super.setBars();
-        this.bars.add("connections", (CrossItemBridgeBuild entity) -> {
+        addBar("connections", (CrossItemBridgeBuild entity) -> {
             return new Bar(() -> {
                 //in bundle: Connections: {0}/{1}
                 return Core.bundle.format("bar.cross-item-bridge-lines", cast(entity).realConnections(), this.maxConnections);

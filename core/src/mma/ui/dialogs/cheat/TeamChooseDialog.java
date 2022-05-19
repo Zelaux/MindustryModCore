@@ -41,7 +41,7 @@ public class TeamChooseDialog extends BaseDialog {
                 coln = Mathf.clamp(coln,1,100);
                 for (Team team : Team.all) {
                     if (counter++ % coln == 0) t.row();
-                    ImageButton button = new ImageButton(Tex.whitePane, Styles.clearToggleTransi);
+                    ImageButton button = new ImageButton(Tex.whitePane, Styles.clearNoneTogglei);
                     button.clearChildren();
                     Image image = new Image();
                     button.background(image.getDrawable()).setColor(team.color);

@@ -4,12 +4,13 @@ import arc.graphics.g2d.*;
 import arc.math.*;
 import arc.util.*;
 import mindustry.*;
+import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.world.*;
 import mindustry.world.blocks.production.GenericCrafter.*;
 import mindustry.world.draw.*;
 
-public class MultiDrawSmelter extends DrawSmelter{
+public class MultiDrawFlame extends DrawFlame{
     public FlamePoint[] flamePoints = {};
     public boolean drawTopOnce=false;
 
@@ -18,18 +19,18 @@ public class MultiDrawSmelter extends DrawSmelter{
     }
 
     @Override
-    public void draw(GenericCrafterBuild build){
+    public void draw(Building build){
         Block block = build.block;
         Draw.rect(block.region, build.x, build.y, block.rotate ? build.rotdeg() : 0);
 
-        if(build.warmup > 0f && flameColor.a > 0.001f){
+        if(build.warmup() > 0f && flameColor.a > 0.001f){
             float g = 0.3f;
             float r = 0.06f;
             float cr = Mathf.random(0.1f);
 
             Draw.z(Layer.block + 0.01f);
             if (drawTopOnce){
-                Draw.alpha(build.warmup);
+                Draw.alpha(build.warmup());
                 Draw.rect(top, build.x, build.y);
             }
 
@@ -37,16 +38,16 @@ public class MultiDrawSmelter extends DrawSmelter{
                 float x = build.x + (point.x - 0.5f) * block.size * Vars.tilesize;
                 float y = build.y + (point.y - 0.5f) * block.size * Vars.tilesize;
                 if (!drawTopOnce){
-                    Draw.alpha(build.warmup);
+                    Draw.alpha(build.warmup());
                     Draw.rect(top, x, y);
                 }
 
-                Draw.alpha(((1f - g) + Mathf.absin(Time.time, 8f, g) + Mathf.random(r) - r) * build.warmup);
+                Draw.alpha(((1f - g) + Mathf.absin(Time.time, 8f, g) + Mathf.random(r) - r) * build.warmup());
 
                 Draw.tint(flameColor);
                 float radius = flameRadius + Mathf.absin(Time.time, flameRadiusScl, flameRadiusMag) + cr;
                 Fill.circle(x, y, radius*point.scale);
-                Draw.color(1f, 1f, 1f, build.warmup);
+                Draw.color(1f, 1f, 1f, build.warmup());
                 float radiusIn = flameRadiusIn + Mathf.absin(Time.time, flameRadiusScl, flameRadiusInMag) + cr;
                 Fill.circle(x, y, radiusIn*point.scale);
             }

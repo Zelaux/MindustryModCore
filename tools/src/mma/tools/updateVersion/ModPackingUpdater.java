@@ -1,40 +1,32 @@
 package mma.tools.updateVersion;
 
-import arc.files.Fi;
-import arc.files.ZipFi;
-import arc.func.Func2;
-import arc.math.Mathf;
-import arc.struct.Seq;
-import arc.util.Log;
-import arc.util.Strings;
-import arc.util.Structs;
-import arc.util.Time;
-import com.github.javaparser.JavaParser;
+import arc.files.*;
+import arc.func.*;
+import arc.math.*;
+import arc.struct.*;
+import arc.util.*;
+import com.github.javaparser.*;
 import com.github.javaparser.ast.*;
+import com.github.javaparser.ast.Modifier.*;
 import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.expr.*;
-import com.github.javaparser.ast.nodeTypes.NodeWithModifiers;
-import com.github.javaparser.ast.nodeTypes.NodeWithSimpleName;
-import com.github.javaparser.ast.nodeTypes.modifiers.NodeWithPublicModifier;
-import com.github.javaparser.ast.stmt.BlockStmt;
-import com.github.javaparser.ast.stmt.ExpressionStmt;
-import com.github.javaparser.ast.stmt.Statement;
-import com.github.javaparser.ast.type.PrimitiveType;
-import com.github.javaparser.ast.visitor.GenericVisitorAdapter;
-import com.github.javaparser.ast.visitor.ModifierVisitor;
-import com.github.javaparser.ast.visitor.Visitable;
-import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
-import mindustry.ctype.ContentType;
-import mma.core.ModContentLoader;
-import mma.tools.parsers.LibrariesDownloader;
+import com.github.javaparser.ast.nodeTypes.*;
+import com.github.javaparser.ast.nodeTypes.modifiers.*;
+import com.github.javaparser.ast.stmt.*;
+import com.github.javaparser.ast.type.*;
+import com.github.javaparser.ast.visitor.*;
+import mindustry.ctype.*;
+import mma.core.*;
+import mma.tools.*;
+import mma.tools.parsers.*;
 
-import java.util.Comparator;
+import java.util.*;
 
-public class ModPackingUpdater {
+public class ModPackingUpdater{
     static JavaParser javaParser = new JavaParser();
     static Fi rootDirectory;
 
-    public static void run(String mindustryVersion, String[] args) {
+    public static void run(String mindustryVersion, String[] args){
 
 
         ZipFi sourceZip = LibrariesDownloader.coreZip();
@@ -43,10 +35,20 @@ public class ModPackingUpdater {
 
         createModGenerators(javaParser.parse(tools.child("Generators.java").readString()).getResult().get());
         createModImagePacker(javaParser.parse(tools.child("ImagePacker.java").readString()).getResult().get());
+//        createMindustrySpritesContainer();
 
     }
 
-    private static void createModImagePacker(CompilationUnit otherCompilationUnit) {
+    private static void createMindustrySpritesContainer(){
+        CompilationUnit compilationUnit = new CompilationUnit("mma.tools.gen");
+        ClassOrInterfaceDeclaration declaration = compilationUnit.addClass("MindustrySpritesContainer");
+        long[] longs = ByteLongMapper.getLongs(Fi.get("core/mindustrySprites.zip").readBytes());
+        declaration.addField(StaticJavaParser.parseType("long[]"),"mindustrySpritesLongs",Keyword.PUBLIC,Keyword.STATIC).getVariable(0)
+        .setInitializer(Strings.format("new long[]{@}",LongSeq.with(longs).toString(", ")));
+        save(compilationUnit,"MindustrySpritesContainer");
+    }
+
+    private static void createModImagePacker(CompilationUnit otherCompilationUnit){
         CompilationUnit compilationUnit = otherCompilationUnit.clone();
         compilationUnit.setPackageDeclaration("mma.tools.gen");
 
@@ -57,19 +59,19 @@ public class ModPackingUpdater {
         mainMethod.remove();
 
         imagePacker.addField(PrimitiveType.booleanType(), "disableIconProcessing", Modifier.Keyword.PROTECTED).getVariables().getFirst().get()
-                .setInitializer(new BooleanLiteralExpr(false));
+        .setInitializer(new BooleanLiteralExpr(false));
 
         Seq<NodeWithModifiers<? extends Node>> nodeWithModifiers = new Seq<>();
         imagePacker.walk(node -> {
-            if (node instanceof NodeWithModifiers) {
-                nodeWithModifiers.add((NodeWithModifiers<? extends Node>) node);
+            if(node instanceof NodeWithModifiers){
+                nodeWithModifiers.add((NodeWithModifiers<? extends Node>)node);
             }
         });
-        for (NodeWithModifiers<?> nodeWithModifier : nodeWithModifiers) {
-            if (!(nodeWithModifier instanceof NodeWithPublicModifier)) continue;
-            if (nodeWithModifier.hasModifier(Modifier.Keyword.PUBLIC) || nodeWithModifier.hasModifier(Modifier.Keyword.PROTECTED))
+        for(NodeWithModifiers<?> nodeWithModifier : nodeWithModifiers){
+            if(!(nodeWithModifier instanceof NodeWithPublicModifier)) continue;
+            if(nodeWithModifier.hasModifier(Modifier.Keyword.PUBLIC) || nodeWithModifier.hasModifier(Modifier.Keyword.PROTECTED))
                 continue;
-            if (nodeWithModifier.hasModifier(Modifier.Keyword.PRIVATE)) {
+            if(nodeWithModifier.hasModifier(Modifier.Keyword.PRIVATE)){
                 nodeWithModifier.removeModifier(Modifier.Keyword.PRIVATE);
             }
             nodeWithModifier.addModifier(Modifier.Keyword.PUBLIC);
@@ -85,7 +87,7 @@ public class ModPackingUpdater {
         iconProcessingMethod.setThrownExceptions(mainMethod.getThrownExceptions());
 
         imagePacker.addMethod("runGenerators", Modifier.Keyword.PROTECTED)
-                .getBody().get().addStatement("new MindustryGenerators();")
+        .getBody().get().addStatement("new MindustryGenerators();")
         ;
 
 
@@ -95,65 +97,65 @@ public class ModPackingUpdater {
         //Log.info("&ly[Generator]&lc Total time to generate: &lg@&lcms", Time.elapsed())
         boolean iconProcessing = false;
 
-        for (Statement statement : mainMethod.getBody().get().getStatements()) {
-            if (iconProcessing) {
+        for(Statement statement : mainMethod.getBody().get().getStatements()){
+            if(iconProcessing){
                 iconProcessingMethod.getBody().get().addStatement(statement);
                 continue;
             }
             boolean creatingContent = statement.toString().equals("Vars.content.createBaseContent();");
-            if (creatingContent) {
+            if(creatingContent){
                 blockStmt.addStatement(javaParser.parseStatement("preCreatingContent();").getResult().get());
             }
             blockStmt.addStatement(statement);
-            if (creatingContent) {
+            if(creatingContent){
                 blockStmt.addStatement("Vars.content.createModContent();");
-            } else if (statement.toString().equals("Draw.scl = 1f / Core.atlas.find(\"scale_marker\").width;")) {
+            }else if(statement.toString().equals("Draw.scl = 1f / Core.atlas.find(\"scale_marker\").width;")){
                 blockStmt.addStatement("load();");
                 imagePacker.addMethod("load", Modifier.Keyword.PROTECTED);
             }
-            if (creatingContent) {
+            if(creatingContent){
                 blockStmt.addStatement(javaParser.parseStatement("postCreatingContent();").getResult().get());
             }
-            if (statement.toString().startsWith("Log.info(\"&ly[Generator]&lc Total time to generate: &lg@&lcms\", Time.elapsed())")) {
+            if(statement.toString().startsWith("Log.info(\"&ly[Generator]&lc Total time to generate: &lg@&lcms\", Time.elapsed())")){
                 blockStmt.addStatement(javaParser.parseStatement("iconProcessing();").getResult().get());
                 iconProcessing = true;
             }
         }
         startMethod.setBody(blockStmt);
         startMethod.setThrownExceptions(mainMethod.getThrownExceptions());
-        startMethod.accept(new ModifierVisitor<Void>() {
+        startMethod.accept(new ModifierVisitor<Void>(){
             @Override
-            public Visitable visit(AssignExpr assignExpr, Void arg) {
-                if (assignExpr.getTarget().toString().equals("Vars.content")) {
+            public Visitable visit(AssignExpr assignExpr, Void arg){
+                if(assignExpr.getTarget().toString().equals("Vars.content")){
                     assignExpr.setValue(javaParser.parseExpression("new " + ModContentLoader.class.getName() + "()").getResult().get());
                 }
                 return super.visit(assignExpr, arg);
             }
 
             @Override
-            public Visitable visit(ExpressionStmt expressionStmt, Void arg) {
+            public Visitable visit(ExpressionStmt expressionStmt, Void arg){
                 return super.visit(expressionStmt, arg);
             }
 
             @Override
-            public Visitable visit(BlockStmt n, Void arg) {
+            public Visitable visit(BlockStmt n, Void arg){
                 return super.visit(n, arg);
             }
 
             @Override
-            public Visitable visit(MethodCallExpr methodCallExpr, Void arg) {
+            public Visitable visit(MethodCallExpr methodCallExpr, Void arg){
                 Visitable visit = super.visit(methodCallExpr, arg);
-                if (methodCallExpr.toString().equals("Generators.run()")) {
+                if(methodCallExpr.toString().equals("Generators.run()")){
                     visit = javaParser.parseExpression("runGenerators()").getResult().get();
                 }
                 return visit;
             }
         }, null);
 
-        imagePacker.accept(new ModifierVisitor<Void>() {
+        imagePacker.accept(new ModifierVisitor<Void>(){
             @Override
-            public Visitable visit(NameExpr n, Void arg) {
-                if (n.getNameAsString().equals("ImagePacker")) {
+            public Visitable visit(NameExpr n, Void arg){
+                if(n.getNameAsString().equals("ImagePacker")){
                     n.setName("MindustryImagePacker");
                 }
                 return super.visit(n, arg);
@@ -170,103 +172,118 @@ public class ModPackingUpdater {
     }
 
 
-    private static void createModGenerators(CompilationUnit otherCompilationUnit) {
+    private static void createModGenerators(CompilationUnit otherCompilationUnit){
         ClassOrInterfaceDeclaration generators = otherCompilationUnit.getClassByName("Generators").get();
 
         CompilationUnit compilationUnit = new CompilationUnit();
         compilationUnit.setPackageDeclaration("mma.tools.gen");
         compilationUnit.getImports().addAll(otherCompilationUnit.getImports());
-        for (ImportDeclaration anImport : compilationUnit.getImports()) {
-            if (anImport.getNameAsString().equals("mindustry.tools.ImagePacker")) {
+        for(ImportDeclaration anImport : compilationUnit.getImports()){
+            if(anImport.getNameAsString().equals("mindustry.tools.ImagePacker")){
                 anImport.setName("mma.tools.gen.MindustryImagePacker");
             }
         }
-        compilationUnit.addImport("mindustry.tools.Generators.ScorchGenerator", true, false);
+//        compilationUnit.addImport("mindustry.tools.Generators.ScorchGenerator", true, false);
 
         ClassOrInterfaceDeclaration modGenerators = compilationUnit.addClass("MindustryGenerators");
         modGenerators.addModifier(Modifier.Keyword.PUBLIC);
-        for (FieldDeclaration field : generators.getFields()) {
+        for(FieldDeclaration field : generators.getFields()){
             modGenerators.addMember(field.clone().addModifier(Modifier.Keyword.PUBLIC));
+        }
+        for(MethodDeclaration method : generators.getMethods()){
+            if(method.hasModifier(Keyword.PRIVATE)){
+                MethodDeclaration clone = method.clone();
+                NodeList<Modifier> modifiers = clone.getModifiers();
+                modifiers.remove(Modifier.privateModifier());
+                modifiers.add(Modifier.protectedModifier());
+                modifiers.sort(Structs.comparing(i -> i.getKeyword().ordinal()));
+                modGenerators.addMember(clone);
+            }
+        }
+//        generators.
+        for(BodyDeclaration<?> member : generators.getMembers()){
+            if(!member.isClassOrInterfaceDeclaration()) continue;
+            modGenerators.addMember(member.asClassOrInterfaceDeclaration().clone().addModifier(Modifier.Keyword.PUBLIC));
         }
 
         ConstructorDeclaration constructor = modGenerators.addConstructor(Modifier.Keyword.PUBLIC);
         constructor.getBody()
-                .addStatement("setup();")
-                .addStatement("run();");
+        .addStatement("setup();")
+        .addStatement("run();");
 
         MethodDeclaration runMethod = modGenerators.addMethod("run", Modifier.Keyword.PROTECTED);
         MethodDeclaration disableMethod = modGenerators.addMethod("disable", Modifier.Keyword.PROTECTED);
         MethodDeclaration enableMethod = modGenerators.addMethod("enable", Modifier.Keyword.PROTECTED);
         modGenerators.addMethod("setup", Modifier.Keyword.PROTECTED)
-                .getBody().get().addStatement("enable();")
+        .getBody().get().addStatement("enable();")
         ;
-        for (MethodDeclaration otherRun : generators.getMethods()) {
-            if (otherRun.getNameAsString().equals("run")) {
-                otherRun.accept(new VoidVisitorAdapter<Void>() {
+        for(MethodDeclaration otherRun : generators.getMethods()){
+            if(otherRun.getNameAsString().equals("run")){
+                otherRun.accept(new VoidVisitorAdapter<Void>(){
                     @Override
-                    public void visit(VariableDeclarationExpr variableDeclarationExpr, Void arg) {
+                    public void visit(VariableDeclarationExpr variableDeclarationExpr, Void arg){
 //                        super.visit(variableDeclarationExpr, arg);
                         FieldDeclaration fieldDeclaration = null;
-                        for (VariableDeclarator variable : variableDeclarationExpr.getVariables()) {
+                        for(VariableDeclarator variable : variableDeclarationExpr.getVariables()){
                             VariableDeclarator current;
-                            if (fieldDeclaration == null) {
+                            if(fieldDeclaration == null){
                                 fieldDeclaration = modGenerators.addField(variable.getType(), variable.getNameAsString(), Modifier.Keyword.PROTECTED);
                                 current = fieldDeclaration.getVariable(0);
                                 variable.getInitializer().ifPresent(current::setInitializer);
-                            } else {
+                            }else{
                                 fieldDeclaration.addVariable(current = variable.clone());
                             }
                         }
                     }
 
                     @Override
-                    public void visit(MethodCallExpr methodCall, Void arg) {
-                        if (methodCall.getNameAsString().equals("generate")) {
+                    public void visit(MethodCallExpr methodCall, Void arg){
+                        if(methodCall.getNameAsString().equals("generate")){
                             StringLiteralExpr generatorName = methodCall.getArgument(0).asStringLiteralExpr();
                             LambdaExpr lambdaExpr = methodCall.getArgument(1).asLambdaExpr();
                             String methodName = Strings.kebabToCamel(generatorName.getValue());
 
                             BlockStmt body = null;
-                            if (lambdaExpr.getBody().isBlockStmt()) {
+                            if(lambdaExpr.getBody().isBlockStmt()){
                                 body = lambdaExpr.getBody().asBlockStmt();
-                            } else {
+                            }else{
                                 body = new BlockStmt();
                                 body.addStatement(lambdaExpr.getBody());
                             }
                             String boolVarName = "generate" + Strings.capitalize(methodName);
                             modGenerators.addField(PrimitiveType.booleanType(), boolVarName, Modifier.Keyword.PROTECTED);
                             enableMethod.getBody().get()
-                                    .addStatement(new AssignExpr(new NameExpr(boolVarName), new BooleanLiteralExpr(true), AssignExpr.Operator.ASSIGN));
+                            .addStatement(new AssignExpr(new NameExpr(boolVarName), new BooleanLiteralExpr(true), AssignExpr.Operator.ASSIGN));
                             disableMethod.getBody().get()
-                                    .addStatement(new AssignExpr(new NameExpr(boolVarName), new BooleanLiteralExpr(false), AssignExpr.Operator.ASSIGN));
+                            .addStatement(new AssignExpr(new NameExpr(boolVarName), new BooleanLiteralExpr(false), AssignExpr.Operator.ASSIGN));
 
                             String parseLine = "if (!" + boolVarName + ") return;";
                             body.addStatement(0, javaParser.parseStatement(parseLine).getResult().get());
 //                            body.getStatement(0).setComment(new LineComment(parseLine));
 
-                            body.accept(new ModifierVisitor<Void>() {
+                            body.accept(new ModifierVisitor<Void>(){
                                 @Override
-                                public Visitable visit(MethodCallExpr methodCallExpr, Void arg) {
+                                public Visitable visit(MethodCallExpr methodCallExpr, Void arg){
                                     String nameAsString = methodCallExpr.getNameAsString();
 
-                                    if (nameAsString.equals("save")) {
+                                    if(nameAsString.equals("save")){
                                         Expression argument = methodCallExpr.getArgument(1);
-                                        StringLiteralExpr found = argument.accept(new GenericVisitorAdapter<StringLiteralExpr, Void>() {
+                                        StringLiteralExpr found = argument.accept(new GenericVisitorAdapter<StringLiteralExpr, Void>(){
                                             @Override
-                                            public StringLiteralExpr visit(StringLiteralExpr n, Void arg) {
+                                            public StringLiteralExpr visit(StringLiteralExpr n, Void arg){
                                                 StringLiteralExpr visit = super.visit(n, arg);
-                                                if (n.getValue().contains("-full")) return n;
+                                                if(n.getValue().contains("-full")) return n;
                                                 return visit;
                                             }
                                         }, null);
-                                        if (found != null) {
-                                            argument.accept(new ModifierVisitor<Void>() {
+                                        if(found != null){
+                                            argument.accept(new ModifierVisitor<Void>(){
                                                 @Override
-                                                public Visitable visit(StringLiteralExpr literalExpr, Void arg) {
-                                                    for (ContentType type : ContentType.values()) {
+                                                public Visitable visit(StringLiteralExpr literalExpr, Void arg){
+                                                    for(ContentType type : ContentType.values()){
                                                         String value = literalExpr.getValue();
                                                         String suffix = type.name() + "-";
-                                                        if (value.endsWith(suffix)) {
+                                                        if(value.endsWith(suffix)){
                                                             int endIndex = suffix.length() + (value.endsWith("/" + suffix) ? 1 : 0);
                                                             literalExpr.setValue(value.substring(0, value.length() - endIndex));
                                                         }
@@ -281,11 +298,11 @@ public class ModPackingUpdater {
                             }, null);
                             modGenerators.addMethod(methodName, Modifier.Keyword.PROTECTED).setBody(body);
                             runMethod.getBody().get().addStatement(new MethodCallExpr("generate").
-                                    addArgument(generatorName).
-                                    addArgument(new MethodReferenceExpr()
-                                            .setScope(new ThisExpr())
-                                            .setIdentifier(methodName)
-                                    )
+                            addArgument(generatorName).
+                            addArgument(new MethodReferenceExpr()
+                            .setScope(new ThisExpr())
+                            .setIdentifier(methodName)
+                            )
                             );
                         }
 //                        super.visit(methodCall, arg);
@@ -297,50 +314,50 @@ public class ModPackingUpdater {
         save(compilationUnit);
     }
 
-    private static void save(CompilationUnit compilationUnit, String className) {
+    private static void save(CompilationUnit compilationUnit, String className){
         PackageDeclaration packageDeclaration = compilationUnit.getPackageDeclaration().get();
         Fi child = rootDirectory.child(packageDeclaration.getNameAsString().replace(".", "/")).child(className + ".java");
         child.writeString(compilationUnit.toString());
     }
 
-    private static void save(CompilationUnit compilationUnit) {
+    private static void save(CompilationUnit compilationUnit){
         save(compilationUnit, compilationUnit.findFirst(ClassOrInterfaceDeclaration.class).get().getNameAsString());
     }
 
-    private static void sortClasses(CompilationUnit compilationUnit) {
-        for (ClassOrInterfaceDeclaration classOrInterfaceDeclaration : compilationUnit.findAll(ClassOrInterfaceDeclaration.class)) {
+    private static void sortClasses(CompilationUnit compilationUnit){
+        for(ClassOrInterfaceDeclaration classOrInterfaceDeclaration : compilationUnit.findAll(ClassOrInterfaceDeclaration.class)){
             Comparator<BodyDeclaration<?>> comparator = (o1, o2) -> {
-                if (o1.isFieldDeclaration() && o2.isFieldDeclaration()) {
+                if(o1.isFieldDeclaration() && o2.isFieldDeclaration()){
                     FieldDeclaration o1f = o1.asFieldDeclaration();
                     FieldDeclaration o2f = o2.asFieldDeclaration();
 //                    Comparator<FieldDeclaration> comparator = ;
                     return Structs.<FieldDeclaration>comps(
-                            Structs.comparingBool(o -> o.hasModifier(Modifier.Keyword.STATIC)),
-                            Structs.comparing(o -> {
-                                StringBuilder builder = new StringBuilder();
-                                for (VariableDeclarator variable : o.getVariables()) {
-                                    builder.append(variable.getNameAsString()).append(" ");
-                                }
-                                return builder.toString();
-                            })).compare(o1f, o2f);
+                    Structs.comparingBool(o -> o.hasModifier(Modifier.Keyword.STATIC)),
+                    Structs.comparing(o -> {
+                        StringBuilder builder = new StringBuilder();
+                        for(VariableDeclarator variable : o.getVariables()){
+                            builder.append(variable.getNameAsString()).append(" ");
+                        }
+                        return builder.toString();
+                    })).compare(o1f, o2f);
                 }
                 Func2<BodyDeclaration<?>, BodyDeclaration<?>, Integer> func = (obj1, obj2) -> {
-                    if (obj1.isFieldDeclaration()) {
+                    if(obj1.isFieldDeclaration()){
                         return 1;
                     }
-                    if (obj1.isMethodDeclaration() && obj2.isClassOrInterfaceDeclaration()) {
+                    if(obj1.isMethodDeclaration() && obj2.isClassOrInterfaceDeclaration()){
                         return 1;
                     }
-                    if (obj1.isMethodDeclaration() && obj2.isMethodDeclaration()) {
+                    if(obj1.isMethodDeclaration() && obj2.isMethodDeclaration()){
                         return obj1.asMethodDeclaration().getNameAsString().compareTo(obj2.asMethodDeclaration().getNameAsString());
                     }
-                    if (obj1.isClassOrInterfaceDeclaration() && obj2.isClassOrInterfaceDeclaration()) {
+                    if(obj1.isClassOrInterfaceDeclaration() && obj2.isClassOrInterfaceDeclaration()){
                         return obj1.asClassOrInterfaceDeclaration().getNameAsString().compareTo(obj2.asClassOrInterfaceDeclaration().getNameAsString());
                     }
                     return 0;
                 };
                 int val = func.get(o1, o2);
-                if (val == 0) {
+                if(val == 0){
                     val = -func.get(o2, o1);
                 }
                 return val;

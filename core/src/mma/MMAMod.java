@@ -53,9 +53,7 @@ public class MMAMod extends Mod{
 
     public void loadContent(){
         modInfo = Vars.mods.getMod(this.getClass());
-        new ModContentLoader((load) -> {
-            load.load();
-        },this::created);
+        new ModContentLoader(this::created);
         loaded = true;
     }
 }

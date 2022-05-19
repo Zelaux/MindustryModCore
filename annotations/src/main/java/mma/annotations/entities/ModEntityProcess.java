@@ -65,9 +65,7 @@ public class ModEntityProcess extends ModBaseProcessor{
 
     @Override
     public void process(RoundEnvironment env) throws Exception{
-//        System.out.println("pre process: "+this.round+"/"+rounds);
         updateRounds();
-//        System.out.println("\ncreateMindustrySerialization: "+createMindustrySerialization);
         for(Stype type : types(ModAnnotations.EntitySuperClass.class)){
             if(!hasAnukeComps){
                 Log.info("anukeComp exists");
@@ -162,7 +160,9 @@ public class ModEntityProcess extends ModBaseProcessor{
         allComponents.addAll(types(Annotations.Component.class));
         if(createMindustrySerialization == null){
             Seq<Stype> types = types(CreateMindustrySerialization.class);
-            if(types.any()) createMindustrySerialization = types.first().annotation(CreateMindustrySerialization.class);
+            if(types.any()){
+                createMindustrySerialization = types.first().annotation(CreateMindustrySerialization.class);
+            }
         }
     }
 
@@ -214,6 +214,7 @@ public class ModEntityProcess extends ModBaseProcessor{
                 .addModifiers(Modifier.PUBLIC).addAnnotation(Annotations.EntityInterface.class);
 
                 inter.addJavadoc("Interface for {@link $L}", component.fullName());
+                skipDeprecated(inter);
 
                 //implement extra interfaces these components may have, e.g. position
                 for(Stype extraInterface : component.interfaces().select(i -> !isCompInterface(i))){
@@ -244,24 +245,25 @@ public class ModEntityProcess extends ModBaseProcessor{
                     .addParameters(method.params().map(v -> ParameterSpec.builder(v.tname(), v.name())
                     .build())).addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT).build());
                 }
+                //generate interface getters and setters for all "standard" fields
                 for(Svar field : component.fields().select(e -> !e.is(Modifier.STATIC) && !e.is(Modifier.PRIVATE) && !e.has(Annotations.Import.class))){
                     String cname = field.name();
                     //getter
                     if(!signatures.contains(cname + "()")){
                         inter.addMethod(MethodSpec.methodBuilder(cname).addModifiers(Modifier.ABSTRACT, Modifier.PUBLIC)
-                        .addAnnotations(Seq.with(field.annotations()).select(a -> a.toString().contains("Null")).map(AnnotationSpec::get))
+                        .addAnnotations(Seq.with(field.annotations()).select(a -> a.toString().contains("Null") || a.toString().contains("Deprecated")).map(AnnotationSpec::get))
                         .addJavadoc(field.doc() == null ? "" : field.doc())
                         .returns(field.tname()).build());
                     }
 
                     //setter
                     if(!field.is(Modifier.FINAL) && !signatures.contains(cname + "(" + field.mirror().toString() + ")") &&
-                    !field.annotations().contains(f -> f.toString().equals("@mindustry.annotations.Annotations.ReadOnly"))){
+                       !field.annotations().contains(f -> f.toString().equals("@mindustry.annotations.Annotations.ReadOnly"))){
                         inter.addMethod(MethodSpec.methodBuilder(cname).addModifiers(Modifier.ABSTRACT, Modifier.PUBLIC)
                         .addJavadoc(field.doc() == null ? "" : field.doc())
                         .addParameter(ParameterSpec.builder(field.tname(), field.name())
                         .addAnnotations(Seq.with(field.annotations())
-                        .select(a -> a.toString().contains("Null")).map(AnnotationSpec::get)).build()).build());
+                        .select(a -> a.toString().contains("Null") || a.toString().contains("Deprecated")).map(AnnotationSpec::get)).build()).build());
                     }
                 }
                 write(inter, Seq.with("import mindustry.gen.*;"));
@@ -271,7 +273,7 @@ public class ModEntityProcess extends ModBaseProcessor{
             //SPECIAL CASE: components with EntityDefs don't get a base class! the generated class becomes the base class itself
             if(component.annotation(Annotations.Component.class).base()){
 
-                Seq<Stype> deps = depends.copy().and(component);
+                Seq<Stype> deps = depends.copy().add(component);
                 baseClassDeps.get(component, ObjectSet::new).addAll(deps);
 
                 //do not generate base classes when the component will generate one itself
@@ -328,6 +330,12 @@ public class ModEntityProcess extends ModBaseProcessor{
 
     }
 
+
+    void skipDeprecated(TypeSpec.Builder builder){
+        //deprecations are irrelevant in generated code
+        builder.addAnnotation(AnnotationSpec.builder(SuppressWarnings.class).addMember("value", "\"deprecation\"").build());
+    }
+
     private void secondRound() throws Exception{
         //round 2: get component classes and generate interfaces for
         //parse groups
@@ -336,7 +344,7 @@ public class ModEntityProcess extends ModBaseProcessor{
             try{
                 Annotations.GroupDef an = group.annotation(Annotations.GroupDef.class);
                 Seq<Stype> rawTypes = new Seq<>();
-                Seq<Stype> types = rawTypes.set(types(an, Annotations.GroupDef::value)).map(stype -> {
+                Seq<Stype> types = rawTypes.addAll(types(an, Annotations.GroupDef::value)).map(stype -> {
 //                    Log.info("type: @",stype);
 //                    rawTypes.add(stype);
                     Stype result = interfaceToComp(stype);
@@ -472,7 +480,7 @@ public class ModEntityProcess extends ModBaseProcessor{
                         fbuilder.initializer(varInitializers.get(f.descString()));
                     }
 
-                    fbuilder.addModifiers(f.has(Annotations.ReadOnly.class) ? Modifier.PROTECTED : Modifier.PUBLIC);
+                    fbuilder.addModifiers(f.has(ReadOnly.class) || f.is(Modifier.PRIVATE) ? Modifier.PROTECTED : Modifier.PUBLIC);
                     fbuilder.addAnnotations(f.annotations().map(AnnotationSpec::get));
                     FieldSpec spec = fbuilder.build();
 
@@ -979,7 +987,7 @@ public class ModEntityProcess extends ModBaseProcessor{
         groupsBuilder.addMethod(groupResize.build());
         groupsBuilder.addMethod(groupUpdate.build());
 
-        write(groupsBuilder, allGroups.map(s -> new Stype((TypeElement)s.up())).asSet().asArray().flatMap(s -> getImports(s.e)).addAll("import mindustry.gen.*;"));
+        write(groupsBuilder, allGroups.map(s -> new Stype((TypeElement)s.up())).asSet().toSeq().flatMap(s -> getImports(s.e)).addAll("import mindustry.gen.*;"));
     }
 
     private void thirdRound() throws Exception{
@@ -987,7 +995,7 @@ public class ModEntityProcess extends ModBaseProcessor{
 
         //write base classes
         for(TypeSpec.Builder b : baseClasses){
-            write(b, imports.asArray());
+            write(b, imports.toSeq());
         }
 
         //implement each definition
@@ -1041,16 +1049,17 @@ public class ModEntityProcess extends ModBaseProcessor{
                 }
             }
 
-            write(def.builder, imports.asArray());
+            write(def.builder, imports.toSeq());
         }
 
         if(false){
             //store nulls
             TypeSpec.Builder nullsBuilder = TypeSpec.classBuilder(classPrefix() + "Nulls").addModifiers(Modifier.PUBLIC).addModifiers(Modifier.FINAL);
+            ObjectSet<String> nullList = ObjectSet.with("unit", "blockUnit");
             //create mock types of all components
             for(Stype interf : allInterfaces){
                 //indirect interfaces to implement methods for
-                Seq<Stype> dependencies = interf.allInterfaces().and(interf);
+                Seq<Stype> dependencies = interf.allInterfaces().add(interf);
                 Seq<Smethod> methods = dependencies.flatMap(Stype::methods);
                 methods.sortComparing(Object::toString);
 
@@ -1064,6 +1073,12 @@ public class ModEntityProcess extends ModBaseProcessor{
 
                 //create null builder
                 String baseName = interf.name().substring(0, interf.name().length() - 1);
+
+                //prevent Nulls bloat
+                if(!nullList.contains(Strings.camelize(baseName))){
+                    continue;
+                }
+
                 String className = "Null" + baseName;
                 TypeSpec.Builder nullBuilder = TypeSpec.classBuilder(className)
                 .addModifiers(Modifier.FINAL);
@@ -1077,6 +1092,10 @@ public class ModEntityProcess extends ModBaseProcessor{
 
                     Stype compType = interfaceToComp(method.type());
                     MethodSpec.Builder builder = MethodSpec.overriding(method.e).addModifiers(Modifier.PUBLIC, Modifier.FINAL);
+                    int index = 0;
+                    for(ParameterSpec spec : builder.parameters){
+                        Reflect.set(spec, "name",  "arg" + index++);
+                    }
                     builder.addAnnotation(Annotations.OverrideCallSuper.class); //just in case
 
                     if(!method.isVoid()){
@@ -1187,7 +1206,7 @@ public class ModEntityProcess extends ModBaseProcessor{
                 out.addAll(getDependencies(comp));
             }
 
-            defComponents.put(type, out.asArray());
+            defComponents.put(type, out.toSeq());
         }
 
         return defComponents.get(type);
@@ -1214,7 +1233,7 @@ public class ModEntityProcess extends ModBaseProcessor{
 
             //remove it again just in case
             out.remove(component);
-            componentDependencies.put(component, result.asArray());
+            componentDependencies.put(component, result.toSeq());
         }
 
         return componentDependencies.get(component);
@@ -1299,10 +1318,10 @@ public class ModEntityProcess extends ModBaseProcessor{
         @Override
         public String toString(){
             return "Definition{" +
-            "groups=" + groups +
-            "components=" + components +
-            ", base=" + naming +
-            '}';
+                   "groups=" + groups +
+                   "components=" + components +
+                   ", base=" + naming +
+                   '}';
         }
     }
 }

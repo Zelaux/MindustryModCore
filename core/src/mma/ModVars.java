@@ -3,7 +3,6 @@ package mma;
 import arc.Core;
 import arc.util.Log;
 import arc.util.Strings;
-import mindustry.ctype.ContentList;
 import mindustry.ctype.UnlockableContent;
 import mindustry.mod.ModListing;
 import mindustry.mod.Mods;
@@ -76,7 +75,7 @@ public abstract class ModVars {
      * new ModSectorPresets()
      * new ModTechTree()
      */
-    public abstract ContentList[] getContentList();
+    public abstract void loadContent();
 
 //    public abstract String getFullName(String name);
 

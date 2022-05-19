@@ -1,7 +1,7 @@
 {
   "name": "test-core",
   "displayName": "TestZelauxModCore",
-  "minGameVersion": "135"
+  "minGameVersion": "136"
 
 ,"main": "mma.tests.TestMod"
 }

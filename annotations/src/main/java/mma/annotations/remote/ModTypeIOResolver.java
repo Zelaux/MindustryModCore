@@ -3,6 +3,7 @@ package mma.annotations.remote;
 import arc.func.*;
 import arc.struct.*;
 import mindustry.annotations.*;
+import mindustry.annotations.Annotations.*;
 import mindustry.annotations.util.*;
 import mindustry.annotations.util.TypeIOResolver.*;
 import mma.annotations.*;
@@ -15,7 +16,7 @@ public class ModTypeIOResolver{
 
     public static ClassSerializer resolve(ModBaseProcessor processor){
         methods.clear();
-        ClassSerializer out = new ClassSerializer(new ObjectMap<>(), new ObjectMap<>(), new ObjectMap<>());
+        ClassSerializer out = new ClassSerializer(new ObjectMap<>(), new ObjectMap<>(), new ObjectMap<>(), new ObjectMap<>());
         Seq<Stype> types = processor.types(Annotations.TypeIOHandler.class);
         ObjectMap<String, Stype> typeMap = new ObjectMap<>();
         Cons<Stype> addNewType = nt -> {
@@ -60,6 +61,7 @@ public class ModTypeIOResolver{
         }
         if(debug){
             processor.debugLog("writes: @", out.writers);
+            processor.debugLog("netWriters: @", out.netWriters);
             processor.debugLog("readers: @", out.readers);
             processor.debugLog("mutatorReaders: @", out.mutatorReaders);
         }
@@ -68,8 +70,24 @@ public class ModTypeIOResolver{
 
     private static void processMethods(ClassSerializer out, Stype type, Seq<Smethod> methods){
         for(Smethod meth : methods){
-//            Log.info("meth: @",meth);
             if(meth.is(Modifier.PUBLIC) && meth.is(Modifier.STATIC)){
+                Seq<Svar> params = meth.params();
+                //2 params, second one is type, first is writer
+                if(params.size == 2 && params.first().tname().toString().equals("arc.util.io.Writes")){
+                    //Net suffix indicates that this should only be used for sync operations
+                    ObjectMap<String, String> targetMap = meth.name().endsWith("Net") ? out.netWriters : out.writers;
+
+                    targetMap.put(fix(params.get(1).tname().toString()), type.fullName() + "." + meth.name());
+                }else if(params.size == 1 && params.first().tname().toString().equals("arc.util.io.Reads") && !meth.isVoid()){
+                    //1 param, one is reader, returns type
+                    out.readers.put(fix(meth.retn().toString()), type.fullName() + "." + meth.name());
+                }else if(params.size == 2 && params.first().tname().toString().equals("arc.util.io.Reads") && !meth.isVoid() && meth.ret().equals(meth.params().get(1).mirror())){
+                    //2 params, one is reader, other is type, returns type - these are made to reduce garbage allocated
+                    out.mutatorReaders.put(fix(meth.retn().toString()), type.fullName() + "." + meth.name());
+                }
+            }
+//            Log.info("meth: @",meth);
+            /*if(meth.is(Modifier.PUBLIC) && meth.is(Modifier.STATIC)){
                 Seq<Svar> params = meth.params();
                 //2 params, second one is type, first is writer
                 if(params.size == 2 && params.first().tname().toString().equals("arc.util.io.Writes")){
@@ -81,7 +99,7 @@ public class ModTypeIOResolver{
                     //2 params, one is reader, other is type, returns type - these are made to reduce garbage allocated
                     out.mutatorReaders.put(fix(meth.retn().toString()), type.fullName() + "." + meth.name());
                 }
-            }
+            }*/
 //            Log.info("readers added: @", copy);
         }
     }

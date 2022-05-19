@@ -1,7 +1,6 @@
 package mma.entities.compByAnuke;
 
 import arc.func.*;
-import arc.graphics.*;
 import arc.graphics.g2d.*;
 import arc.math.*;
 import arc.math.geom.*;
@@ -9,7 +8,6 @@ import arc.util.*;
 import mindustry.annotations.Annotations.*;
 import mindustry.content.*;
 import mindustry.entities.*;
-import mindustry.game.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.type.*;
@@ -23,8 +21,6 @@ import static mindustry.logic.LAccess.*;
 abstract class PuddleComp implements Posc, Puddlec, Drawc {
 
     private static final Rect rect = new Rect(), rect2 = new Rect();
-
-    private static int seeds;
 
     private static Puddle paramPuddle;
 
@@ -49,7 +45,7 @@ abstract class PuddleComp implements Posc, Puddlec, Drawc {
     @Import
     boolean added;
 
-    transient float accepting, updateTime, lastRipple = Time.time + Mathf.random(40f);
+    transient float accepting, updateTime, lastRipple = Time.time + Mathf.random(40f), effectTime = Mathf.random(50f);
 
     float amount;
 
@@ -79,7 +75,9 @@ abstract class PuddleComp implements Posc, Puddlec, Drawc {
             }
             amount -= deposited * targets;
         }
-        amount = Mathf.clamp(amount, 0, maxLiquid);
+        if (liquid.capPuddles) {
+            amount = Mathf.clamp(amount, 0, maxLiquid);
+        }
         if (amount <= 0f) {
             remove();
             return;
@@ -101,29 +99,21 @@ abstract class PuddleComp implements Posc, Puddlec, Drawc {
             }
             updateTime = 40f;
         }
+        if (!headless && liquid.particleEffect != Fx.none) {
+            if ((effectTime += Time.delta) >= liquid.particleSpacing) {
+                float size = Mathf.clamp(amount / (maxLiquid / 1.5f)) * 4f;
+                liquid.particleEffect.at(x + Mathf.range(size), y + Mathf.range(size));
+                effectTime = 0f;
+            }
+        }
         updateTime -= Time.delta;
+        liquid.update(self());
     }
 
     @Override
     public void draw() {
         Draw.z(Layer.debris - 1);
-        seeds = id;
-        boolean onLiquid = tile.floor().isLiquid;
-        float f = Mathf.clamp(amount / (maxLiquid / 1.5f));
-        float smag = onLiquid ? 0.8f : 0f;
-        float sscl = 25f;
-        Draw.color(Tmp.c1.set(liquid.color).shiftValue(-0.05f));
-        Fill.circle(x + Mathf.sin(Time.time + seeds * 532, sscl, smag), y + Mathf.sin(Time.time + seeds * 53, sscl, smag), f * 8f);
-        Angles.randLenVectors(id(), 3, f * 6f, (ex, ey) -> {
-            Fill.circle(x + ex + Mathf.sin(Time.time + seeds * 532, sscl, smag), y + ey + Mathf.sin(Time.time + seeds * 53, sscl, smag), f * 5f);
-            seeds++;
-        });
-        Draw.color();
-        if (liquid.lightColor.a > 0.001f && f > 0) {
-            Color color = liquid.lightColor;
-            float opacity = color.a * f;
-            Drawf.light(Team.derelict, tile.drawx(), tile.drawy(), 30f * f, color, opacity * 0.8f);
-        }
+        liquid.drawPuddle(self());
     }
 
     @Replace

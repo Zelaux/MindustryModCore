@@ -12,10 +12,9 @@ import mindustry.Vars;
 import mindustry.content.TechTree;
 import mindustry.ctype.ContentType;
 import mindustry.ctype.UnlockableContent;
-import mindustry.entities.units.UnitCommand;
 import mindustry.entities.units.UnitController;
 import mindustry.game.Team;
-import mindustry.gen.Building;
+import mindustry.gen.*;
 import mindustry.io.TypeIO;
 import mindustry.logic.LAccess;
 import mindustry.type.UnitType;
@@ -24,6 +23,9 @@ import mindustry.world.blocks.environment.Floor;
 import mindustry.world.blocks.environment.OreBlock;
 import mindustry.world.blocks.environment.StaticWall;
 import mindustry.annotations.Annotations;
+
+import static mindustry.Vars.*;
+
 @Annotations.TypeIOHandler
 public class ModTypeIO extends TypeIO {
     public static void writeInteger(Writes write, Integer integer) {
@@ -127,62 +129,60 @@ public class ModTypeIO extends TypeIO {
     @Nullable
     public static Object readObject(Reads read) {
         byte type = read.b();
-        int i;
-        switch (type) {
-            case -1:
-                return TypeIO.readVec2(read);
-            case 0:
-                return null;
-            case 1:
-                return read.i();
-            case 2:
-                return read.l();
-            case 3:
-                return read.f();
-            case 4:
-                return readString(read);
-            case 5:
-                return Vars.content.getByID(ContentType.all[read.b()], read.s());
-            case 6:
+        boolean box=false;
+        return switch(type){
+            case -1 -> TypeIO.readVec2(read);
+            case 0 -> null;
+            case 1 -> read.i();
+            case 2 -> read.l();
+            case 3 -> read.f();
+            case 4 -> readString(read);
+            case 5 -> content.getByID(ContentType.all[read.b()], read.s());
+            case 6 -> {
                 short length = read.s();
-                IntSeq arr = new IntSeq();
-
-                for (i = 0; i < length; ++i) {
-                    arr.add(read.i());
-                }
-
-                return arr;
-            case 7:
-                return new Point2(read.i(), read.i());
-            case 8:
+                IntSeq arr = new IntSeq(); for(int i = 0; i < length; i ++) arr.add(read.i());
+                yield arr;
+            }
+            case 7 -> new Point2(read.i(), read.i());
+            case 8 -> {
                 byte len = read.b();
                 Point2[] out = new Point2[len];
-
-                for (i = 0; i < len; ++i) {
-                    out[i] = Point2.unpack(read.i());
-                }
-
-                return out;
-            case 9:
-                return TechTree.getNotNull((UnlockableContent) Vars.content.getByID(ContentType.all[read.b()], read.s()));
-            case 10:
-                return read.bool();
-            case 11:
-                return read.d();
-            case 12:
-                return Vars.world.build(read.i());
-            case 13:
-                return LAccess.all[read.s()];
-            case 14:
-                i = read.i();
-                byte[] bytes = new byte[i];
+                for(int i = 0; i < len; i ++) out[i] = Point2.unpack(read.i());
+                yield out;
+            }
+            case 9 -> content.<UnlockableContent>getByID(ContentType.all[read.b()], read.s()).techNode;
+            case 10 -> read.bool();
+            case 11 -> read.d();
+            case 12 -> !box ? world.build(read.i()) : new BuildingBox(read.i());
+            case 13 -> LAccess.all[read.s()];
+            case 14 -> {
+                int blen = read.i();
+                byte[] bytes = new byte[blen];
                 read.b(bytes);
-                return bytes;
-            case 15:
-                return UnitCommand.all[read.b()];
-            default:
-                throw new IllegalArgumentException("Unknown object type: " + type);
-        }
+                yield bytes;
+            }
+            //unit command
+            case 15 -> {
+                read.b();
+                yield null;
+            }
+            case 16 -> {
+                int boollen = read.i();
+                boolean[] bools = new boolean[boollen];
+                for(int i = 0; i < boollen; i ++) bools[i] = read.bool();
+                yield bools;
+            }
+            case 17 -> !box ? Groups.unit.getByID(read.i()) : new UnitBox(read.i());
+            case 18 -> {
+                int len = read.s();
+                Vec2[] out = new Vec2[len];
+                for(int i = 0; i < len; i ++) out[i] = new Vec2(read.f(), read.f());
+                yield out;
+            }
+            case 19 -> new Vec2(read.f(), read.f());
+            case 20 -> Team.all[read.ub()];
+            default -> throw new IllegalArgumentException("Unknown object type: " + type);
+        };
     }
 
 }

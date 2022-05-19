@@ -1,0 +1,12 @@
+-deleted TechTreeManager (use TechTree from mindustry)
+-deleted Cons3 (use Cons3 from arc)
+-deleted ConsumePowerDynamic (use ConsumePowerDynamic from mindustry)
+-deleted ModConsumeItemDynamic
+-deleted MultiDrawBlock (use MultiDraw from mindustry)
+
+-deleted-deprecated SelfIconGenerator
+-deleted-deprecated MultiGenericSmelter
+-deleted-deprecated ZelWrites
+-deleted-deprecated ZelReads
+
+-renamed MultiDrawSmelter -> MultiDrawFlame

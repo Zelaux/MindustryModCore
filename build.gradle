@@ -1,47 +1,67 @@
 import java.time.format.DateTimeFormatter
 
-buildscript {
-    ext {
+buildscript{
+    ext{
 //        arcHash = 'v135'
-        mindustryVersion = 'v135'
-        jparcerVersion="3.22.1"
+
+
+        // v7
+        mindustryPath = "com.github.Anuken.MindustryJitpack"
+        mindustryVersionFull = '68f053f409c999f0a66bc6ac30760c331b2c0d6c'
+        mindustryVersion = '68f053f409'
+        arcVersion = "ef9d6ac655"
+//        arcVersion = "916c5a77"
+
+        jgitVersion = "3.5.0.201409260305-r"
+
+
+        // normal
+        //mindustryPath = "com.github.Anuken.Mindustry"
+        //mindustryVersion = 'v135'
+        //arcVersion=mindustryVersion
+        jparcerVersion = "3.22.1"
     }
-    repositories {
+    repositories{
         mavenLocal()
         mavenCentral()
         google()
-        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-        maven { url 'https://jitpack.io' }
+        maven{ url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven{ url 'https://jitpack.io' }
     }
-    dependencies {
-        classpath "com.github.Anuken.Mindustry:core:$mindustryVersion"
-        classpath "com.github.Anuken.Mindustry:tools:$mindustryVersion"
-        classpath "com.github.Anuken.Arc:arc-core:$mindustryVersion"
-        classpath "com.github.Anuken.Arc:packer:$mindustryVersion"
+    dependencies{
+        classpath "$mindustryPath:core:$mindustryVersion"
+        classpath "com.github.Anuken.Mindustry:tools:v135"
+        classpath "com.github.Anuken.Arc:arc-core:$arcVersion"
+        classpath "com.github.Anuken.Arc:packer:$arcVersion"
     }
 }
 
-plugins {
+plugins{
     id 'org.jetbrains.kotlin.jvm' version '1.5.31'
     id "org.jetbrains.kotlin.kapt" version "1.5.31"
     id "groovy"
 }
 version '1.0'
-allprojects {
+allprojects{
     apply plugin: 'groovy'
 
     version = 'release'
     group = 'com.github.Zelaux'
-    ext {
+    ext{
         arcModule = { String name ->
             //skip to last submodule
             if (name.contains(':')) name = name.split(':').last()
-            return "com.github.Anuken.Arc:$name:$mindustryVersion"
+            return "com.github.Anuken.Arc:$name:$arcVersion"
         }
         mindustryModule = { String name ->
             //skip to last submodule
             if (name.contains(':')) name = name.split(':').last()
-            return "com.github.Anuken.Mindustry:$name:$mindustryVersion"
+            return "$mindustryPath:$name:$mindustryVersion"
+        }
+        mindustryOldModule = { String name ->
+            //skip to last submodule
+            if (name.contains(':')) name = name.split(':').last()
+            return "com.github.Anuken.Mindustry:$name:v135"
         }
         writeProcessors = {
             new File(rootDir, "annotations/src/main/resources/META-INF/services/").mkdirs()
@@ -50,7 +70,7 @@ allprojects {
             def files = new File(rootDir, "annotations/src/main/java")
             files.eachFileRecurse(
                     groovy.io.FileType.FILES
-            ) { file ->
+            ){ file ->
                 boolean isProcessor = file.text.contains(" extends ModBaseProcessor") ||
                         (file.text.contains(" extends AbstractProcessor") && !file.text.contains("abstract class")) ||
                         file.text.contains("@Annotations.AnnotationProcessor");
@@ -64,15 +84,15 @@ allprojects {
     }
 
     apply plugin: 'maven-publish'
-    repositories {
+    repositories{
         mavenLocal()
         google()
         mavenCentral()
-        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-        maven { url "https://oss.sonatype.org/content/repositories/releases/" }
-        maven { url 'https://jitpack.io' }
+        maven{ url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven{ url "https://oss.sonatype.org/content/repositories/releases/" }
+        maven{ url 'https://jitpack.io' }
     }
-    tasks.withType(JavaCompile) {
+    tasks.withType(JavaCompile){
         targetCompatibility = 8
         sourceCompatibility = JavaVersion.VERSION_16
         options.encoding = "UTF-8"
@@ -91,7 +111,7 @@ allprojects {
     }
 }
 //needed for android build
-ext {
+ext{
     //the build number that this mod is made for
     //version of SDK you will be using
     sdkVersion = '30'
@@ -102,8 +122,8 @@ ext {
         proc.waitForProcessOutput(System.out, System.err)
     }
 }
-configure(project(":annotations")) {
-    tasks.withType(JavaCompile) {
+configure(project(":annotations")){
+    tasks.withType(JavaCompile){
         targetCompatibility = 8
         sourceCompatibility = 8
         options.fork = true
@@ -111,7 +131,7 @@ configure(project(":annotations")) {
 }
 
 //compile with java 8 compatibility for everything except the annotation project
-configure(subprojects - project(":annotations")) {
+configure(subprojects - project(":annotations")){
     tasks.withType(JavaCompile){
         options.compilerArgs.addAll(['--release', '8'])
     }
@@ -123,34 +143,34 @@ configure(subprojects - project(":annotations")) {
         }
     }
 }
-project(":core") {
+project(":core"){
     apply plugin: "java-library"
     apply plugin: "kotlin"
     apply plugin: "kotlin-kapt"
 
-    kapt {
-        javacOptions {
+    kapt{
+        javacOptions{
             option("-source", "16")
             option("-target", "1.8")
         }
     }
     compileJava.options.fork = true
 
-    task preGen {
-        outputs.upToDateWhen { false }
+    task preGen{
+        outputs.upToDateWhen{ false }
         writeProcessors()
     }
 
-    task sourcesJar(type: Jar, dependsOn: classes) {
+    task sourcesJar(type: Jar, dependsOn: classes){
         archiveClassifier = 'sources'
         from sourceSets.main.allSource
     }
 
-    artifacts {
+    artifacts{
         archives sourcesJar
     }
 
-    dependencies {
+    dependencies{
         compileJava.dependsOn(preGen)
 
         compileOnly "org.lz4:lz4-java:1.7.1"
@@ -161,14 +181,14 @@ project(":core") {
         compileOnly arcModule("extensions:fx")
         compileOnly arcModule("extensions:arcnet")
 
-//        compileOnly "com.github.Anuken.Mindustry:core:$mindustryVersion"
+//        compileOnly "$mindustryPath:core:$mindustryVersion"
         compileOnly mindustryModule("core")
 //        compileOnly mindustryModule("tools")
         project.getParent().getSubprojects().forEach(sub -> {
 //            println "sub adding "+sub.getName()
             String name = sub.getName();
             println "subproject: " + sub.getName()
-            if (!["tools", "annotations","plugins","tests", project.getName()].contains(name)) {
+            if (!["tools", "annotations", "plugins", "tests", project.getName()].contains(name)) {
                 println "implemented"
                 implementation sub
             }
@@ -179,20 +199,20 @@ project(":core") {
         kapt project(":annotations")
     }
 
-    afterEvaluate {
-        task mergedJavadoc(type: Javadoc) {
+    afterEvaluate{
+        task mergedJavadoc(type: Javadoc){
             def blacklist = [/*project(":ios"), project(":desktop"), project(":server"),*/ project(":annotations")]
             if (findProject(":android") != null) {
                 blacklist += project(":android")
             }
 
-            source rootProject.subprojects.collect { project ->
+            source rootProject.subprojects.collect{ project ->
                 if (!blacklist.contains(project) && project.hasProperty("sourceSets")) {
                     return project.sourceSets.main.allJava
                 }
             }
 
-            classpath = files(rootProject.subprojects.collect { project ->
+            classpath = files(rootProject.subprojects.collect{ project ->
                 if (!blacklist.contains(project) && project.hasProperty("sourceSets")) {
                     return project.sourceSets.main.compileClasspath
                 }
@@ -200,31 +220,31 @@ project(":core") {
             destinationDir = new File(buildDir, 'javadoc')
         }
     }
-    jar {
+    jar{
         exclude("mma/entities/comp/**")
         exclude("mma/entities/compByAnuke/**")
     }
 }
 
-project(":tests") {
+project(":tests"){
     apply plugin: "java"
     apply plugin: "java-library"
     apply plugin: "kotlin"
     apply plugin: "kotlin-kapt"
 
-    kapt {
-        javacOptions {
+    kapt{
+        javacOptions{
             option("-source", "16")
             option("-target", "1.8")
         }
     }
     compileJava.options.fork = true
 
-    dependencies {
+    dependencies{
         implementation project(":core")
-        implementation arcModule('arc-core')
-        implementation mindustryModule('core')
-        implementation mindustryModule('server')
+        compileOnly arcModule('arc-core')
+        compileOnly mindustryModule('core')
+        compileOnly mindustryModule('server')
         testImplementation "org.junit.jupiter:junit-jupiter-params:5.7.1"
         testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.1"
         testImplementation arcModule("backends:backend-headless")
@@ -240,21 +260,22 @@ project(":tests") {
 //        compileOnly "com.github.Zelaux.ZelauxModCore:annotations:$modCoreVersion"
     }
 
-    test {
+    test{
         //fork every test so mods don't interact with each other
         forkEvery = 1
         useJUnitPlatform()
         workingDir = new File("../core/assets")
-        testLogging {
+        testLogging{
             exceptionFormat = 'full'
             showStandardStreams = true
         }
     }
 }
-project(":tools") {
+project(":tools"){
     apply plugin: "java"
-
-    dependencies {
+    apply plugin: "java-library"
+    compileJava.options.fork = true
+    dependencies{
         implementation 'commons-io:commons-io:2.5'
 
         implementation project(":core")
@@ -262,95 +283,102 @@ project(":tools") {
 
         implementation "com.github.javaparser:javaparser-symbol-solver-core:$jparcerVersion"
         implementation mindustryModule("core")
-        implementation mindustryModule("tools")
+//        implementation mindustryOldModule("tools")
+
+        implementation "org.eclipse.jgit:org.eclipse.jgit:$jgitVersion"
+        println "Hello tools"
+        configurations.runtimeClasspath.filter((File f) -> {
+            println "f: " + f
+            true
+        })
     }
 }
-project(":annotations") {
+project(":annotations"){
     apply plugin: "java-library"
-    dependencies {
+    dependencies{
         implementation 'commons-io:commons-io:2.5'
         implementation 'com.squareup:javapoet:1.12.1'
         implementation arcModule('arc-core')
 //        compileOnly project(":core")
         implementation mindustryModule("core")
         implementation "com.github.javaparser:javaparser-symbol-solver-core:$jparcerVersion"
-        compileOnly mindustryModule("tools")
+//        compileOnly mindustryOldModule("tools")
 //                if(name!="tools")compile  project(":tools")
 //        implementation  project(":core")
     }
 }
-project(":plugins") {
+project(":plugins"){
     apply plugin: "java-library"
-    dependencies {
+    dependencies{
         implementation 'commons-io:commons-io:2.5'
         compileOnly arcModule('arc-core')
         compileOnly mindustryModule("core")
         compileOnly mindustryModule("server")
     }
 }
-project(":graphics") {
+project(":graphics"){
     apply plugin: "java-library"
-    dependencies {
+    dependencies{
         implementation 'commons-io:commons-io:2.5'
         compileOnly arcModule('arc-core')
     }
 }
-configure(project.getSubprojects()-project(":tests")) {
-    java {
-        if (!name.equals("annotations")){
-            println "doc for "+name
+configure(project.getSubprojects() - project(":tests")){
+    java{
+        if (!name.equals("annotations")) {
+            println "doc for " + name
             withJavadocJar()
         }
         withSourcesJar()
     }
 
-    publishing {
-        publications {
-            maven(MavenPublication) {
+    publishing{
+        publications{
+            maven(MavenPublication){
                 from components.java
             }
         }
     }
 }
-task jarAndroid {
+task jarAndroid{
     dependsOn "jar"
 
-    doLast {
+    doLast{
         //collect dependencies needed for desugaring
         def files = (project(":core").configurations.compileClasspath.asList() + project(":core").configurations.runtimeClasspath.asList() + [new File("$sdkRoot/platforms/android-$sdkVersion/android.jar")])
-        def dependencies = files.collect { "--classpath $it.path" }.join(" ")
+        def dependencies = files.collect{ "--classpath $it.path" }.join(" ")
 
         //dex and desugar files - this requires d8 in your PATH
         doExec("d8 $dependencies --min-api 14 --output ${project.archivesBaseName}Android.jar ${project.archivesBaseName}Desktop.jar")
     }
 }
-jar {
+jar{
     dependsOn "core:jar"
     archiveFileName = "${project.archivesBaseName}Desktop.jar"
-    from {
-        project(":core").fileTree("build/libs/core.jar").collect { it.isDirectory() ? it : zipTree(it) }
+    from{
+        project(":core").fileTree("build/libs/core.jar").collect{ it.isDirectory() ? it : zipTree(it) }
     }
 
-    from(rootDir) {
+    from(rootDir){
         include "mod.hjson"
         include "mod.json"
         include "icon.png"
     }
 
-    from("core/assets/") {
+    from("core/assets/"){
         include "**"
     }
 }
-task deploy(type: Jar) {
+task deploy(type: Jar){
     dependsOn jarAndroid
     dependsOn jar
     archiveFileName = "${project.archivesBaseName}.jar"
 
-    from { [zipTree("$buildDir/libs/${project.archivesBaseName}Desktop.jar"), zipTree("$buildDir/libs/${project.archivesBaseName}Android.jar")] }
+    from{ [zipTree("$buildDir/libs/${project.archivesBaseName}Desktop.jar"), zipTree("$buildDir/libs/${project.archivesBaseName}Android.jar")] }
 
-    doLast {
-        delete { delete "$buildDir/libs/${project.archivesBaseName}Desktop.jar" }
-        delete { delete "$buildDir/libs/${project.archivesBaseName}Android.jar" }
+    doLast{
+        delete{ delete "$buildDir/libs/${project.archivesBaseName}Desktop.jar" }
+        delete{ delete "$buildDir/libs/${project.archivesBaseName}Android.jar" }
     }
 }
 
@@ -359,7 +387,7 @@ task mjar(){
     dependsOn "tests:jar"
     ext{
         acopy = { String intoPath ->
-            def project=project(":tests");
+            def project = project(":tests");
             delete{
                 delete "${intoPath}/${project.archivesBaseName}"
             }
@@ -393,6 +421,7 @@ task mjar(){
         println "Build ended at: ${time}"
     }
 }
+
 def os() { //Returns OS name
     String s = System.getProperty("os.name");
     return s == null ? "" : s;

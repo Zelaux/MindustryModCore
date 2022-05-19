@@ -12,19 +12,13 @@ import javax.annotation.processing.*;
 import javax.lang.model.element.*;
 
 
-/**
- * The annotation processor for generating remote method call code.
- */
+/** The annotation processor for generating remote method call code. */
 @SupportedAnnotationTypes({
 "mindustry.annotations.Annotations.Remote",
-//        "mindustry.annotations.Annotations.Remote",
-"mindustry.annotations.Annotations.TypeIOHandler",
 "mindustry.annotations.Annotations.TypeIOHandler"
 })
 public class ModRemoteProcess extends ModBaseProcessor{
-    /**
-     * Simple class name of generated class name.
-     */
+    /** Simple class name of generated class name. */
     public static String callLocation = null;
 
     @Override
