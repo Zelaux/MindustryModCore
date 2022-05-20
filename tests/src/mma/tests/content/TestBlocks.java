@@ -1,19 +1,27 @@
 package mma.tests.content;
 
 import arc.util.*;
-import mindustry.*;
 import mindustry.content.*;
 import mindustry.type.*;
 import mindustry.world.*;
 import mma.type.*;
+import mma.world.blocks.distribution.*;
 import mma.world.blocks.production.*;
 
-import static mindustry.type.ItemStack.*;
+import static mindustry.type.ItemStack.with;
 
 public class TestBlocks{
-    public static Block multiCrafter, multiDrill;
+    public static Block multiCrafter, multiDrill, smartSorter, smartRouter;
 
     public static void load(){
+        smartSorter = new SmartSorter("smart-sorter"){{
+            size = 1;
+            requirements(Category.crafting, with(Items.copper, 3));
+        }};
+        smartRouter = new SmartRouter("smart-router"){{
+            size = 1;
+            requirements(Category.crafting, with(Items.copper, 3));
+        }};
         multiCrafter = new MultiCrafter("multi-crafter"){{
             size = 2;
             recipes(
@@ -27,7 +35,7 @@ public class TestBlocks{
         }};
         multiDrill = new MultiRotatorDrill("multi-rotator"){{
             size = 3;
-            tier=Items.thorium.hardness;
+            tier = Items.thorium.hardness;
 
             drillTime = 280;
             hasPower = true;
@@ -35,9 +43,9 @@ public class TestBlocks{
             drillEffect = Fx.mineBig;
 
             rotators(
-            Rotator.withWorld(4f , 4f , 8f,"big-rotator").scaleTextureBySize(true),
-             Rotator.withWorld(4f , 24f-4f, 8f,"big-rotator").scaleTextureBySize(true),
-             Rotator.withWorld(24f-3f , 24f/2f , 6f,"small-rotator").scaleTextureBySize(true)
+            Rotator.withWorld(4f, 4f, 8f, "big-rotator").scaleTextureBySize(true),
+            Rotator.withWorld(4f, 24f - 4f, 8f, "big-rotator").scaleTextureBySize(true),
+            Rotator.withWorld(24f - 3f, 24f / 2f, 6f, "small-rotator").scaleTextureBySize(true)
             );
             requirements(Category.crafting, with(Items.copper, 3));
             consumePower(1.10f);

@@ -235,9 +235,13 @@ public class SmartSorter extends Block{
                     configure(config());
                     t.clearChildren();
                     buildConfiguration(t);
+
+                    t.pack();
                 });
+
+                t.pack();
             });
-            t.add(button).minSize(button.getMaxWidth());
+            t.add(button).minSize(48f);
         }
 
         @Override

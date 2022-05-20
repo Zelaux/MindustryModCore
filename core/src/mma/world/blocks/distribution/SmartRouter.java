@@ -85,33 +85,38 @@ public class SmartRouter extends Router {
         @Override
         public void buildConfiguration(Table t) {
             t.add();
+            float size = 48f;
             t.button(Icon.up, () -> {
                 up = !up;
                 updateConfig();
-            }).update((b) -> {
-                b.setColor(up ? Color.lime : Color.valueOf("f25555"));
+            }).size(size).update((b) -> {
+                b.getStyle().imageUpColor=up ? Color.lime : Color.valueOf("f25555");
+//                b.setColor();
             });
             t.add().row();
             t.button(Icon.left, () -> {
                 left = !left;
                 updateConfig();
-            }).update((b) -> {
-                b.setColor(left ? Color.lime : Color.valueOf("f25555"));
+            }).size(size).update((b) -> {
+                b.getStyle().imageUpColor=left ? Color.lime : Color.valueOf("f25555");
+//                b.setColor(left ? Color.lime : Color.valueOf("f25555"));
             });
             t.add();
             t.button(Icon.right, () -> {
                 right = !right;
                 updateConfig();
-            }).update((b) -> {
-                b.setColor(right ? Color.lime : Color.valueOf("f25555"));
+            }).size(size).update((b) -> {
+                b.getStyle().imageUpColor=right ? Color.lime : Color.valueOf("f25555");
+//                b.setColor(right ? Color.lime : Color.valueOf("f25555"));
             });
             t.row();
             t.add();
             t.button(Icon.down, () -> {
                 down = !down;
                 updateConfig();
-            }).update((b) -> {
-                b.setColor(down ? Color.lime : Color.valueOf("f25555"));
+            }).size(size).update((b) -> {
+                b.getStyle().imageUpColor=down ? Color.lime : Color.valueOf("f25555");
+//                b.setColor(down ? Color.lime : Color.valueOf("f25555"));
             });
             t.add();
             /*
