@@ -101,7 +101,7 @@ public class AnukeCompDownloader{
             for(Fi file : outDirectory.list()){
                 String compName = file.nameWithoutExtension();
                 String code = Strings.format("@", file.readString()
-                .replace("\"", "\\\"").replace("'", "\\'").replace("\\n", "\\\\n")
+                /*.replace("\"", "\\\"").replace("'", "\\'").replace("\\n", "\\\\n")*/
                 );
                 NodeList<Expression> list = new NodeList<>();
                 for(String line : code.split("\n")){

@@ -12,13 +12,15 @@ buildscript{
         arcVersion = "ef9d6ac655"
 //        arcVersion = "916c5a77"
 
-        jgitVersion = "3.5.0.201409260305-r"
 
 
         // normal
         //mindustryPath = "com.github.Anuken.Mindustry"
         //mindustryVersion = 'v135'
         //arcVersion=mindustryVersion
+
+        jgitVersion = "3.5.0.201409260305-r"
+
         jparcerVersion = "3.22.1"
     }
     repositories{
