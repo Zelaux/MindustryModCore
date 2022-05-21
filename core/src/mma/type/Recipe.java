@@ -15,7 +15,7 @@ public class Recipe{
 
     public Recipe(){
         consumeItems = ItemStack.empty;
-        consumeLiquids = ModLiquidStack.empty;
+        consumeLiquids = LiquidStack.empty;
 
     }
 
@@ -37,7 +37,7 @@ public class Recipe{
     }
 
     public static Recipe with(ItemStack outputItem, ItemStack[] consumeItems, float produceTime){
-        return with(outputItem, consumeItems, ModLiquidStack.empty, produceTime);
+        return with(outputItem, consumeItems, LiquidStack.empty, produceTime);
     }
 
     public Recipe produceTime(float produceTime){

@@ -4,6 +4,7 @@ import mindustry.annotations.*;
 
 import java.lang.annotation.*;
 
+@SuppressWarnings("ALL")
 public class ModAnnotations extends Annotations{
     //Zelaux annotations
     /** Indicates an entity definition. */
@@ -57,6 +58,9 @@ public class ModAnnotations extends Annotations{
 
     @Retention(RetentionPolicy.SOURCE)
     public @interface DependenciesAnnotation{
+        /**local path from project directory
+         * */
+        String modInfoPath() default "\n";
     }
 
     /*@Target(ElementType.METHOD)

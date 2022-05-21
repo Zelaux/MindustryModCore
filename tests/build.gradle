@@ -1,9 +1,9 @@
 buildscript {
-    ext {
+    /*ext {
         arcHash = 'v135'
         mindustryVersion = 'v135'
         modCoreVersion = "f3028a8d038"
-    }
+    }*/
     repositories {
         mavenLocal()
         mavenCentral()
@@ -13,10 +13,10 @@ buildscript {
     }
 
     dependencies {
-        classpath "com.github.Anuken.Mindustry:core:$mindustryVersion"
-        classpath "com.github.Anuken.Mindustry:tools:$mindustryVersion"
+        classpath "$mindustryPath:core:$mindustryVersion"
+        classpath "com.github.Anuken.Mindustry:tools:$mindustryVersionOld"
         classpath "com.github.Anuken.Arc:arc-core:$mindustryVersion"
-        classpath "com.github.Anuken.Arc:packer:$arcHash"
+        classpath "com.github.Anuken.Arc:packer:$arcVersion"
     }
 }
 plugins {
@@ -70,9 +70,9 @@ jar{
     dependsOn(":core:jar")
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     archiveFileName = "${project.archivesBaseName}."
-    from {
+    /*from {
         project(":core").fileTree("build/libs/core.jar").collect { it.isDirectory() ? it : zipTree(it) }
-    }
+    }*/
     from{
         configurations.runtimeClasspath.collect{ it.isDirectory() ? it : zipTree(it) }
 //        project(":core").fileTree("build/libs/core.jar").collect { it.isDirectory() ? it : zipTree(it) }

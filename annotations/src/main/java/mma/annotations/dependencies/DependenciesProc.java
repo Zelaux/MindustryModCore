@@ -1,38 +1,66 @@
 package mma.annotations.dependencies;
 
-import arc.files.Fi;
-import arc.util.serialization.Json;
-import arc.util.serialization.Jval;
-import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.TypeName;
-import com.squareup.javapoet.TypeSpec;
-import mma.annotations.ModBaseProcessor;
-import mindustry.mod.Mods;
+import arc.files.*;
+import arc.util.serialization.*;
+import arc.util.serialization.Jval.*;
+import com.squareup.javapoet.*;
+import mindustry.io.*;
+import mindustry.mod.*;
+import mindustry.mod.Mods.*;
+import mma.annotations.ModAnnotations.*;
+import mma.annotations.*;
 
-import javax.annotation.processing.RoundEnvironment;
-import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.lang.model.element.Modifier;
+import javax.annotation.processing.*;
+import javax.lang.model.element.*;
 
 
 @SupportedAnnotationTypes("mma.annotations.ModAnnotations.DependenciesAnnotation")
-public class DependenciesProc extends ModBaseProcessor {
+public class DependenciesProc extends ModBaseProcessor{
     @Override
-    public void process(RoundEnvironment env) throws Exception {
-        TypeSpec.Builder builder = TypeSpec.classBuilder(classPrefix()+"Dependencies").addModifiers(Modifier.PUBLIC, Modifier.FINAL);
+    public ModMeta modInfoNull(){
+        String path = types(DependenciesAnnotation.class).first().annotation(DependenciesAnnotation.class).modInfoPath();
+        Fi directory = this.rootDirectory;
+        if(!path.equals("\n")){
+            directory = rootDirectory.child(path);
+        }
+        String[] paths = {
+        "mod.json",
+        "mod.hjson",
+        "plugin.json",
+        "plugin.hjson",
+        };
+        Fi file = null;
+        for(int i = 0; i < paths.length * 2; i++){
+            boolean coreAssets = i >= paths.length;
+            int index = i % paths.length;
+            if(coreAssets){
+                file = directory.child("core/assets").child(paths[index]);
+            }else{
+
+                file = directory.child(paths[index]);
+            }
+            if(file.exists()){
+                break;
+            }
+            file = null;
+        }
+        if(file == null) return null;
+
+        return JsonIO.json.fromJson(ModMeta.class, Jval.read(file.readString()).toString(Jformat.plain));
+    }
+
+    @Override
+    public void process(RoundEnvironment env) throws Exception{
+        TypeSpec.Builder builder = TypeSpec.classBuilder(classPrefix() + "Dependencies").addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 
 
         //valid method
         MethodSpec.Builder valid = MethodSpec.methodBuilder("valid").addModifiers(Modifier.PUBLIC, Modifier.STATIC).returns(TypeName.get(boolean.class));
-        Json json = new Json();
-        Fi metaf = rootDirectory.child("mod.hjson");
-        if (!metaf.exists()){
-            metaf=rootDirectory.child("mod.json");
-        }
-        Mods.ModMeta modMeta = json.fromJson(Mods.ModMeta.class, Jval.read(metaf.readString()).toString(Jval.Jformat.plain));
+        Mods.ModMeta modMeta = modInfo();
         valid.addStatement("boolean valid=true");
         valid.beginControlFlow("try");
 
-        for (String dependency : modMeta.dependencies) {
+        for(String dependency : modMeta.dependencies){
             valid.addStatement("valid&=exists($S)", dependency);
         }
         valid.nextControlFlow("catch(Exception e)");
