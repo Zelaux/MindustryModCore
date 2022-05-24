@@ -281,7 +281,7 @@ public class ModContentLoader extends ContentLoader{
 
     @Override
     public <T extends Content> Seq<T> getBy(ContentType type){
-        return (Seq<T>)contentMap[type.ordinal()];
+        return contentMap[type.ordinal()].select(c -> c.minfo instanceof ModedModContentInfo).as();
     }
 
     //utility methods, just makes things a bit shorter

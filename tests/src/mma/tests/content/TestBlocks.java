@@ -2,18 +2,99 @@ package mma.tests.content;
 
 import arc.util.*;
 import mindustry.content.*;
+import mindustry.entities.bullet.*;
+import mindustry.entities.effect.*;
+import mindustry.entities.pattern.*;
+import mindustry.gen.*;
+import mindustry.graphics.*;
 import mindustry.type.*;
 import mindustry.world.*;
+import mindustry.world.blocks.defense.turrets.*;
 import mma.type.*;
 import mma.world.blocks.distribution.*;
 import mma.world.blocks.production.*;
 
+import java.lang.reflect.*;
+
+import static mindustry.Vars.tilesize;
 import static mindustry.type.ItemStack.with;
 
 public class TestBlocks{
     public static Block multiCrafter, multiDrill, smartSorter, smartRouter;
 
     public static void load(){
+        new ItemTurret("test-turret-1"){{
+            requirements(Category.turret, with(Items.copper, 100, Items.graphite, 80, Items.titanium, 50));
+            ammo(
+            Items.copper,  new BasicBulletType(2.5f, 11){{
+                width = 7f;
+                height = 9f;
+                lifetime = 60f;
+                ammoMultiplier = 2;
+            }}
+            );
+
+            size = 2;
+            range = 190f;
+            reload = 31f;
+            ammoEjectBack = 3f;
+            recoil = 3f;
+            shake = 1f;
+            shoot.shots = 4;
+            shoot.shotDelay = 3f;
+
+            ammoUseEffect = Fx.casing2;
+            scaledHealth = 240;
+            shootSound = Sounds.shootBig;
+
+            limitRange();
+            coolant = consumeCoolant(0.2f);
+        }};
+        new ItemTurret("test-turret-2"){{
+            shoot=new ShootPattern(){
+                @Override
+                public void shoot(int totalShots, BulletHandler handler){
+                    try{
+                        Method shoot = handler.getClass().getMethod("shoot", float.class, float.class, float.class, float.class, float.class, float.class);
+
+                        for(int i = 0; i < shots; i++){
+                            shoot.invoke(handler,0, 0,-2*tilesize,0, 0, firstShotDelay + shotDelay * i);
+//                            handler.shoot();
+                        }
+                    }catch(NoSuchMethodException | IllegalAccessException | InvocationTargetException e){
+                        throw new RuntimeException(e);
+                    }
+                }
+
+                {
+
+            }};
+            requirements(Category.turret, with(Items.copper, 100, Items.graphite, 80, Items.titanium, 50));
+            ammo(
+            Items.copper,  new BasicBulletType(2.5f, 11){{
+                width = 7f;
+                height = 9f;
+                lifetime = 60f;
+                ammoMultiplier = 2;
+            }}
+            );
+
+            size = 2;
+            range = 190f;
+            reload = 31f;
+            ammoEjectBack = 3f;
+            recoil = 3f;
+            shake = 1f;
+            shoot.shots = 4;
+            shoot.shotDelay = 3f;
+
+            ammoUseEffect = Fx.casing2;
+            scaledHealth = 240;
+            shootSound = Sounds.shootBig;
+
+            limitRange();
+            coolant = consumeCoolant(0.2f);
+        }};
         smartSorter = new SmartSorter("smart-sorter"){{
             size = 1;
             requirements(Category.crafting, with(Items.copper, 3));
