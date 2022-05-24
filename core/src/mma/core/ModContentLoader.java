@@ -18,7 +18,7 @@ import mindustry.type.*;
 import mindustry.world.*;
 import mma.*;
 
-import static arc.Core.*;
+import static arc.Core.files;
 import static mindustry.Vars.*;
 
 public class ModContentLoader extends ContentLoader{
@@ -27,9 +27,12 @@ public class ModContentLoader extends ContentLoader{
     private ObjectMap<String, MappableContent>[] contentNameMap = new ObjectMap[ContentType.all.length];
     private Seq<Content>[] contentMap = new Seq[ContentType.all.length];
     private MappableContent[][] temporaryMapper;
-    private @Nullable LoadedMod currentMod;
-    private @Nullable Content lastAdded;
+    private @Nullable
+    LoadedMod currentMod;
+    private @Nullable
+    Content lastAdded;
     private ObjectSet<Cons<Content>> initialization = new ObjectSet<>();
+    private boolean isInitialization = false;
 
     public ModContentLoader(){
         for(ContentType type : ContentType.all){
@@ -37,6 +40,7 @@ public class ModContentLoader extends ContentLoader{
             contentNameMap[type.ordinal()] = new ObjectMap<>();
         }
     }
+
     public ModContentLoader(Cons<Content> cons){
         this();
         createModContent(cons);
@@ -124,7 +128,9 @@ public class ModContentLoader extends ContentLoader{
     /** Calls Content#init() on everything. Use only after all modules have been created. */
     @Override
     public void init(){
+        isInitialization = true;
         initialize(Content::init);
+        isInitialization = false;
         if(logicVars != null) logicVars.init();
         Events.fire(new ContentInitEvent());
     }
@@ -281,7 +287,7 @@ public class ModContentLoader extends ContentLoader{
 
     @Override
     public <T extends Content> Seq<T> getBy(ContentType type){
-        return contentMap[type.ordinal()].select(c -> c.minfo instanceof ModedModContentInfo).as();
+        return isInitialization ? contentMap[type.ordinal()].as() : contentMap[type.ordinal()].select(c -> c.minfo instanceof ModedModContentInfo).as();
     }
 
     //utility methods, just makes things a bit shorter
