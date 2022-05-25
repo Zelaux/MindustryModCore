@@ -1,9 +1,9 @@
-buildscript {
-    /*ext {
+/*buildscript {
+    *//*ext {
         arcHash = 'v135'
         mindustryVersion = 'v135'
         modCoreVersion = "f3028a8d038"
-    }*/
+    }*//*
     repositories {
         mavenLocal()
         mavenCentral()
@@ -18,11 +18,12 @@ buildscript {
         classpath "com.github.Anuken.Arc:arc-core:$mindustryVersion"
         classpath "com.github.Anuken.Arc:packer:$arcVersion"
     }
-}
+}*/
 plugins {
     id 'java'
     id 'maven-publish'
 }
+
 version '1.0'
 //needed for android build
 
@@ -36,17 +37,17 @@ tasks.withType(JavaCompile) {
 //            options.compilerArgs = options.compilerArgs.findAll { it != '--enable-preview' }
     }
 }
-
+/*
 tasks.withType(Javadoc) {
     options {
 //            addStringOption('Xdoclint:none', '-quiet')
         addStringOption('-release', '8')
     }
-}
+}*/
 apply plugin: "java-library"
 
 compileJava.options.fork = true
-
+/*
 
 afterEvaluate {
     task mergedJavadoc(type: Javadoc) {
@@ -64,7 +65,7 @@ afterEvaluate {
         })
         destinationDir = new File(buildDir, 'javadoc')
     }
-}
+}*/
 project.archivesBaseName="ZelauxModCoreTestMod.jar"
 jar{
     dependsOn(":core:jar")
@@ -88,5 +89,7 @@ jar{
         include "**"
     }
 }
-sourceSets.main.java.srcDirs = ["src/", "$buildDir/generated/sources/annotationProcessor/java/main"]
+sourceSets.main.java.srcDirs = ["src/main/", "$buildDir/generated/sources/annotationProcessor/java/main"]
 sourceSets.main.resources.srcDirs = ["assets/"]
+
+sourceSets.test.resources.srcDirs = ["src/test/resources"]

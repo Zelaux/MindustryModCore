@@ -40,7 +40,7 @@ public class TechTreeContext{
     private static void initContextField(){
         if(contextSetter != null) return;
         try{
-            Field contextField = TechTree.class.getField("context");
+            Field contextField = TechTree.class.getDeclaredField("context");
             contextField.setAccessible(true);
             contextSetter = context -> Reflect.set(null, contextField, context);
         }catch(Exception e){

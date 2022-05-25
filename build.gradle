@@ -248,6 +248,14 @@ project(":tests"){
         compileOnly arcModule('arc-core')
         compileOnly mindustryModule('core')
         compileOnly mindustryModule('server')
+
+
+        testImplementation project(":core")
+
+        testImplementation arcModule('arc-core')
+        testImplementation mindustryModule('core')
+        testImplementation mindustryModule('server')
+
         testImplementation "org.junit.jupiter:junit-jupiter-params:5.7.1"
         testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.1"
         testImplementation arcModule("backends:backend-headless")
@@ -267,7 +275,7 @@ project(":tests"){
         //fork every test so mods don't interact with each other
         forkEvery = 1
         useJUnitPlatform()
-        workingDir = new File("../core/assets")
+//        workingDir = new File("../core/assets")
         testLogging{
             exceptionFormat = 'full'
             showStandardStreams = true
