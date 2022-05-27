@@ -135,8 +135,8 @@ public class ModImagePacker extends MindustryImagePacker{
     }
 
     protected void checkContent(Content content){
-        if(content instanceof MappableContent){
+        /*if(content instanceof MappableContent){
             ModContentRegions.loadRegions((MappableContent)content);
-        }
+        }*/
     }
 }
