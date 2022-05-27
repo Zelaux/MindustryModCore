@@ -11,5 +11,6 @@ public class ModBlock extends Block {
     @Override
     public void load() {
         super.load();
+        ModContentRegions.loadRegions(this);
     }
 }

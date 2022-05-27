@@ -3,6 +3,7 @@ package mma;
 import arc.*;
 import arc.graphics.g2d.*;
 import mindustry.*;
+import mindustry.annotations.Annotations.*;
 import mindustry.ctype.*;
 import mindustry.mod.*;
 import mindustry.world.*;
@@ -15,7 +16,9 @@ import static mma.ModVars.*;
 
 @ModAnnotations.ModAssetsAnnotation
 @CreateMindustrySerialization
-public class MMAMod extends Mod{
+public class MMAMod extends Mod{/*
+    @Load("fieldForGeneratingModContentRegions")
+    static final TextureRegion fieldForGeneratingModContentRegions=null;*/
     protected boolean disableBlockOutline = false;
 
     public MMAMod(){
@@ -31,7 +34,7 @@ public class MMAMod extends Mod{
     protected void modContent(Content content){
 
         if(content instanceof MappableContent){
-            ModContentRegions.loadRegions((MappableContent)content);
+//            ModContentRegions.loadRegions((MappableContent)content);
         }
     }
 

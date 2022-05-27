@@ -9,6 +9,7 @@ import mindustry.world.*;
 import mindustry.world.consumers.*;
 import mindustry.world.meta.*;
 
+@SuppressWarnings("unchecked")
 public class ConsumeLiquidDynamic<T extends Building> extends Consume{
     public final Func<T, LiquidStack[]> liquids;
 
@@ -42,41 +43,16 @@ public class ConsumeLiquidDynamic<T extends Building> extends Consume{
 
     private void rebuild(Building tile, Table table){
         table.clear();
-        LiquidStack[] var3 = this.liquids.get((T)tile);
-        int var4 = var3.length;
-
-        for(int var5 = 0; var5 < var4; ++var5){
-            LiquidStack stack = var3[var5];
+        for(LiquidStack stack : liquids.get((T)tile)){
             table.add(new ReqImage(stack.liquid.uiIcon, () -> {
                 return tile.items != null && hasLiquid(tile, stack.liquid, stack.amount);
-            })).padRight(8.0F);
+            })).padRight(8.0f);
         }
 
     }
-
-    public String getIcon(){
-        return "icon-liquid-consume";
-    }
-
     @Override
     public void update(Building entity){
     }
-
-    public boolean hasLiquidStacks(Building tile, LiquidStack[] stacks){
-
-        for(LiquidStack stack : stacks){
-            if(!this.hasLiquid(tile, stack.liquid, stack.amount)){
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private boolean hasLiquid(Building tile, LiquidStack stack){
-        return hasLiquid(tile, stack.liquid, stack.amount);
-    }
-
     @Override
     public void trigger(Building entity){
         for(LiquidStack stack : this.liquids.get((T)entity)){

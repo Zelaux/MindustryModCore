@@ -19,12 +19,13 @@ import mindustry.type.*;
 import mindustry.world.*;
 import mindustry.world.blocks.*;
 import mindustry.world.meta.*;
+import mma.world.*;
 
 import java.util.*;
 
 import static mindustry.Vars.*;
 
-public class SmartSorter extends Block{
+public class SmartSorter extends ModBlock{
     public boolean invert;
     public @Annotations.Load("@-cross")
     TextureRegion crossRegion;

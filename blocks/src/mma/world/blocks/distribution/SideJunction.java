@@ -20,8 +20,9 @@ import mindustry.world.Block;
 import mindustry.world.DirectionalItemBuffer;
 import mindustry.world.meta.BlockGroup;
 import mma.graphics.ALines;
+import mma.world.*;
 
-public class SideJunction extends Block {
+public class SideJunction extends ModBlock{
     public float speed = 26.0F;
     public int capacity = 6;
     public SideJunction(String name) {

@@ -30,6 +30,7 @@ import mindustry.world.Tile;
 import mindustry.world.blocks.distribution.ItemBridge;
 import mindustry.world.meta.Stat;
 import mindustry.world.meta.StatUnit;
+import mma.gen.*;
 import mma.graphics.ALines;
 
 import static arc.util.Tmp.v1;
@@ -68,6 +69,12 @@ public class CrossItemBridge extends ItemBridge {
         super.setStats();
         stats.add(Stat.range, this.range, StatUnit.blocks);
         stats.add(Stat.powerConnections, this.maxConnections, StatUnit.none);
+    }
+
+    @Override
+    public void load(){
+        super.load();
+        ModContentRegions.loadRegions(this);
     }
 
     @Override

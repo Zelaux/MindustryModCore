@@ -40,16 +40,15 @@ public class ModContentLoaderTests{
         System.gc();
         TestVars vars = new TestVars();
 
-        Vars.content = new ModContentLoader(){
-        };
+        Vars.content = new ModContentLoader();
         Vars.content.createBaseContent();
         Vars.content.createModContent();
 
         Vars.content.init();
 
-        assertEquals(vars.testBlock.itemFilter.length, defaultItemsAmount + 1);
-        assertEquals(Vars.content.items().size, 1);
-        assertEquals(Vars.content.blocks().size, 1);
+        assertEquals(defaultItemsAmount + 1,vars.testBlock.itemFilter.length);
+        assertEquals(1,Vars.content.items().size);
+        assertEquals(1,Vars.content.blocks().size);
     }
 
 }

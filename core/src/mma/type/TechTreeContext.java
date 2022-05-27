@@ -20,6 +20,7 @@ public class TechTreeContext{
      * @param context parent node
      * */
     public static void contextNode(TechNode context, Runnable children){
+        Objects.requireNonNull(context, "techNode cannot be null");
         initContextField();
 
         TechNode prev = TechTree.context();

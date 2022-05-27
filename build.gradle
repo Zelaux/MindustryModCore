@@ -22,6 +22,8 @@ buildscript{
 
         jgitVersion = "3.5.0.201409260305-r"
 
+        jabelVersion="0.6.0"
+
         jparcerVersion = "3.22.1"
     }
     repositories{
@@ -191,13 +193,13 @@ project(":core"){
 //            println "sub adding "+sub.getName()
             String name = sub.getName();
             println "subproject: " + sub.getName()
-            if (!["tools", "annotations", "plugins", "tests", project.getName()].contains(name)) {
+            if (!["tools", "annotations", "plugins", "blocks", "tests", project.getName()].contains(name)) {
                 println "implemented"
                 implementation sub
             }
         })
 
-        annotationProcessor 'com.github.Anuken:jabel:34e4c172e65b3928cd9eabe1993654ea79c409cd'
+        annotationProcessor "com.github.Anuken:jabel:$jabelVersion"
         compileOnly project(":annotations")
         kapt project(":annotations")
     }
@@ -245,12 +247,15 @@ project(":tests"){
 
     dependencies{
         implementation project(":core")
+        implementation project(":blocks")
+        implementation project(":graphics")
         compileOnly arcModule('arc-core')
         compileOnly mindustryModule('core')
         compileOnly mindustryModule('server')
 
 
         testImplementation project(":core")
+        testImplementation project(":blocks")
 
         testImplementation arcModule('arc-core')
         testImplementation mindustryModule('core')
@@ -262,7 +267,7 @@ project(":tests"){
         testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.7.1"
 
 
-        annotationProcessor 'com.github.Anuken:jabel:34e4c172e65b3928cd9eabe1993654ea79c409cd'
+        annotationProcessor "com.github.Anuken:jabel:$jabelVersion"
         compileOnly project(":annotations")
         kapt project(":annotations")
 
@@ -316,22 +321,6 @@ project(":annotations"){
 //        compileOnly mindustryOldModule("tools")
 //                if(name!="tools")compile  project(":tools")
 //        implementation  project(":core")
-    }
-}
-project(":plugins"){
-    apply plugin: "java-library"
-    dependencies{
-        implementation 'commons-io:commons-io:2.5'
-        compileOnly arcModule('arc-core')
-        compileOnly mindustryModule("core")
-        compileOnly mindustryModule("server")
-    }
-}
-project(":graphics"){
-    apply plugin: "java-library"
-    dependencies{
-        implementation 'commons-io:commons-io:2.5'
-        compileOnly arcModule('arc-core')
     }
 }
 configure(project.getSubprojects() - project(":tests")){

@@ -43,6 +43,8 @@ public class ModLoadRegionProcessor extends ModBaseProcessor{
         ObjectMap<Stype, Seq<Svar>> fieldMap = new ObjectMap<>();
 
         for(Svar field : fields(Annotations.Load.class)){
+
+//            if (field.enclosingType().fullName().equals("mma.MMAMod") && field.name().equals("fieldForGeneratingModContentRegions"))continue;
             if(!field.is(Modifier.PUBLIC)){
                 err("@LoadRegion field must be public", field);
             }

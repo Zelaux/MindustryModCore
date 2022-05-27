@@ -4,7 +4,6 @@ import arc.graphics.g2d.*;
 import arc.struct.*;
 import mindustry.gen.*;
 import mindustry.world.*;
-import mindustry.world.blocks.production.GenericCrafter.*;
 import mindustry.world.draw.*;
 
 public class MultiDrawBlock extends DrawBlock{

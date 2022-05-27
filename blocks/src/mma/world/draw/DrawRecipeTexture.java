@@ -5,6 +5,7 @@ import arc.graphics.g2d.*;
 import mindustry.gen.*;
 import mindustry.world.*;
 import mindustry.world.draw.*;
+import mma.*;
 import mma.world.blocks.production.*;
 import mma.world.blocks.production.MultiCrafter.*;
 
@@ -24,7 +25,7 @@ public class DrawRecipeTexture extends DrawBlock{
         itemsTexture = new TextureRegion[crafter.recipes.length];
         for(int i = 0; i < itemsTexture.length; i++){
             String itemName = crafter.recipes[i].outputItem.item.name;
-            if(itemName.startsWith(fullName(""))) itemName = itemName.split(fullName(""), 2)[1];
+            if(itemName.startsWith(ModVars.fullName(""))) itemName = itemName.split(ModVars.fullName(""), 2)[1];
 //                print("load: @",this.name+"-"+itemName);
             itemsTexture[i] = Core.atlas.find(crafter.name + "-" + itemName,crafter.region);
 //            if(!itemsTexture[i].found()) itemsTexture[i] = ;

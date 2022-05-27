@@ -2,10 +2,8 @@ package mma.annotations.extra;
 
 import arc.files.*;
 import arc.struct.*;
-import arc.util.*;
-import arc.util.serialization.*;
-import arc.util.serialization.JsonWriter.*;
 import mindustry.annotations.util.*;
+import mindustry.mod.*;
 import mma.annotations.ModAnnotations.*;
 import mma.annotations.*;
 
@@ -21,17 +19,23 @@ public class MainClassProcessor extends ModBaseProcessor{
         Seq<Stype> types = types(MainClass.class);
         if(types.isEmpty()) return;
         if(types.size > 1){
-            err("There cannot be more than one main class");
+            err("You have more than one Main class(" + types.toString(",", Stype::fullName) + ")");
             return;
         }
         Stype mainClass = types.get(0);
         if(mainClass.e.getModifiers().contains(Modifier.PRIVATE)){
-            err("Main class cannot be private");
+            err("Main class cannot be private",mainClass);
             return;
+        }
+        if(!mainClass.allSuperclasses().contains(t -> t.fullName().equals(Mod.class.getName()))){
+            err("Main should be instance of " + Mod.class.getName(),mainClass);
         }
         String descriptor = mainClass.fullName();
         Fi path = findPath(mainClass.annotation(MainClass.class).modInfoPath());
-        if(path == null) return;
+        if(path == null){
+            err("Cannot find mod.(h)json file",mainClass);
+            return;
+        }
 
         String string = path.readString();
         int index = string.indexOf("main");
@@ -77,7 +81,7 @@ public class MainClassProcessor extends ModBaseProcessor{
             path.writeString(string.substring(0, string.length() - 1) + "\n,\"main\": \"" + descriptor + "\"\n}");
             return;
         }
-        path.writeString(string + "\n,\"main\": \"" + descriptor+'"');
+        path.writeString(string + "\n,\"main\": \"" + descriptor + '"');
     }
 
     private Fi findPath(String rawPath){
@@ -97,7 +101,6 @@ public class MainClassProcessor extends ModBaseProcessor{
             Fi file = rootDirectory.child(path);
             if(file.exists()) return file;
         }
-        err("Cannot find 'mod.(h)json' file");
         return null;
     }
 }
