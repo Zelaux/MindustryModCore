@@ -65,15 +65,15 @@ public abstract class ModVars {
 
     /**
      * Correct order:
-     * new ModItems()
-     * new ModStatusEffects()
-     * new ModLiquids()
-     * new ModBullets()
-     * new ModUnitTypes()
-     * new ModBlocks()
-     * new ModPlanets()
-     * new ModSectorPresets()
-     * new ModTechTree()
+     * ModItems.load()
+     * ModStatusEffects.load()
+     * ModLiquids.load()
+     * ModBullets.load()
+     * ModUnitTypes.load()
+     * ModBlocks.load()
+     * ModPlanets.load()
+     * ModSectorPresets.load()
+     * ModTechTree.load()
      */
     public abstract void loadContent();
 

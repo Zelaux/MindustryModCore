@@ -38,12 +38,12 @@ public class MainClassProcessor extends ModBaseProcessor{
         }
 
         String string = path.readString();
-        int index = string.indexOf("main");
-        if(index == -1){
-            index = string.indexOf("\"main\"");
-        }
+        int index = string.indexOf("\"main\"");
         if(index == -1){
             index = string.indexOf("'main'");
+        }
+        if(index == -1){
+            index = string.indexOf("main");
         }
         if(index == -1){
             processNonExist(path, string, descriptor);
@@ -51,6 +51,7 @@ public class MainClassProcessor extends ModBaseProcessor{
         }
         int start = string.indexOf(":", index);
         int end = string.indexOf("\n", start);
+        if (end==-1)end=string.length();
 //        System.out.println("end: " + end);
 //        Log.info("'@'", string.charAt(end));
 //        Log.info("'@ '__", string.charAt(end-1));
