@@ -48,7 +48,10 @@ public abstract class ModBaseProcessor extends BaseProcessor{
 
     public ModMeta modInfo(){
         ModMeta meta = modInfoNull();
-        if(meta == null) err("Cannot find mod info file");
+        if(meta == null){
+            err("Cannot find mod info file");
+            throw new RuntimeException("Cannot find mod info file");
+        }
 
         return meta;
     }

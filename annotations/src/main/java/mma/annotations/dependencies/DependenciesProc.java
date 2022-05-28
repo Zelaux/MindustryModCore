@@ -1,6 +1,7 @@
 package mma.annotations.dependencies;
 
 import arc.files.*;
+import arc.util.*;
 import arc.util.serialization.*;
 import arc.util.serialization.Jval.*;
 import com.squareup.javapoet.*;
@@ -16,37 +17,31 @@ import javax.lang.model.element.*;
 
 @SupportedAnnotationTypes("mma.annotations.ModAnnotations.DependenciesAnnotation")
 public class DependenciesProc extends ModBaseProcessor{
+    private Fi findPath(String rawPath){
+        if(!rawPath.equals("\n")){
+            Fi child = rootDirectory.child(rawPath);
+            if(!child.exists()){
+                err("You wrote non-existent path");
+                return null;
+            }
+            return child;
+        }
+        String[] paths = {
+        "mod.json", "mod.hjson", "assets/mod.json", "assets/mod.hjson", "core/assets/mod.json", "core/assets/mod.hjson"
+        };
+        for(String path : paths){
+
+            Fi file = rootDirectory.child(path);
+            if(file.exists()) return file;
+        }
+        return null;
+    }
+
     @Override
     public ModMeta modInfoNull(){
         String path = types(DependenciesAnnotation.class).first().annotation(DependenciesAnnotation.class).modInfoPath();
-        Fi directory = this.rootDirectory;
-        if(!path.equals("\n")){
-            directory = rootDirectory.child(path);
-        }
-        String[] paths = {
-        "mod.json",
-        "mod.hjson",
-        "plugin.json",
-        "plugin.hjson",
-        };
-        Fi file = null;
-        for(int i = 0; i < paths.length * 2; i++){
-            boolean coreAssets = i >= paths.length;
-            int index = i % paths.length;
-            if(coreAssets){
-                file = directory.child("core/assets").child(paths[index]);
-            }else{
-
-                file = directory.child(paths[index]);
-            }
-            if(file.exists()){
-                break;
-            }
-            file = null;
-        }
-        if(file == null) return null;
-
-        return JsonIO.json.fromJson(ModMeta.class, Jval.read(file.readString()).toString(Jformat.plain));
+        Fi file = findPath(path);
+        return file == null || !file.exists() ? null : JsonIO.json.fromJson(ModMeta.class, Jval.read(file.readString()).toString(Jformat.plain));
     }
 
     @Override
@@ -61,7 +56,22 @@ public class DependenciesProc extends ModBaseProcessor{
         valid.beginControlFlow("try");
 
         for(String dependency : modMeta.dependencies){
-            valid.addStatement("valid&=exists($S)", dependency);
+            valid.addStatement("valid&=has($S)", dependency);
+            String name = Strings.kebabToCamel(dependency);
+            name = name.substring(0, 1).toUpperCase() + name.substring(1);
+            String[] methodTypes={"has","exists","enabled"};
+            for(String methodType : methodTypes){
+                builder.addMethod(MethodSpec.methodBuilder(methodType+ name)
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .returns(boolean.class)
+                .beginControlFlow("try")
+                .addStatement("return $L($S)",methodType, dependency)
+                .nextControlFlow("catch(Exception e)")
+                .addStatement("e.printStackTrace()")
+                .addStatement("return false")
+                .endControlFlow()
+                .build());
+            }
         }
         valid.nextControlFlow("catch(Exception e)");
         valid.addStatement("e.printStackTrace()");
@@ -69,19 +79,43 @@ public class DependenciesProc extends ModBaseProcessor{
         valid.endControlFlow();
         valid.addStatement("return valid");
         builder.addMethod(valid.build());
+
         //exists method
-        MethodSpec.Builder existsBuilder = MethodSpec.methodBuilder("exists").addParameter(String.class, "mod").addModifiers(Modifier.PUBLIC, Modifier.STATIC).returns(TypeName.get(boolean.class));
-        existsBuilder.addStatement("arc.util.serialization.Json json = new arc.util.serialization.Json()");
-        existsBuilder.beginControlFlow("for (arc.files.Fi fi : mindustry.Vars.modDirectory.list())");
-        existsBuilder.addStatement("arc.files.Fi zip = fi.isDirectory() ? fi : (new arc.files.ZipFi(fi))");
-        existsBuilder.addStatement("arc.files.Fi metaf =zip.child(\"mod.json\").exists() ? zip.child(\"mod.json\") : zip.child(\"mod.hjson\")");
-        existsBuilder.addStatement("if (!metaf.exists()) continue");
-        existsBuilder.addStatement("if (json.fromJson(mindustry.mod.Mods.ModMeta.class, arc.util.serialization.Jval.read(metaf.readString()).toString(arc.util.serialization.Jval.Jformat.plain)).name.equals(mod)) return arc.Core.settings.getBool(\"mod-\"+mod+\"-enabled\",false)");
-        existsBuilder.endControlFlow();
-        existsBuilder.addStatement("return false");
-        builder.addMethod(existsBuilder.build());
+        addExitsMethod(builder);
+        addHasMethod(builder);
+        addEnabledMethod(builder);
 
         write(builder);
 //        super.process(env);
+    }
+
+    private void addExitsMethod(TypeSpec.Builder builder){
+        ClassName fiClass = ClassName.get(Fi.class);
+        ClassName zipFiClass = ClassName.get(ZipFi.class);
+        ClassName modMetaClass = ClassName.get(ModMeta.class);
+        ClassName jvalClass = ClassName.get(Jval.class);
+
+        MethodSpec.Builder existsBuilder = MethodSpec.methodBuilder("exists").addParameter(String.class, "mod").addModifiers(Modifier.PUBLIC, Modifier.STATIC).returns(TypeName.get(boolean.class));
+        existsBuilder.addStatement("arc.util.serialization.Json json = new arc.util.serialization.Json()");
+        existsBuilder.beginControlFlow("for ($T fi : mindustry.Vars.modDirectory.list())", fiClass);
+        existsBuilder.addStatement("$T zip = fi.isDirectory() ? fi : (new $T(fi))", fiClass, zipFiClass);
+        existsBuilder.addStatement("$T metaf =zip.child(\"mod.json\").exists() ? zip.child(\"mod.json\") : zip.child(\"mod.hjson\")", fiClass);
+        existsBuilder.addStatement("if (!metaf.exists()) continue");
+        existsBuilder.addStatement("if (json.fromJson($T.class, $T.read(metaf.readString()).toString($T.Jformat.plain)).name.equals(mod)) return true",
+        modMetaClass, jvalClass, jvalClass
+        );
+        existsBuilder.endControlFlow();
+        existsBuilder.addStatement("return false");
+        builder.addMethod(existsBuilder.build());
+    }
+    private void addHasMethod(TypeSpec.Builder builder){
+        MethodSpec.Builder existsBuilder = MethodSpec.methodBuilder("has").addParameter(String.class, "mod").addModifiers(Modifier.PUBLIC, Modifier.STATIC).returns(TypeName.get(boolean.class));
+        existsBuilder.addStatement("return exists(mod) && enabled(mod)");
+        builder.addMethod(existsBuilder.build());
+    }
+    private void addEnabledMethod(TypeSpec.Builder builder){
+        MethodSpec.Builder existsBuilder = MethodSpec.methodBuilder("enabled").addParameter(String.class, "mod").addModifiers(Modifier.PUBLIC, Modifier.STATIC).returns(TypeName.get(boolean.class));
+        existsBuilder.addStatement("return arc.Core.settings.getBool(\"mod-\"+mod+\"-enabled\",false)");
+        builder.addMethod(existsBuilder.build());
     }
 }
