@@ -1,4 +1,4 @@
-package mma.tools;
+package mma.utils;
 
 import arc.*;
 import arc.struct.*;
@@ -7,8 +7,6 @@ import mindustry.game.EventType.*;
 import mindustry.graphics.g3d.*;
 import mindustry.type.*;
 import mindustry.ui.dialogs.*;
-
-import static mma.ModVars.modInfo;
 
 public class ManyPlanetSystems{
     private final static EventSender hasSolarSystemSender = new EventSender("has-many-planet-systems");

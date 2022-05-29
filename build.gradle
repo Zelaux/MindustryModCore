@@ -193,7 +193,7 @@ project(":core"){
 //            println "sub adding "+sub.getName()
             String name = sub.getName();
             println "subproject: " + sub.getName()
-            if (!["tools", "annotations", "plugins", "blocks", "tests", project.getName()].contains(name)) {
+            if (!["tools", "annotations", "plugins", "blocks", "tests","utils", project.getName()].contains(name)) {
                 println "implemented"
                 implementation sub
             }
@@ -322,6 +322,40 @@ project(":annotations"){
 //                if(name!="tools")compile  project(":tools")
 //        implementation  project(":core")
     }
+}
+for (def subproject in allprojects){
+    if(subproject.name in ["annotations","tools","core","ZelauxModCore"])continue
+    project(":${subproject.name}"){
+//        compileTestJava
+        compileTestJava.options.fork = true
+        dependencies{
+            testImplementation arcModule('arc-core')
+            testImplementation mindustryModule('core')
+            testImplementation mindustryModule('server')
+
+            testImplementation "org.junit.jupiter:junit-jupiter-params:5.7.1"
+            testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.1"
+            testImplementation arcModule("backends:backend-headless")
+            testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.7.1"
+
+            testAnnotationProcessor "com.github.Anuken:jabel:$jabelVersion"
+        }
+
+        test{
+            //fork every test so mods don't interact with each other
+            forkEvery = 1
+            useJUnitPlatform()
+//        workingDir = new File("../core/assets")
+            testLogging{
+                exceptionFormat = 'full'
+                showStandardStreams = true
+            }
+        }
+    }
+}
+
+task testAll(){
+    allprojects.forEach(p->dependsOn(p.tasks.getByName("test")))
 }
 configure(project.getSubprojects() - project(":tests")){
     java{

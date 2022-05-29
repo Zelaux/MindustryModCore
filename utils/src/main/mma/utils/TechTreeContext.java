@@ -1,4 +1,4 @@
-package mma.tools;
+package mma.utils;
 
 import arc.func.*;
 import arc.util.*;

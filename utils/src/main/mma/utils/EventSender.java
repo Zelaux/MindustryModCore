@@ -1,4 +1,4 @@
-package mma.tools;
+package mma.utils;
 
 import arc.*;
 import arc.struct.*;
@@ -27,14 +27,14 @@ public class EventSender{
         fire(false);
     }
 
-    public void fire(boolean clear){
+    public void fire(boolean clearParams){
         Seq<Object> objects = new Seq<>();
         objects.add(commandName);
         for(ObjectMap.Entry<String, Object> entry : parametersMap){
             objects.add(entry.key, entry.value);
         }
         Events.fire(objects.toArray(Object.class));
-        if(clear){
+        if(clearParams){
             clear();
         }
     }

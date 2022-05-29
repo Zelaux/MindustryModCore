@@ -1,4 +1,4 @@
-package mma.tools;
+package mma.utils;
 
 import arc.*;
 import arc.func.*;
@@ -16,7 +16,11 @@ public class EventReceiver{
         this.commandName = commandName;
     }
 
-    public boolean valid(Object[] objects){
+    public int paramsAmount(){
+        return parametersMap.size;
+    }
+
+    public boolean set(Object[] objects){
         parametersMap.clear();
         if(commandName.equals(objects[0]) && (objects.length - 1) % 2 == 0){
             try{
@@ -47,18 +51,27 @@ public class EventReceiver{
         return (type == null || type.isInstance(object));
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T getParameter(String name){
         return (T)parametersMap.getNull(name);
     }
 
+    public Number getNumParam(String name){
+        return getParameter(name);
+    }
+    public String getStringParam(String name){
+        return getParameter(name);
+    }
+
     public void post(Cons<EventReceiver> cons){
         Events.on(Object[].class, objects1 -> {
-            if(valid(objects1)){
+            if(set(objects1)){
                 try{
                     cons.get(this);
                 }catch(Exception exception){
                     exception.printStackTrace();
                 }
+                parametersMap.clear();
             }
         });
     }
