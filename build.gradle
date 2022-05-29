@@ -324,7 +324,7 @@ project(":annotations"){
     }
 }
 for (def subproject in allprojects){
-    if(subproject.name in ["annotations","tools","core","ZelauxModCore"])continue
+    if(subproject.name in ["annotations","tools","core",project.name])continue
     project(":${subproject.name}"){
 //        compileTestJava
         compileTestJava.options.fork = true
