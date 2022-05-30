@@ -1,9 +1,11 @@
 package mma;
 
-import arc.Core;
+import arc.*;
 import arc.util.Log;
 import arc.util.Strings;
+import mindustry.*;
 import mindustry.ctype.UnlockableContent;
+import mindustry.game.EventType.*;
 import mindustry.mod.ModListing;
 import mindustry.mod.Mods;
 import mma.core.ModUI;
@@ -53,7 +55,13 @@ public abstract class ModVars {
         }
     }
 
-    protected abstract void showException(Throwable ex);
+    protected void showException(Throwable ex){
+        if(Vars.headless){
+            Events.run(ServerLoadEvent.class,()->ex.printStackTrace());
+        }else{
+            Events.run(ClientLoadEvent.class,()->ModUI.showExceptionDialog(ex));
+        }
+    }
 
     public static void modLog(String text, Object... args) {
         String prefix = modInfo==null?instance.getClass().getPackage().getName():modInfo.name;

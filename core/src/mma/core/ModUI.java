@@ -25,7 +25,13 @@ public class ModUI  implements Disposable, ApplicationListener {
 
     private boolean inited=false;
     public ModUI(KeyBinds.KeyBind[] modBindings) {
+        setKeybinds(modBindings);
+    }
 
+    public ModUI(){
+    }
+
+    protected void setKeybinds(KeyBinds.KeyBind... modBindings){
         Time.mark();
         KeyBinds.KeyBind[] keyBinds = Core.keybinds.getKeybinds();
         KeyBinds.KeyBind[] defs = new KeyBinds.KeyBind[keyBinds.length + modBindings.length];
@@ -33,7 +39,7 @@ public class ModUI  implements Disposable, ApplicationListener {
             if (i<keyBinds.length){
                 defs[i]=keyBinds[i];
             } else {
-                defs[i]=modBindings[i-keyBinds.length];
+                defs[i]= modBindings[i-keyBinds.length];
             }
         }
         modLog("Time to combine arrays: @ms",Time.elapsed());
