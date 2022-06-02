@@ -123,6 +123,7 @@ public class ModAnnotations extends Annotations{
      */
     @Target(ElementType.TYPE)
     @Retention(RetentionPolicy.SOURCE)
+    @Deprecated
     public @interface AnnotationPropertiesPath{
         /**
          * @example "core/annotation.properties"

@@ -2,15 +2,25 @@ package mma.annotations;
 
 import arc.files.*;
 import arc.func.*;
+import arc.struct.ObjectMap.*;
 import arc.struct.*;
 import arc.util.*;
 import arc.util.io.*;
 import arc.util.serialization.*;
 import arc.util.serialization.Jval.*;
+import com.github.javaparser.*;
+import com.github.javaparser.ast.*;
+import com.github.javaparser.ast.Modifier.*;
+import com.github.javaparser.ast.Node.*;
+import com.github.javaparser.ast.body.*;
+import com.github.javaparser.ast.expr.*;
 import com.squareup.javapoet.*;
+import com.sun.source.tree.*;
+import com.sun.source.util.*;
 import mindustry.annotations.*;
 import mindustry.annotations.util.*;
 import mindustry.io.*;
+import mindustry.mod.*;
 import mindustry.mod.Mods.*;
 import mma.annotations.ModAnnotations.*;
 
@@ -24,20 +34,21 @@ import java.util.*;
 
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public abstract class ModBaseProcessor extends BaseProcessor{
-    static final String parentName = "mindustry.gen";
     static final StringMap annotationProperties = new StringMap();
     public static String rootPackageName = null;
     static boolean markAnnotationSettingsPathElement = true;
+    private static boolean createdSettingClass = false;
     AnnotationSettings annotationSettingsAnnotation;
     Element annotationSettingsAnnotationElement;
     AnnotationPropertiesPath annotationSettingsPath;
+    Element annotationSettingsPathElement;
 
     {
         enableTimer = true;
     }
 
     public static void print(String obj, Object... args){
-        String message = Strings.format(obj.toString(), args);
+        String message = Strings.format(obj, args);
         System.out.println(message);
     }
 
@@ -121,15 +132,21 @@ public abstract class ModBaseProcessor extends BaseProcessor{
             return annotationProperties;
         }
         if(annotationPropertiesFile.exists()){
-            PropertiesUtils.load(annotationProperties, annotationPropertiesFile.reader());
+            Reader reader = annotationPropertiesFile.reader();
+            PropertiesUtils.load(annotationProperties, reader);
+            try{
+                reader.close();
+            }catch(IOException e){
+                e.printStackTrace();
+            }
         }else{
-            annotationPropertiesFile.writeString("");
+//            annotationPropertiesFile.writeString("");
         }
         Fi classPrefixTxt = rootDirectory.child("annotations/classPrefix.txt");
         if(classPrefixTxt.exists()){
             annotationProperties.put("classPrefix", classPrefixTxt.readString());
             try{
-                PropertiesUtils.store(annotationProperties, annotationPropertiesFile.writer(false), null);
+              if (!createdSettingClass)  PropertiesUtils.store(annotationProperties, annotationPropertiesFile.writer(false), null);
                 classPrefixTxt.delete();
             }catch(IOException exception){
                 exception.printStackTrace();
@@ -141,13 +158,115 @@ public abstract class ModBaseProcessor extends BaseProcessor{
                 if(String.valueOf(invoke).equals("\n")) continue;
                 annotationProperties.put(value.name(), String.valueOf(invoke));
             }
-            try{
-                PropertiesUtils.store(annotationProperties, annotationPropertiesFile.writer(false), null);
+           /* try{
+//                PropertiesUtils.store(annotationProperties, annotationPropertiesFile.writer(false), null);
             }catch(IOException exception){
                 exception.printStackTrace();
+            }*/
+        }
+        if(annotationPropertiesFile.exists() && !createdSettingClass){
+            createdSettingClass = true;
+
+            StringBuilder annotation = new StringBuilder("@" + AnnotationSettings.class.getName().replace("$", ".") + "(");
+            int i = 0;
+            for(Entry<String, String> property : annotationProperties){
+                if(i > 0){
+                    annotation.append(", ");
+                }
+                annotation.append(property.key);
+                annotation.append(" = \"");
+                annotation.append(property.value);
+                annotation.append("\"");
+                i++;
             }
+            annotation.append(")");
+//            err("Creating settings class");
+            if(annotationSettingsAnnotation == null){
+                createAnnotationSettingsClass(annotation);
+            }else
+                {
+
+                CompilationUnitTree anyCompUnit = trees.getPath(annotationSettingsAnnotationElement).getCompilationUnit();
+                JavaParser parser = new JavaParser();
+//                parser.getParserConfiguration().setC
+                Fi file = Fi.get(anyCompUnit.getSourceFile().getName());
+                CompilationUnit compilationUnit = parser.parse(file.readString()).getResult().get();
+                for(AnnotationExpr expr : compilationUnit.findAll(AnnotationExpr.class)){
+                    if(!expr.getNameAsString().endsWith(AnnotationSettings.class.getSimpleName())){
+                        continue;
+                    }
+                    AnnotationExpr node = parser.parseAnnotation(annotation.toString()).getResult().get();
+                    node.setName(expr.getNameAsString());
+                    expr.replace(node);
+                }
+
+
+                file.writeString(compilationUnit.toString());
+//                System.out.println("anyCompUnit.toString(): "+);
+                /*Fi file=Fi.get( anyCompUnit.getSourceFile().getName());
+                if(!file.extension().equals("java")){
+                    throw new RuntimeException("OH NO");
+                }
+                for(int j = 0; j < anyCompUnit.getPackageName().toString().split("\\.").length+1; j++){
+                    file=file.parent();
+                }
+                file
+                .child(compilationUnit.getPackageDeclaration().get().getNameAsString().replace(".","//"))
+                .child(declaration.getNameAsString()+".java")
+                .writeString(compilationUnit.toString());*/
+            }
+            if(!annotationPropertiesFile.delete()){
+                System.out.println("cannot delete");
+            }
+            if (annotationSettingsPathElement!=null){
+                CompilationUnitTree unitTree = trees.getPath(annotationSettingsPathElement).getCompilationUnit();
+                Fi file = Fi.get(unitTree.getSourceFile().getName());
+
+                CompilationUnit compilationUnit = StaticJavaParser.parse(file.readString());
+                for(AnnotationExpr expr : compilationUnit.findAll(AnnotationExpr.class)){
+                    if (expr.getNameAsString().endsWith(AnnotationPropertiesPath.class.getSimpleName())){
+                        expr.remove();
+                    }
+                }
+
+                file.writeString(compilationUnit.toString());
+                annotationSettingsPathElement=null;
+                annotationSettingsPath=null;
+            }
+            System.out.println("annotationPropertiesFile: "+annotationPropertiesFile);
+//            System.out.println(zeroPackage);
+//            System.out.println("trees.getPath(element.e).getCompilationUnit().getSourceFile().getName(): "+zeroPackage.absolutePath());
+
         }
         return annotationProperties;
+    }
+
+    private void createAnnotationSettingsClass(StringBuilder annotation){
+        packageName=getPackageName();
+
+        CompilationUnit compilationUnit = new CompilationUnit( rootPackageName+ ".mma");
+        ClassOrInterfaceDeclaration declaration = compilationUnit.addClass("AnnotationProcessorSettings", new Keyword[0]);
+
+        declaration.addAnnotation(StaticJavaParser.parseAnnotation(annotation.toString()));
+        Selement<?> element = Seq.with(env.getRootElements()).map(Selement::new).sort(Structs.comps(
+        Structs.comparingBool(Selement::isType),
+        Structs.comparingBool(it -> {
+            if(!it.isType()) return false;
+            Stype stype = it.asType();
+            return stype.superclasses().contains(it2 -> it2.fullName().equals(Mod.class.getName()));
+        }))).firstOpt();
+        CompilationUnitTree anyCompUnit = trees.getPath(element.e).getCompilationUnit();
+        Fi zeroPackage = Fi.get(anyCompUnit.getSourceFile().getName());
+        if(!zeroPackage.extension().equals("java")){
+            throw new RuntimeException("OH NO");
+        }
+        for(int j = 0; j < anyCompUnit.getPackageName().toString().split("\\.").length + 1; j++){
+            zeroPackage = zeroPackage.parent();
+        }
+        zeroPackage
+        .child(compilationUnit.getPackageDeclaration().get().getNameAsString().replace(".", "//"))
+        .child(declaration.getNameAsString() + ".java")
+        .writeString(compilationUnit.toString());
     }
 
     public String classPrefix(){
@@ -231,8 +350,9 @@ public abstract class ModBaseProcessor extends BaseProcessor{
             Stype selement = types(AnnotationPropertiesPath.class).firstOpt();
             annotationSettingsPath = selement == null ? null : selement.annotation(AnnotationPropertiesPath.class);
             if(annotationSettingsPath != null){
+                annotationSettingsPathElement=selement.e;
                 Fi file = getRootDirectory().child(annotationSettingsPath.propertiesPath());
-                if(!file.exists()){
+                if(!file.exists() && !createdSettingClass){
                     if(markAnnotationSettingsPathElement){
                         markAnnotationSettingsPathElement = false;
                         err("Cannot find file \"" + annotationSettingsPath.propertiesPath() + "\"", selement.e);

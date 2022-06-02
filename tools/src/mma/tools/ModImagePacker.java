@@ -4,8 +4,10 @@ import arc.files.*;
 import arc.graphics.*;
 import arc.graphics.g2d.*;
 import arc.util.serialization.*;
+import arc.util.serialization.Jval.*;
 import mindustry.ctype.*;
 import mindustry.mod.*;
+import mindustry.mod.Mods.*;
 import mma.*;
 import mma.core.*;
 import mma.gen.*;
@@ -99,18 +101,31 @@ public class ModImagePacker extends MindustryImagePacker{
     protected void start() throws Exception{
         disableIconProcessing = true;
 
-        Json json = new Json();
-        Fi metaf = Fi.get("../../../../").child("mod.hjson");
-        if(!metaf.exists()){
-            metaf = Fi.get("../../../../").child("mod.json");
-        }
-        modMeta = json.fromJson(Mods.ModMeta.class, Jval.read(metaf.readString()).toString(Jval.Jformat.plain));
+        ModImagePacker.modMeta = getModMeta();
 
         ModVars.packSprites = true;
         downloadMindustrySprites();
         super.start();
         deleteMindustrySprites();
         ModVars.packSprites = false;
+    }
+
+    protected Class<?> modSettingsClass(){
+        return null;
+    }
+
+    protected ModMeta getModMeta(){
+        Json json = new Json();
+        Fi metaf = Fi.get("../../../../").child("mod.hjson");
+        if(!metaf.exists()){
+            metaf = Fi.get("../../../../").child("mod.json");
+        }
+        Class<?> mainClass = modMainClass();
+        if (!metaf.exists() && mainClass!=null){
+            mainClass.getAnnotation()
+        }
+        ModMeta modMeta = json.fromJson(ModMeta.class, Jval.read(metaf.readString()).toString(Jformat.plain));
+        return modMeta;
     }
 
     private void deleteMindustrySprites(){

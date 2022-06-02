@@ -7,11 +7,11 @@ import mma.annotations.ModAnnotations.*;
 
 @MainClass()
 @DependenciesAnnotation()
-@AnnotationPropertiesPath(propertiesPath = "tests/annotation.properties")
-public class TestMod extends MMAMod{
-    public TestMod(){
+public class TestMod extends MMAMod {
+
+    public TestMod() {
         int i = 1233;
-//        ModGroups.testGroup
+        // ModGroups.testGroup
         TestVars.load();
         /*Events.run(ClientLoadEvent.class, () -> {
             new BaseDialog("Hello world"){{
@@ -22,7 +22,7 @@ public class TestMod extends MMAMod{
     }
 
     @Override
-    protected void modContent(Content content){
+    protected void modContent(Content content) {
         super.modContent(content);
         Log.info("test-content: " + content);
     }
