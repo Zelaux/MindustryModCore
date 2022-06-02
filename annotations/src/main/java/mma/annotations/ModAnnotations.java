@@ -155,7 +155,7 @@ public class ModAnnotations extends Annotations{
          * Assets path(needs if are using assets classes generation)
          * @default "core/assets"
          */
-        String assetsPath() default "core/assets";
+        String assetsPath() default "\n";
 
         /**
          * path to mod.(h)json
@@ -168,13 +168,13 @@ public class ModAnnotations extends Annotations{
          * a null value means that it is equal to assetsPath
          * @default "core/assets-raw"
          */
-        String assetsRawPath() default "core/assets-raw";
+        String assetsRawPath() default "\n";
 
         /**
          * Revisions path(needs if  are using entity generation)
          * @default "annotations/src/main/resources/revisions"
          */
-        String revisionsPath() default "annotations/src/main/resources/revisions";
+        String revisionsPath() default "\n";
 
         /**
          * Prefix for generated classes
