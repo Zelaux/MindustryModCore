@@ -5,8 +5,6 @@ import mindustry.ctype.*;
 import mma.*;
 import mma.annotations.ModAnnotations.*;
 
-@MainClass()
-@DependenciesAnnotation()
 public class TestMod extends MMAMod {
 
     public TestMod() {

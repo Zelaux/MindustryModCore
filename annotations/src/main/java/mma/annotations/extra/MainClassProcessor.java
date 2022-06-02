@@ -1,14 +1,17 @@
 package mma.annotations.extra;
 
 import arc.files.*;
+import arc.func.*;
 import arc.struct.*;
 import mindustry.annotations.util.*;
 import mindustry.mod.*;
-import mma.annotations.ModAnnotations.*;
 import mma.annotations.*;
+import mma.annotations.ModAnnotations.*;
 
 import javax.annotation.processing.*;
 import javax.lang.model.element.*;
+import javax.lang.model.type.*;
+import java.lang.annotation.*;
 
 @SupportedAnnotationTypes({
 "mma.annotations.ModAnnotations.MainClass",
@@ -23,17 +26,22 @@ public class MainClassProcessor extends ModBaseProcessor{
             return;
         }
         Stype mainClass = types.get(0);
+        Stype innerMainClass = types(mainClass.annotation(MainClass.class), MainClass::value).get(0);
+        if (!innerMainClass.fullName().equals(Void.class.getName())){
+            mainClass=innerMainClass;
+        }
         if(mainClass.e.getModifiers().contains(Modifier.PRIVATE)){
-            err("Main class cannot be private",mainClass);
+            err("Main class cannot be private", mainClass);
             return;
         }
         if(!mainClass.allSuperclasses().contains(t -> t.fullName().equals(Mod.class.getName()))){
-            err("Main should be instance of " + Mod.class.getName(),mainClass);
+            err("Main should be instance of " + Mod.class.getName(), mainClass);
         }
+
         String descriptor = mainClass.fullName();
-        Fi path = findPath(annotationsSettings(AnnotationSetting.modInfoPath,"\n"));
+        Fi path = findPath(annotationsSettings(AnnotationSetting.modInfoPath, "\n"));
         if(path == null){
-            err("Cannot find mod.(h)json file",mainClass);
+            err("Cannot find mod.(h)json file", mainClass);
             return;
         }
 
@@ -51,7 +59,7 @@ public class MainClassProcessor extends ModBaseProcessor{
         }
         int start = string.indexOf(":", index);
         int end = string.indexOf("\n", start);
-        if (end==-1)end=string.length();
+        if(end == -1) end = string.length();
 //        System.out.println("end: " + end);
 //        Log.info("'@'", string.charAt(end));
 //        Log.info("'@ '__", string.charAt(end-1));
@@ -75,6 +83,15 @@ public class MainClassProcessor extends ModBaseProcessor{
             System.out.println("end2: " + end);
         }*/
         path.writeString(string.substring(0, start) + ": \"" + descriptor + '"' + string.substring(end));
+    }
+
+    <T extends Annotation> Seq<Stype> types(T t, Cons<T> consumer){
+        try{
+            consumer.get(t);
+        }catch(MirroredTypesException e){
+            return Seq.with(e.getTypeMirrors()).map(Stype::of);
+        }
+        throw new IllegalArgumentException("Missing types.");
     }
 
     private void processNonExist(Fi path, String string, String descriptor){

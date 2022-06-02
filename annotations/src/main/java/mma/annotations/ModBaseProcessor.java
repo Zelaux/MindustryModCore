@@ -81,9 +81,10 @@ public abstract class ModBaseProcessor extends BaseProcessor{
 
     @Nullable
     public ModMeta modInfoNull(){
-        if(!annotationsSettings(AnnotationSetting.modInfoPath, "\n").equals("\n")){
-            Fi file = rootDirectory.child(annotationsSettings(AnnotationSetting.modInfoPath, "\n"));
-//            System.out.println("path: "+file);
+        String annotationsSettings = annotationsSettings(AnnotationSetting.modInfoPath, "\n");
+//        System.out.println("annotationsSettings: "+annotationsSettings);
+        if(!annotationsSettings.equals("\n")){
+            Fi file = rootDirectory.child(annotationsSettings);
             if(!file.exists()) return null;
 
             return JsonIO.json.fromJson(ModMeta.class, Jval.read(file.readString()).toString(Jformat.plain));
@@ -125,13 +126,13 @@ public abstract class ModBaseProcessor extends BaseProcessor{
     public StringMap annotationsSettings(){
         Fi annotationPropertiesFile = rootDirectory.child(annotationSettingsPath != null ? annotationSettingsPath.propertiesPath() : "annotation.properties");
         Fi[] list = rootDirectory.child("core/src").list();
-        boolean debug = list.length == 1 && list[0].name().equals("mma");
-        if(debug && annotationSettingsPath == null){
+        boolean debug = list.length == 1 && list[0].name().equals("mma")  && annotationSettingsPath == null && annotationSettingsAnnotation == null;
+        if(debug){
             debugLog("debug annotation settings");
 //            annotationProperties.put("debug", "true");
             return annotationProperties;
         }
-        if(annotationPropertiesFile.exists()){
+        if(annotationPropertiesFile.exists() && !createdSettingClass){
             Reader reader = annotationPropertiesFile.reader();
             PropertiesUtils.load(annotationProperties, reader);
             try{
@@ -233,11 +234,12 @@ public abstract class ModBaseProcessor extends BaseProcessor{
                 annotationSettingsPathElement=null;
                 annotationSettingsPath=null;
             }
-            System.out.println("annotationPropertiesFile: "+annotationPropertiesFile);
+//            System.out.println("annotationPropertiesFile: "+annotationPropertiesFile);
 //            System.out.println(zeroPackage);
 //            System.out.println("trees.getPath(element.e).getCompilationUnit().getSourceFile().getName(): "+zeroPackage.absolutePath());
 
         }
+//        System.out.println("annotationProperties: "+annotationProperties);
         return annotationProperties;
     }
 
@@ -278,7 +280,8 @@ public abstract class ModBaseProcessor extends BaseProcessor{
     }
 
     public String annotationsSettings(AnnotationSetting settings, String defvalue){
-        return annotationsSettings().get(settings.name(), defvalue);
+        StringMap map = annotationsSettings();
+        return map.containsKey(settings.name()) ? map.get(settings.name()) : defvalue;
     }
 
     public String annotationsSettings(AnnotationSetting settings, Prov<String> defvalue){

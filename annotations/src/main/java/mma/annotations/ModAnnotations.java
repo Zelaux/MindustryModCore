@@ -116,6 +116,7 @@ public class ModAnnotations extends Annotations{
     @Target(ElementType.TYPE)
     @Retention(RetentionPolicy.SOURCE)
     public @interface MainClass{
+        Class<?> value() default Void.class;
     }
 
     /**
@@ -142,7 +143,7 @@ public class ModAnnotations extends Annotations{
          * rootDirectory path(path from folder where gradle build folder is located)
          * @default "../"
          */
-        String rootDirectoryPath()default "\n";
+        String rootDirectoryPath() default "\n";
     }
 
     /**

@@ -1,5 +1,14 @@
 package mmat.tests.mma;
 
-@mma.annotations.ModAnnotations.AnnotationSettings(rootPackage = "mmat.tests", modInfoPath = "tests/assets/mod.hjson", classPrefix = "Tm")
+import mma.annotations.ModAnnotations.*;
+import mmat.tests.*;
+
+@MainClass(TestMod.class)
+@DependenciesAnnotation()
+@AnnotationSettings(
+rootPackage = "mmat.tests",
+modInfoPath = "tests/assets/mod.hjson",
+classPrefix = "Tm"
+)
 class AnnotationProcessorSettings {
 }

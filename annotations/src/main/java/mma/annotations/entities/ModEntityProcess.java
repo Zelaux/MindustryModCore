@@ -102,7 +102,7 @@ public class ModEntityProcess extends ModBaseProcessor{
         }catch(Exception e){
             throw e;
         }
-        System.out.println("post process: " + this.round + "/" + rounds);
+//        System.out.println("post process: " + this.round + "/" + rounds);
     }
 
     private void clearZeroRound(){

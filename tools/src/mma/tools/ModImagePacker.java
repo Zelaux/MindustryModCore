@@ -118,6 +118,7 @@ public class ModImagePacker extends MindustryImagePacker{
 
     protected ModMeta getModMeta(){
         Json json = new Json();
+        //Fi.get("")="core/assets-raw/sprites_out/generated/"
         Fi metaf = Fi.get("../../../../").child("mod.hjson");
         if(!metaf.exists()){
             metaf = Fi.get("../../../../").child("mod.json");
