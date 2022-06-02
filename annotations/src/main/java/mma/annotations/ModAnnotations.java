@@ -126,10 +126,24 @@ public class ModAnnotations extends Annotations{
     public @interface AnnotationPropertiesPath{
         /**
          * @example "core/annotation.properties"
-         * @default  "annotation.properties"
-         * */
+         * @default "annotation.properties"
+         */
         String propertiesPath();
     }
+
+    /**
+     * Sets rootDirectory path
+     */
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface RootDirectoryPath{
+        /**
+         * rootDirectory path(path from folder where gradle build folder is located)
+         * @default "../"
+         */
+        String rootDirectoryPath()default "\n";
+    }
+
     /**
      * Sets AnnotationSettings
      */
@@ -137,25 +151,42 @@ public class ModAnnotations extends Annotations{
     @Retention(RetentionPolicy.SOURCE)
     public @interface AnnotationSettings{
 
-        /**Assets path(needs if are using assets classes generation)
-         * @default "core/assets"*/
-        String assetsPath()default "core/assets";
-        /**path to mod.(h)json
-         * @default rootProject directory*/
-        String modInfoPath()default "\n";
-        /**Assets raw path(needs if are using Tex.java generation)
+        /**
+         * Assets path(needs if are using assets classes generation)
+         * @default "core/assets"
+         */
+        String assetsPath() default "core/assets";
+
+        /**
+         * path to mod.(h)json
+         * @default rootProject directory
+         */
+        String modInfoPath() default "\n";
+
+        /**
+         * Assets raw path(needs if are using Tex.java generation)
          * a null value means that it is equal to assetsPath
-         * @default "core/assets-raw"*/
-        String assetsRawPath()default  "core/assets-raw";
-        /**Revisions path(needs if  are using entity generation)
-         * @default "annotations/src/main/resources/revisions"*/
-        String revisionsPath()default "annotations/src/main/resources/revisions";
-        /**Prefix for generated classes
-         * @default capitalized root package name*/
-        String classPrefix()default "\n";
-        /**root package name
-         * @default the name of the first folder in "core/src"*/
-        String rootPackage()default "\n" ;
+         * @default "core/assets-raw"
+         */
+        String assetsRawPath() default "core/assets-raw";
+
+        /**
+         * Revisions path(needs if  are using entity generation)
+         * @default "annotations/src/main/resources/revisions"
+         */
+        String revisionsPath() default "annotations/src/main/resources/revisions";
+
+        /**
+         * Prefix for generated classes
+         * @default capitalized root package name
+         */
+        String classPrefix() default "\n";
+
+        /**
+         * root package name
+         * @default the name of the first folder in "core/src"
+         */
+        String rootPackage() default "\n";
     }
 
     /**

@@ -5,14 +5,12 @@ import arc.func.Cons;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Modifier;
+import com.github.javaparser.ast.Modifier.*;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.expr.MethodCallExpr;
-import com.github.javaparser.ast.stmt.BlockStmt;
-import com.github.javaparser.ast.stmt.ExpressionStmt;
-import com.github.javaparser.ast.stmt.IfStmt;
-import com.github.javaparser.ast.stmt.TryStmt;
+import com.github.javaparser.ast.stmt.*;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.type.VoidType;
@@ -72,9 +70,32 @@ public class AnnotationsUpdater {
                     @Override
                     public Visitable visit(IfStmt ifStmt, Void arg) {
                         if (ifStmt.getCondition().toString().equals("rootDirectory == null")){
-                            ifStmt.getThenStmt().asBlockStmt().addStatement(javaParser.parseStatement("packageName=getPackageName();").getResult().get());
+                            Statement thenStmt = ifStmt.getThenStmt();
+                            BlockStmt blockStmt=thenStmt.isBlockStmt()?thenStmt.asBlockStmt():new BlockStmt().addStatement(thenStmt);
+                            processRootDirectorySetter(ifStmt, blockStmt);
+                            blockStmt.addStatement(javaParser.parseStatement("packageName=getPackageName();").getResult().get());
+                            ifStmt.setThenStmt(blockStmt);
                         }
                         return super.visit(ifStmt, arg);
+                    }
+
+                    private void processRootDirectorySetter(IfStmt ifStmt, BlockStmt blockStmt){
+                        if(blockStmt.getStatements().size()!=1){
+                            throw new IllegalArgumentException("Illegal it statement "+ ifStmt);
+                        }
+                        Statement statement = blockStmt.getStatement(0);
+                        if (!statement.isTryStmt())throw new IllegalArgumentException("Statement should be tryStmt "+ifStmt);
+                        TryStmt tryStmt = statement.asTryStmt();
+                        tryStmt.replace(javaParser.parseStatement("rootDirectory = getRootDirectory();").getResult().get());
+                        MethodDeclaration getter = baseProcessor.addMethod("getRootDirectory", Keyword.PUBLIC)
+                        .setType(Fi.class)
+                        ;
+
+                        BlockStmt body = new BlockStmt();
+                        getter.setBody(body);
+                        body.addStatement("Fi rootDirectory;");
+                        body.addStatement(tryStmt);
+                        body.addStatement("return rootDirectory;");
                     }
 
                     @Override

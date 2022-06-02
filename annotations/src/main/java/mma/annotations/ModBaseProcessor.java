@@ -195,20 +195,43 @@ public abstract class ModBaseProcessor extends BaseProcessor{
     }
 
     @Override
+    public Fi getRootDirectory(){
+        Fi rootDirectory;
+        try{
+            Stype stype = types(RootDirectoryPath.class).firstOpt();
+
+            String path = Fi.get(filer.getResource(StandardLocation.CLASS_OUTPUT, "no", "no").toUri().toURL().toString().substring(OS.isWindows ? 6 : "file:".length())).parent().parent().parent().parent().parent().parent().parent().toString().replace("%20", " ");
+            Fi fi = Fi.get(path);
+
+            String rootDirectoryPath = stype == null ? "../" : stype.annotation(RootDirectoryPath.class).rootDirectoryPath();
+            rootDirectory = new Fi(fi.child(
+            !rootDirectoryPath.equals("\n") ? rootDirectoryPath : "../"
+            ).file().getCanonicalFile());
+//            System.out.println("fi1: " + fi);
+//            rootDirectory = fi.parent();
+//            System.out.println("fi2: " + rootDirectory);
+        }catch(IOException e){
+            throw new RuntimeException(e);
+        }
+        return rootDirectory;
+    }
+
+    @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv){
 
         this.env = roundEnv;
+        if(annotationSettingsAnnotation == null){
+            Stype selement = types(AnnotationSettings.class).firstOpt();
+            annotationSettingsAnnotation = selement == null ? null : selement.annotation(AnnotationSettings.class);
+            if(annotationSettingsAnnotation != null){
+                annotationSettingsAnnotationElement = selement.e;
+            }
+        }
         if(annotationSettingsPath == null){
             Stype selement = types(AnnotationPropertiesPath.class).firstOpt();
             annotationSettingsPath = selement == null ? null : selement.annotation(AnnotationPropertiesPath.class);
             if(annotationSettingsPath != null){
-                try{
-                    String path = Fi.get(filer.getResource(StandardLocation.CLASS_OUTPUT, "no", "no").toUri().toURL().toString().substring(OS.isWindows ? 6 : "file:".length())).parent().parent().parent().parent().parent().parent().parent().toString().replace("%20", " ");
-                    rootDirectory = Fi.get(path).parent();
-                }catch(IOException e){
-                    throw new RuntimeException(e);
-                }
-                Fi file = rootDirectory.child(annotationSettingsPath.propertiesPath());
+                Fi file = getRootDirectory().child(annotationSettingsPath.propertiesPath());
                 if(!file.exists()){
                     if(markAnnotationSettingsPathElement){
                         markAnnotationSettingsPathElement = false;
@@ -216,14 +239,6 @@ public abstract class ModBaseProcessor extends BaseProcessor{
                     }
                     round = rounds;
                 }
-                rootDirectory = null;
-            }
-        }
-        if(annotationSettingsAnnotation == null){
-            Stype selement = types(AnnotationSettings.class).firstOpt();
-            annotationSettingsAnnotation = selement == null ? null : selement.annotation(AnnotationSettings.class);
-            if(annotationSettingsAnnotation != null){
-                annotationSettingsAnnotationElement = selement.e;
             }
         }
 //        debugLog("annotationSettingsPath: @",annotationSettingsPath);

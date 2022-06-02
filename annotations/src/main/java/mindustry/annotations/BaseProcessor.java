@@ -216,12 +216,7 @@ public abstract class BaseProcessor extends AbstractProcessor {
         if (round++ >= rounds)
             return false;
         if (rootDirectory == null) {
-            try {
-                String path = Fi.get(filer.getResource(StandardLocation.CLASS_OUTPUT, "no", "no").toUri().toURL().toString().substring(OS.isWindows ? 6 : "file:".length())).parent().parent().parent().parent().parent().parent().parent().toString().replace("%20", " ");
-                rootDirectory = Fi.get(path).parent();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            rootDirectory = getRootDirectory();
             packageName = getPackageName();
         }
         this.env = roundEnv;
@@ -247,6 +242,17 @@ public abstract class BaseProcessor extends AbstractProcessor {
     }
 
     public void process(RoundEnvironment env) throws Exception {
+    }
+
+    public Fi getRootDirectory() {
+        Fi rootDirectory;
+        try {
+            String path = Fi.get(filer.getResource(StandardLocation.CLASS_OUTPUT, "no", "no").toUri().toURL().toString().substring(OS.isWindows ? 6 : "file:".length())).parent().parent().parent().parent().parent().parent().parent().toString().replace("%20", " ");
+            rootDirectory = Fi.get(path).parent();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return rootDirectory;
     }
 
     protected boolean enableTimer;
