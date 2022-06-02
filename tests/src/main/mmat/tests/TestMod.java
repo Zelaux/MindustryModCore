@@ -1,17 +1,15 @@
-package mma.tests;
+package mmat.tests;
 
-import arc.*;
 import arc.util.*;
 import mindustry.ctype.*;
-import mindustry.game.EventType.*;
-import mindustry.ui.dialogs.*;
 import mma.*;
-import mma.annotations.*;
+import mma.annotations.ModAnnotations.*;
 
-@ModAnnotations.MainClass(modInfoPath = "tests/assets/mod.hjson")
-@ModAnnotations.DependenciesAnnotation(modInfoPath = "tests/assets/mod.hjson")
-public class TestMod_ extends MMAMod{
-    public TestMod_(){
+@MainClass()
+@DependenciesAnnotation()
+@AnnotationPropertiesPath(propertiesPath = "tests/annotation.properties")
+public class TestMod extends MMAMod{
+    public TestMod(){
         int i = 1233;
 //        ModGroups.testGroup
         TestVars.load();

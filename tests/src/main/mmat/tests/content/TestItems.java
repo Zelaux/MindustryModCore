@@ -1,4 +1,4 @@
-package mma.tests.content;
+package mmat.tests.content;
 
 import mindustry.type.*;
 

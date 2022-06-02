@@ -38,13 +38,6 @@ public class DependenciesProc extends ModBaseProcessor{
     }
 
     @Override
-    public ModMeta modInfoNull(){
-        String path = types(DependenciesAnnotation.class).first().annotation(DependenciesAnnotation.class).modInfoPath();
-        Fi file = findPath(path);
-        return file == null || !file.exists() ? null : JsonIO.json.fromJson(ModMeta.class, Jval.read(file.readString()).toString(Jformat.plain));
-    }
-
-    @Override
     public void process(RoundEnvironment env) throws Exception{
         TypeSpec.Builder builder = TypeSpec.classBuilder(classPrefix() + "Dependencies").addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 

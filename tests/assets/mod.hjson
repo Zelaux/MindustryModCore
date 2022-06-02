@@ -2,4 +2,4 @@ name: "test-core"
 displayName: "TestZelauxModCore"
 minGameVersion: "136"
 dependencies:["testLib","test-lib-2","hmmm"]
-,"main": "mma.tests.TestMod_"
+,"main": "mmat.tests.TestMod"

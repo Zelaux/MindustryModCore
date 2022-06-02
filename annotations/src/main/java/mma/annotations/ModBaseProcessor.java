@@ -9,20 +9,28 @@ import arc.util.serialization.*;
 import arc.util.serialization.Jval.*;
 import com.squareup.javapoet.*;
 import mindustry.annotations.*;
+import mindustry.annotations.util.*;
 import mindustry.io.*;
 import mindustry.mod.Mods.*;
+import mma.annotations.ModAnnotations.*;
 
 import javax.annotation.processing.*;
 import javax.lang.model.*;
+import javax.lang.model.element.*;
 import javax.tools.*;
 import java.io.*;
 import java.nio.file.*;
+import java.util.*;
 
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public abstract class ModBaseProcessor extends BaseProcessor{
     static final String parentName = "mindustry.gen";
     static final StringMap annotationProperties = new StringMap();
     public static String rootPackageName = null;
+    static boolean markAnnotationSettingsPathElement = true;
+    AnnotationSettings annotationSettingsAnnotation;
+    Element annotationSettingsAnnotationElement;
+    AnnotationPropertiesPath annotationSettingsPath;
 
     {
         enableTimer = true;
@@ -49,7 +57,11 @@ public abstract class ModBaseProcessor extends BaseProcessor{
     public ModMeta modInfo(){
         ModMeta meta = modInfoNull();
         if(meta == null){
-            err("Cannot find mod info file");
+            if(annotationSettingsAnnotation != null && !annotationSettingsAnnotation.modInfoPath().equals("\n")){
+                err("Cannot find mod info file", annotationSettingsAnnotationElement);
+            }else{
+                err("Cannot find mod info file");
+            }
             throw new RuntimeException("Cannot find mod info file");
         }
 
@@ -58,6 +70,13 @@ public abstract class ModBaseProcessor extends BaseProcessor{
 
     @Nullable
     public ModMeta modInfoNull(){
+        if(!annotationsSettings(AnnotationSetting.modInfoPath, "\n").equals("\n")){
+            Fi file = rootDirectory.child(annotationsSettings(AnnotationSetting.modInfoPath, "\n"));
+//            System.out.println("path: "+file);
+            if(!file.exists()) return null;
+
+            return JsonIO.json.fromJson(ModMeta.class, Jval.read(file.readString()).toString(Jformat.plain));
+        }
         String[] paths = {
         "mod.json",
         "mod.hjson",
@@ -85,15 +104,19 @@ public abstract class ModBaseProcessor extends BaseProcessor{
     }
 
     /**
+     * assetsPath
+     * assetsRawPath
+     * modInfoPath
      * revisionsPath
      * classPrefix
      * rootPackage
      */
     public StringMap annotationsSettings(){
-        Fi annotationPropertiesFile = rootDirectory.child("annotation.properties");
+        Fi annotationPropertiesFile = rootDirectory.child(annotationSettingsPath != null ? annotationSettingsPath.propertiesPath() : "annotation.properties");
         Fi[] list = rootDirectory.child("core/src").list();
         boolean debug = list.length == 1 && list[0].name().equals("mma");
-        if(debug){
+        if(debug && annotationSettingsPath == null){
+            debugLog("debug annotation settings");
 //            annotationProperties.put("debug", "true");
             return annotationProperties;
         }
@@ -108,6 +131,18 @@ public abstract class ModBaseProcessor extends BaseProcessor{
             try{
                 PropertiesUtils.store(annotationProperties, annotationPropertiesFile.writer(false), null);
                 classPrefixTxt.delete();
+            }catch(IOException exception){
+                exception.printStackTrace();
+            }
+        }
+        if(annotationSettingsAnnotation != null){
+            for(AnnotationSetting value : AnnotationSetting.values()){
+                Object invoke = Reflect.invoke(AnnotationSettings.class, annotationSettingsAnnotation, value.name(), new Object[]{});
+                if(String.valueOf(invoke).equals("\n")) continue;
+                annotationProperties.put(value.name(), String.valueOf(invoke));
+            }
+            try{
+                PropertiesUtils.store(annotationProperties, annotationPropertiesFile.writer(false), null);
             }catch(IOException exception){
                 exception.printStackTrace();
             }
@@ -157,6 +192,44 @@ public abstract class ModBaseProcessor extends BaseProcessor{
 
     public void debugLog(String text, Object... args){
         System.out.println("[D]" + Strings.format(text, args));
+    }
+
+    @Override
+    public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv){
+
+        this.env = roundEnv;
+        if(annotationSettingsPath == null){
+            Stype selement = types(AnnotationPropertiesPath.class).firstOpt();
+            annotationSettingsPath = selement == null ? null : selement.annotation(AnnotationPropertiesPath.class);
+            if(annotationSettingsPath != null){
+                try{
+                    String path = Fi.get(filer.getResource(StandardLocation.CLASS_OUTPUT, "no", "no").toUri().toURL().toString().substring(OS.isWindows ? 6 : "file:".length())).parent().parent().parent().parent().parent().parent().parent().toString().replace("%20", " ");
+                    rootDirectory = Fi.get(path).parent();
+                }catch(IOException e){
+                    throw new RuntimeException(e);
+                }
+                Fi file = rootDirectory.child(annotationSettingsPath.propertiesPath());
+                if(!file.exists()){
+                    if(markAnnotationSettingsPathElement){
+                        markAnnotationSettingsPathElement = false;
+                        err("Cannot find file \"" + annotationSettingsPath.propertiesPath() + "\"", selement.e);
+                    }
+                    round = rounds;
+                }
+                rootDirectory = null;
+            }
+        }
+        if(annotationSettingsAnnotation == null){
+            Stype selement = types(AnnotationSettings.class).firstOpt();
+            annotationSettingsAnnotation = selement == null ? null : selement.annotation(AnnotationSettings.class);
+            if(annotationSettingsAnnotation != null){
+                annotationSettingsAnnotationElement = selement.e;
+            }
+        }
+//        debugLog("annotationSettingsPath: @",annotationSettingsPath);
+//        debugLog("annotationSettingsAnnotation: @",annotationSettingsAnnotation);
+//        System.out.println("");
+        return super.process(annotations, roundEnv);
     }
 
     public Fi rootDirectory(){

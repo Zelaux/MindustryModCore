@@ -1,4 +1,4 @@
-package mma.tests.entities.comp;
+package mmat.tests.entities.comp;
 
 import arc.math.geom.*;
 import arc.util.*;
@@ -8,6 +8,7 @@ import mindustry.annotations.Annotations.*;
 import mindustry.gen.*;
 import mma.annotations.ModAnnotations.*;
 import mma.gen.*;
+import mmat.tests.gen.*;
 
 @Annotations.EntityDef({TestAnnotationsc.class})
 @Annotations.Component

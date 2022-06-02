@@ -1,9 +1,9 @@
-package mma.tests;
+package mmat.tests;
 
 import arc.struct.*;
 import mindustry.*;
 import mma.*;
-import mma.tests.content.*;
+import mmat.tests.content.*;
 
 public class TestVars extends ModVars{
     private static final Seq<Runnable> onLoad = new Seq<>();

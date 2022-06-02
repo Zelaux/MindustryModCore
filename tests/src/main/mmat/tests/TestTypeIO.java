@@ -1,4 +1,4 @@
-package mma.tests;
+package mmat.tests;
 
 import mindustry.annotations.Annotations.*;
 import mma.io.*;

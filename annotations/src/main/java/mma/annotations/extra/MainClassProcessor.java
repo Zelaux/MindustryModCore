@@ -31,7 +31,7 @@ public class MainClassProcessor extends ModBaseProcessor{
             err("Main should be instance of " + Mod.class.getName(),mainClass);
         }
         String descriptor = mainClass.fullName();
-        Fi path = findPath(mainClass.annotation(MainClass.class).modInfoPath());
+        Fi path = findPath(annotationsSettings(AnnotationSetting.modInfoPath,"\n"));
         if(path == null){
             err("Cannot find mod.(h)json file",mainClass);
             return;
