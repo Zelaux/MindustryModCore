@@ -9,6 +9,8 @@ import mindustry.ctype.*;
 import mindustry.mod.*;
 import mindustry.mod.Mods.*;
 import mma.*;
+import mma.annotations.*;
+import mma.annotations.ModAnnotations.*;
 import mma.core.*;
 import mma.gen.*;
 import mma.tools.gen.*;
@@ -120,12 +122,7 @@ public class ModImagePacker extends MindustryImagePacker{
         if(!metaf.exists()){
             metaf = Fi.get("../../../../").child("mod.json");
         }
-        Class<?> mainClass = modMainClass();
-        if (!metaf.exists() && mainClass!=null){
-            mainClass.getAnnotation()
-        }
-        ModMeta modMeta = json.fromJson(ModMeta.class, Jval.read(metaf.readString()).toString(Jformat.plain));
-        return modMeta;
+        return json.fromJson(ModMeta.class, Jval.read(metaf.readString()).toString(Jformat.plain));
     }
 
     private void deleteMindustrySprites(){
