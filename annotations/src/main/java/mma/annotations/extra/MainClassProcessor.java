@@ -27,16 +27,16 @@ public class MainClassProcessor extends ModBaseProcessor{
         }
         Stype mainClass = types.get(0);
         Stype innerMainClass = types(mainClass.annotation(MainClass.class), MainClass::value).get(0);
-        if (!innerMainClass.fullName().equals(Void.class.getName())){
+        if (!innerMainClass.fullName().equals(Mod.class.getName())){
             mainClass=innerMainClass;
         }
         if(mainClass.e.getModifiers().contains(Modifier.PRIVATE)){
             err("Main class cannot be private", mainClass);
             return;
-        }
+        }/*
         if(!mainClass.allSuperclasses().contains(t -> t.fullName().equals(Mod.class.getName()))){
             err("Main should be instance of " + Mod.class.getName(), mainClass);
-        }
+        }*/
 
         String descriptor = mainClass.fullName();
         Fi path = findPath(annotationsSettings(AnnotationSetting.modInfoPath, "\n"));

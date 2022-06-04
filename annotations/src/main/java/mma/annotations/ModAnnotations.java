@@ -1,6 +1,7 @@
 package mma.annotations;
 
 import mindustry.annotations.*;
+import mindustry.mod.*;
 
 import java.lang.annotation.*;
 
@@ -116,7 +117,7 @@ public class ModAnnotations extends Annotations{
     @Target(ElementType.TYPE)
     @Retention(RetentionPolicy.SOURCE)
     public @interface MainClass{
-        Class<?> value() default Void.class;
+        Class<? extends Mod> value() default Mod.class;
     }
 
     /**
