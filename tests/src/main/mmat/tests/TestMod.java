@@ -4,6 +4,7 @@ import arc.util.*;
 import mindustry.ctype.*;
 import mma.*;
 import mma.annotations.ModAnnotations.*;
+import mmat.tests.gen.*;
 
 public class TestMod extends MMAMod {
 
@@ -11,6 +12,7 @@ public class TestMod extends MMAMod {
         int i = 1233;
         // ModGroups.testGroup
         TestVars.load();
+        TmDependencies.enabledHmmm();
         /*Events.run(ClientLoadEvent.class, () -> {
             new BaseDialog("Hello world"){{
                 cont.add("Hello, world!");

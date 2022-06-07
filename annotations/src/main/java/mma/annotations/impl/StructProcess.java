@@ -6,6 +6,7 @@ import mindustry.annotations.*;
 import mindustry.annotations.util.*;
 import mindustry.annotations.Annotations.*;
 import mma.annotations.*;
+import mma.annotations.SupportedAnnotationTypes;
 
 import javax.annotation.processing.*;
 import javax.lang.model.element.*;
@@ -16,7 +17,7 @@ import javax.lang.model.type.*;
  * It would be nice if Java didn't make crazy hacks like this necessary.
  */
 @SupportedAnnotationTypes({
-"mindustry.annotations.Annotations.Struct"
+mindustry.annotations.Annotations.Struct.class
 })
 public class StructProcess extends ModBaseProcessor{
 

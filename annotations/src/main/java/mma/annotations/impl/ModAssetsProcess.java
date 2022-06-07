@@ -5,13 +5,14 @@ import arc.func.*;
 import com.squareup.javapoet.*;
 import mindustry.annotations.*;
 import mma.annotations.*;
+import mma.annotations.SupportedAnnotationTypes;
 
 import javax.annotation.processing.*;
 import javax.lang.model.*;
 import javax.lang.model.element.*;
 import java.util.*;
 
-@SupportedAnnotationTypes("mma.annotations.ModAnnotations.ModAssetsAnnotation")
+@SupportedAnnotationTypes(mma.annotations.ModAnnotations.ModAssetsAnnotation.class)
 public class ModAssetsProcess extends ModBaseProcessor{
     static String capitalize(String s){
         StringBuilder result = new StringBuilder(s.length());

@@ -7,15 +7,16 @@ import mindustry.annotations.util.*;
 import mindustry.mod.*;
 import mma.annotations.*;
 import mma.annotations.ModAnnotations.*;
+import mma.annotations.SupportedAnnotationTypes;
 
 import javax.annotation.processing.*;
 import javax.lang.model.element.*;
 import javax.lang.model.type.*;
 import java.lang.annotation.*;
 
-@SupportedAnnotationTypes({
-"mma.annotations.ModAnnotations.MainClass",
-})
+@SupportedAnnotationTypes(
+mma.annotations.ModAnnotations.MainClass.class
+)
 public class MainClassProcessor extends ModBaseProcessor{
     @Override
     public void process(RoundEnvironment env) throws Exception{
@@ -33,10 +34,10 @@ public class MainClassProcessor extends ModBaseProcessor{
         if(mainClass.e.getModifiers().contains(Modifier.PRIVATE)){
             err("Main class cannot be private", mainClass);
             return;
-        }/*
+        }
         if(!mainClass.allSuperclasses().contains(t -> t.fullName().equals(Mod.class.getName()))){
             err("Main should be instance of " + Mod.class.getName(), mainClass);
-        }*/
+        }
 
         String descriptor = mainClass.fullName();
         Fi path = findPath(annotationsSettings(AnnotationSetting.modInfoPath, "\n"));

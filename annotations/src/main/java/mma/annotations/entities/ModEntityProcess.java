@@ -16,6 +16,7 @@ import mindustry.annotations.util.*;
 import mindustry.mod.Mods.*;
 import mma.annotations.*;
 import mma.annotations.ModAnnotations.*;
+import mma.annotations.SupportedAnnotationTypes;
 import mma.annotations.remote.*;
 
 import javax.annotation.processing.*;
@@ -27,13 +28,13 @@ import java.lang.annotation.*;
 import java.util.*;
 
 @SupportedAnnotationTypes({
-"mindustry.annotations.Annotations.EntityDef",
-"mindustry.annotations.Annotations.EntityInterface",
-"mindustry.annotations.Annotations.BaseComponent",
-"mindustry.annotations.Annotations.Component",
-"mindustry.annotations.Annotations.TypeIOHandler",
-"mma.annotations.ModAnnotations.EntitySuperClass",
-"mma.annotations.ModAnnotations.CreateMindustrySerialization",
+mindustry.annotations.Annotations.EntityDef.class,
+mindustry.annotations.Annotations.EntityInterface.class,
+mindustry.annotations.Annotations.BaseComponent.class,
+mindustry.annotations.Annotations.Component.class,
+mindustry.annotations.Annotations.TypeIOHandler.class,
+mma.annotations.ModAnnotations.EntitySuperClass.class,
+mma.annotations.ModAnnotations.CreateMindustrySerialization.class,
 })
 public class ModEntityProcess extends ModBaseProcessor{
     final Seq<Stype> baseComponents = new Seq<>();

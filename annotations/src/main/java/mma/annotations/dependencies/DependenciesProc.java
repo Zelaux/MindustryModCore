@@ -10,12 +10,13 @@ import mindustry.mod.*;
 import mindustry.mod.Mods.*;
 import mma.annotations.ModAnnotations.*;
 import mma.annotations.*;
+import mma.annotations.SupportedAnnotationTypes;
 
 import javax.annotation.processing.*;
 import javax.lang.model.element.*;
 
 
-@SupportedAnnotationTypes("mma.annotations.ModAnnotations.DependenciesAnnotation")
+@SupportedAnnotationTypes({DependenciesAnnotation.class})
 public class DependenciesProc extends ModBaseProcessor{
     private Fi findPath(String rawPath){
         if(!rawPath.equals("\n")){

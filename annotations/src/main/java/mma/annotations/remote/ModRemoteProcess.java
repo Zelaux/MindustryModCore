@@ -7,6 +7,7 @@ import mindustry.annotations.*;
 import mindustry.annotations.util.*;
 import mindustry.annotations.util.TypeIOResolver.*;
 import mma.annotations.*;
+import mma.annotations.SupportedAnnotationTypes;
 
 import javax.annotation.processing.*;
 import javax.lang.model.element.*;
@@ -14,8 +15,8 @@ import javax.lang.model.element.*;
 
 /** The annotation processor for generating remote method call code. */
 @SupportedAnnotationTypes({
-"mindustry.annotations.Annotations.Remote",
-"mindustry.annotations.Annotations.TypeIOHandler"
+mindustry.annotations.Annotations.Remote.class,
+mindustry.annotations.Annotations.TypeIOHandler.class
 })
 public class ModRemoteProcess extends ModBaseProcessor{
     /** Simple class name of generated class name. */

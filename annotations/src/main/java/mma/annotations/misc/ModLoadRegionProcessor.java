@@ -7,11 +7,12 @@ import com.squareup.javapoet.*;
 import mindustry.annotations.*;
 import mindustry.annotations.util.*;
 import mma.annotations.*;
+import mma.annotations.SupportedAnnotationTypes;
 
 import javax.annotation.processing.*;
 import javax.lang.model.element.*;
 
-@SupportedAnnotationTypes("mindustry.annotations.Annotations.Load")
+@SupportedAnnotationTypes(mindustry.annotations.Annotations.Load.class)
 public class ModLoadRegionProcessor extends ModBaseProcessor{
 
 
