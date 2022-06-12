@@ -2,26 +2,19 @@ package mmat.tests.content;
 
 import arc.util.*;
 import mindustry.content.*;
-import mindustry.entities.bullet.*;
-import mindustry.entities.pattern.*;
-import mindustry.gen.*;
 import mindustry.type.*;
 import mindustry.world.*;
-import mindustry.world.blocks.defense.turrets.*;
 import mma.type.*;
 import mma.world.blocks.distribution.*;
 import mma.world.blocks.production.*;
 
-import java.lang.reflect.*;
-
-import static mindustry.Vars.tilesize;
 import static mindustry.type.ItemStack.with;
 
 public class TestBlocks{
     public static Block multiCrafter, multiDrill, smartSorter, smartRouter;
 
     public static void load(){
-        new ItemTurret("test-turret-1"){{
+        /*new ItemTurret("test-turret-1"){{
             requirements(Category.turret, with(Items.copper, 100, Items.graphite, 80, Items.titanium, 50));
             ammo(
             Items.copper,  new BasicBulletType(2.5f, 11){{
@@ -92,7 +85,7 @@ public class TestBlocks{
 
             limitRange();
             coolant = consumeCoolant(0.2f);
-        }};
+        }};*/
         smartSorter = new SmartSorter("smart-sorter"){{
             size = 1;
             requirements(Category.crafting, with(Items.copper, 3));
@@ -109,6 +102,21 @@ public class TestBlocks{
             .output(new ItemStack(TestItems.rawItem, 5), new LiquidStack(Liquids.cryofluid, 10))
             .outputLiquidDirection(0)//forward
             .consume(ItemStack.with(Items.silicon, 10, Items.titanium, 10), null)
+            );
+            requirements(Category.crafting, with(Items.copper, 3));
+        }};
+        new MultiCrafter("multi-crafter-2"){{
+            size = 2;
+            recipes(
+            Recipe.with().produceTime(1f * Time.toSeconds)
+            .output(null, new LiquidStack(Liquids.cryofluid, 10))
+            .outputLiquidDirection(1)//left
+            .consume(ItemStack.with(Items.silicon, 10, Items.titanium, 10), null),
+
+            Recipe.with().produceTime(1f * Time.toSeconds)
+            .output(null, new LiquidStack(Liquids.cryofluid, 20))
+            .outputLiquidDirection(-1)//right
+            .consume(ItemStack.with(Items.silicon, 20, Items.titanium, 20), null)
             );
             requirements(Category.crafting, with(Items.copper, 3));
         }};

@@ -228,6 +228,7 @@ public class MindustrySerializationGenerator{
 
     private void processReadMethod(ModEntityProcess processor, Builder builder, MethodSpec.Builder readMethod, ClassName className) throws Exception{
         readMethod.setName("read" + className.simpleName()).returns(className);
+        readMethod.addModifiers(Modifier.STATIC);
 
         CodeBlock.Builder readBuilder = codeBuilder(readMethod);
         BlockStmt blockStmt = StaticJavaParser.parseBlock("{" + readBuilder.build().toString() + "}");
@@ -256,6 +257,8 @@ public class MindustrySerializationGenerator{
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     private void processWriteMethod(ModEntityProcess processor, Builder builder, MethodSpec.Builder writeMethod, ClassName className) throws Exception{
         writeMethod.setName("write" + className.simpleName()).addParameter(className, "OBJECT_TO_WRITE");
+        writeMethod.addModifiers(Modifier.STATIC);
+
         CodeBlock.Builder writeBuilder = codeBuilder(writeMethod);
         BlockStmt blockStmt = StaticJavaParser.parseBlock("{" + writeBuilder.build().toString() + "}");
 

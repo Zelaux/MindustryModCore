@@ -4,6 +4,7 @@ import arc.util.*;
 import mindustry.ctype.*;
 import mma.*;
 import mma.annotations.ModAnnotations.*;
+import mma.gen.*;
 import mmat.tests.gen.*;
 
 public class TestMod extends MMAMod {

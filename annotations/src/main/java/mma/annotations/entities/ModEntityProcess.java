@@ -10,13 +10,14 @@ import arc.util.pooling.*;
 import arc.util.pooling.Pool.*;
 import com.squareup.javapoet.*;
 import com.squareup.javapoet.TypeSpec.*;
+import com.sun.tools.javac.processing.*;
 import mindustry.annotations.*;
 import mindustry.annotations.Annotations.*;
 import mindustry.annotations.util.*;
 import mindustry.mod.Mods.*;
 import mma.annotations.*;
-import mma.annotations.ModAnnotations.*;
 import mma.annotations.SupportedAnnotationTypes;
+import mma.annotations.ModAnnotations.*;
 import mma.annotations.remote.*;
 
 import javax.annotation.processing.*;
@@ -61,7 +62,7 @@ public class ModEntityProcess extends ModBaseProcessor{
     private String compByAnukePackage;
 
     {
-        rounds = 4;
+        rounds = 5;
     }
 
     @Override
@@ -69,17 +70,23 @@ public class ModEntityProcess extends ModBaseProcessor{
         updateRounds();
         for(Stype type : types(ModAnnotations.EntitySuperClass.class)){
             if(!hasAnukeComps){
-                Log.info("anukeComp exists");
+//                err();
+                note("Local mindustry components.");
             }
             hasAnukeComps = true;
             allInterfaces.add(type.superclasses().peek());
         }
-        int round = this.round - 1;
+        int round;
+        boolean debug=false;
         if(rootPackageName.equals("mma")){
-            if(round == 0) rounds -= 1;
-            round++;
+            if(this.round == 1) rounds -= 1;
+            round = this.round;
+            debug=true;
+        }else{
+            round = this.round - 1;
         }
         if(allComponents.isEmpty() && allDefs.isEmpty() && createMindustrySerialization == null){
+            System.out.println("fast ending");
             this.round = rounds;
             return;
         }
@@ -87,14 +94,23 @@ public class ModEntityProcess extends ModBaseProcessor{
             if(round == 0){
                 zeroRound();
             }
-            if(round == 1) firstRound();
-            if(round == 2) secondRound();
-            if(round == 3){
+            if(round == 1){
+//                Log.info("First round");
+                firstRound();
+            }
+            if(round == 2){
+//                Log.info("Second round");
+                secondRound();
+            }
+            if(round == 3 || (round==2 && debug && !((JavacFiler)filer).newFiles())){
+//                Log.info("Third round");
                 thirdRound();
                 if(createMindustrySerialization != null){
                     boolean root = rootPackageName.equals("mma");
 //                  if(!root) throw new RuntimeException("You cannot use createMindustrySerialization")
                     if(root){
+                        messager.printMessage(Diagnostic.Kind.NOTE, "generating MindustrySerialization");
+//                        System.out.println("Generation minds");
                         new MindustrySerializationGenerator().generate(this);
                     }
                 }
@@ -259,7 +275,7 @@ public class ModEntityProcess extends ModBaseProcessor{
 
                     //setter
                     if(!field.is(Modifier.FINAL) && !signatures.contains(cname + "(" + field.mirror().toString() + ")") &&
-                       !field.annotations().contains(f -> f.toString().equals("@mindustry.annotations.Annotations.ReadOnly"))){
+                    !field.annotations().contains(f -> f.toString().equals("@mindustry.annotations.Annotations.ReadOnly"))){
                         inter.addMethod(MethodSpec.methodBuilder(cname).addModifiers(Modifier.ABSTRACT, Modifier.PUBLIC)
                         .addJavadoc(field.doc() == null ? "" : field.doc())
                         .addParameter(ParameterSpec.builder(field.tname(), field.name())
@@ -1095,7 +1111,7 @@ public class ModEntityProcess extends ModBaseProcessor{
                     MethodSpec.Builder builder = MethodSpec.overriding(method.e).addModifiers(Modifier.PUBLIC, Modifier.FINAL);
                     int index = 0;
                     for(ParameterSpec spec : builder.parameters){
-                        Reflect.set(spec, "name",  "arg" + index++);
+                        Reflect.set(spec, "name", "arg" + index++);
                     }
                     builder.addAnnotation(Annotations.OverrideCallSuper.class); //just in case
 
@@ -1319,10 +1335,10 @@ public class ModEntityProcess extends ModBaseProcessor{
         @Override
         public String toString(){
             return "Definition{" +
-                   "groups=" + groups +
-                   "components=" + components +
-                   ", base=" + naming +
-                   '}';
+            "groups=" + groups +
+            "components=" + components +
+            ", base=" + naming +
+            '}';
         }
     }
 }

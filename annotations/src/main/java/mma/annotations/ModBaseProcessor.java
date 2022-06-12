@@ -13,7 +13,6 @@ import com.github.javaparser.ast.*;
 import com.github.javaparser.ast.Modifier.*;
 import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.expr.*;
-import com.google.common.collect.*;
 import com.squareup.javapoet.*;
 import com.sun.source.tree.*;
 import mindustry.annotations.*;
@@ -27,6 +26,7 @@ import javax.annotation.processing.*;
 import javax.lang.model.*;
 import javax.lang.model.element.*;
 import javax.tools.*;
+import javax.tools.Diagnostic.*;
 import java.io.*;
 import java.lang.annotation.*;
 import java.nio.file.*;
@@ -367,13 +367,35 @@ public abstract class ModBaseProcessor extends BaseProcessor{
 //        debugLog("annotationSettingsPath: @",annotationSettingsPath);
 //        debugLog("annotationSettingsAnnotation: @",annotationSettingsAnnotation);
 //        System.out.println("");
-        return super.process(annotations, roundEnv);
+        boolean process = super.process(annotations, roundEnv);
+//        process=round-2  < rounds;
+//        process=round-2  < rounds;
+//        Log.info("@(@)", getClass().getCanonicalName(), process);
+        return process;
     }
 
     public Fi rootDirectory(){
         return rootDirectory;
     }
 
+    public static void warn(String message) {
+        messager.printMessage(Kind.WARNING, message);
+//        Log.err("warning " + message);
+    }
+
+    public static void warn(String message, Element elem) {
+        messager.printMessage(Kind.WARNING, message, elem);
+//        Log.err("[CODEGEN ERROR] " + message + ": " + elem);
+    }
+    public static void note(String message) {
+        messager.printMessage(Kind.NOTE, message);
+//        Log.err("warning " + message);
+    }
+
+    public static void note(String message, Element elem) {
+        messager.printMessage(Kind.NOTE, message, elem);
+//        Log.err("[CODEGEN ERROR] " + message + ": " + elem);
+    }
     @Override
     public Set<String> getSupportedAnnotationTypes(){
         javax.annotation.processing.SupportedAnnotationTypes sat = this.getClass().getAnnotation(javax.annotation.processing.SupportedAnnotationTypes.class);
@@ -387,9 +409,9 @@ public abstract class ModBaseProcessor extends BaseProcessor{
             Class<? extends Annotation>[] classes = sat2.value();
             String[] strings = new String[classes.length];
             for(int i = 0; i < strings.length; i++){
-                strings[i]=classes[i].getCanonicalName();
+                strings[i] = classes[i].getCanonicalName();
             }
-            System.out.println("supported->"+Arrays.toString(strings));
+//            System.out.println("supported->"+Arrays.toString(strings));
             return arrayToSet(strings, stripModulePrefixes,
             "annotation type", "@SupportedAnnotationTypes");
         }
