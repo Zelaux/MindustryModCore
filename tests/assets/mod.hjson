@@ -1,5 +1,4 @@
 name: "test-core"
 displayName: "TestZelauxModCore"
 minGameVersion: "136"
-dependencies:["testLib","test-lib-2","hmmm"]
 ,"main": "mmat.tests.TestMod"

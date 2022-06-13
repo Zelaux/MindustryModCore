@@ -102,7 +102,11 @@ public class ModEntityProcess extends ModBaseProcessor{
 //                Log.info("Second round");
                 secondRound();
             }
-            if(round == 3 || (round==2 && debug && !((JavacFiler)filer).newFiles())){
+            boolean secondRound = round == 2 && debug && !((JavacFiler)filer).newFiles();
+            if(round == 3 || secondRound){
+                if (secondRound){
+                    this.round=rounds;
+                }
 //                Log.info("Third round");
                 thirdRound();
                 if(createMindustrySerialization != null){

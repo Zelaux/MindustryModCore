@@ -1,7 +1,10 @@
 package mma.type;
 
 import arc.util.*;
+import mindustry.ctype.*;
 import mindustry.type.*;
+
+import static mindustry.Vars.state;
 
 public class Recipe{
     public static Recipe empty = with(null, -1);
@@ -40,13 +43,17 @@ public class Recipe{
         return with(outputItem, consumeItems, LiquidStack.empty, produceTime);
     }
 
+    public static Recipe with(){
+        return new Recipe();
+    }
+
+    public UnlockableContent mainContent(){
+        return outputItem == null ? outputLiquid == null ? null : outputLiquid.liquid : outputItem.item;
+    }
+
     public Recipe produceTime(float produceTime){
         this.produceTime = produceTime;
         return this;
-    }
-
-    public static Recipe with(){
-        return new Recipe();
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -71,5 +78,21 @@ public class Recipe{
     private void check(){
 //            checkItems();
 //            checkLiquids();
+    }
+
+    public boolean unlockedNow(){
+        for(ItemStack stack : consumeItems){
+            Item item = stack.item;
+            if(state.rules.hiddenBuildItems.contains(item) || item.isHidden() || !item.unlockedNow()){
+                return false;
+            }
+        }
+        for(LiquidStack stack : consumeLiquids){
+            Liquid liquid = stack.liquid;
+            if(liquid.isHidden() || !liquid.unlockedNow()){
+                return false;
+            }
+        }
+        return true;
     }
 }

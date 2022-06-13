@@ -6,6 +6,8 @@ import arc.graphics.*;
 import arc.graphics.g2d.*;
 import arc.math.*;
 import arc.math.geom.*;
+import arc.scene.style.*;
+import arc.scene.ui.*;
 import arc.scene.ui.layout.*;
 import arc.struct.EnumSet;
 import arc.struct.*;
@@ -14,6 +16,7 @@ import arc.util.io.*;
 import mindustry.*;
 import mindustry.content.*;
 import mindustry.core.*;
+import mindustry.ctype.*;
 import mindustry.entities.*;
 import mindustry.entities.units.*;
 import mindustry.gen.*;
@@ -166,6 +169,18 @@ public class MultiCrafter extends ModBlock{
     @Override
     public void init(){
         rotate |= Structs.contains(recipes, recipe -> recipe.outputLiquid != null && recipe.outputLiquidDirection != -1);
+        initCapacities();
+        super.init();
+
+
+        this.config(Item.class, (obj, item) -> {
+            MultiCrafterBuild tile = (MultiCrafterBuild)obj;
+            tile.currentRecipe = Structs.indexOf(recipes, recipe -> recipe.outputItem.item == item);
+            tile.resetProgress();
+        });
+    }
+
+    private void initCapacities(){
         this.itemCapacity = 0;
         itemsCapacities = new int[Vars.content.items().size];
         liquidsCapacities = new float[Vars.content.liquids().size];
@@ -204,14 +219,6 @@ public class MultiCrafter extends ModBlock{
         itemCapacity = maxConsumeItems;
         this.liquidCapacity *= extraStorageLiquid;
         this.itemCapacity *= extraStorageItem;
-        super.init();
-
-
-        this.config(Item.class, (obj, item) -> {
-            MultiCrafterBuild tile = (MultiCrafterBuild)obj;
-            tile.currentRecipe = Structs.indexOf(recipes, recipe -> recipe.outputItem.item == item);
-            tile.resetProgress();
-        });
     }
 
     @Override
@@ -265,7 +272,7 @@ public class MultiCrafter extends ModBlock{
                         String text = Core.bundle.get("bar.liquids");
                         if(build.liquids == null)
                             return text;
-                        return text + " " + Mathf.round((build.countNowLiquid() / build.countNeedLiquid() * 100f), 0.1f) + "%";
+                        return text + " " + Mathf.round((build.countNowLiquid() / build.countRequiredLiquid() * 100f), 0.1f) + "%";
                     }, barParts);
                 });
             }
@@ -536,20 +543,56 @@ public class MultiCrafter extends ModBlock{
 
         }
 
+        public <T> void buildTable(Table table, Seq<T> items, Func<T, UnlockableContent> itemToContent, Prov<T> holder, Cons<T> consumer){
+
+            ButtonGroup<ImageButton> group = new ButtonGroup<>();
+            group.setMinCheckCount(0);
+            Table cont = new Table();
+            cont.defaults().size(40);
+
+            int i = 0;
+
+            for(T item : items){
+//                if(!content.unlockedNow() || () || content.isHidden()) continue;
+                UnlockableContent content = itemToContent.get(item);
+                ImageButton button = cont.button(Tex.whiteui, Styles.clearTogglei, 24, () -> control.input.config.hideConfig()).group(group).tooltip(content.localizedName).get();
+                button.changed(() -> consumer.get(button.isChecked() ? item : null));
+                button.getStyle().imageUp = new TextureRegionDrawable(content.uiIcon);
+                button.update(() -> button.setChecked(holder.get() == item));
+
+                if(i++ % 4 == 3){
+                    cont.row();
+                }
+            }
+
+            //add extra blank spaces so it looks nice
+            if(i % 4 != 0){
+                int remaining = 4 - (i % 4);
+                for(int j = 0; j < remaining; j++){
+                    cont.image(Styles.black6);
+                }
+            }
+
+            ScrollPane pane = new ScrollPane(cont, Styles.smallPane);
+            pane.setScrollingDisabled(true, false);
+
+            pane.setScrollYForce(block.selectScroll);
+            pane.update(() -> {
+                block.selectScroll = pane.getScrollY();
+            });
+
+            pane.setOverscroll(false, false);
+            table.add(pane).maxHeight(Scl.scl(40 * 5));
+        }
+
         @Override
         public void buildConfiguration(Table table){
-            Seq<Item> recipes = Seq.with(MultiCrafter.this.recipes).map((u) -> {
-                return u.outputItem.item;
-            }).filter((u) -> {
-                return u.unlockedNow();
-            });
+            Seq<Recipe> recipes = Seq.with(MultiCrafter.this.recipes).filter(Recipe::unlockedNow);
             if(recipes.any()){
-                ItemSelection.buildTable(table, recipes, () -> {
-                    return currentRecipe == -1 ? null : MultiCrafter.this.recipes[currentRecipe].outputItem.item;
+                this.buildTable(table, recipes, (Recipe it) -> it.mainContent(), () -> {
+                    return currentRecipe == -1 ? null : MultiCrafter.this.recipes[currentRecipe];
                 }, (item) -> {
-                    this.configure(Structs.indexOf(MultiCrafter.this.recipes, (u) -> {
-                        return u.outputItem.item == item;
-                    }));
+                    this.configure(Structs.indexOf(MultiCrafter.this.recipes, item));
                 });
             }else{
                 table.table(Styles.black3, (t) -> {
@@ -566,7 +609,7 @@ public class MultiCrafter extends ModBlock{
             return amounts;
         }
 
-        public float countNeedLiquid(){
+        public float countRequiredLiquid(){
             float need = 0;
             for(LiquidStack stack : getNeedLiquids()){
                 need += stack.amount;
@@ -581,8 +624,9 @@ public class MultiCrafter extends ModBlock{
         @Override
         public void handleLiquid(Building source, Liquid liquid, float amount){
             Recipe recipe = getCurrentRecipe();
-            if(liquid == recipe.outputLiquid.liquid){
-                float need = Math.max(0, liquidsCapacities[liquid.id]- liquids.get(liquid));
+            if (recipe==null)return;
+            if(recipe.outputLiquid != null && liquid == recipe.outputLiquid.liquid){
+                float need = Math.max(0, liquidsCapacities[liquid.id] - liquids.get(liquid));
                 this.liquids.add(liquid, Math.min(amount, need));
                 return;
             }

@@ -115,7 +115,20 @@ public class TestBlocks{
 
             Recipe.with().produceTime(1f * Time.toSeconds)
             .output(null, new LiquidStack(Liquids.cryofluid, 20))
-            .outputLiquidDirection(-1)//right
+            .outputLiquidDirection(4-1)//right
+            .consume(ItemStack.with(Items.silicon, 20, Items.titanium, 20), null)
+            );
+            requirements(Category.crafting, with(Items.copper, 3));
+        }};
+        new MultiCrafter("multi-crafter-3"){{
+            size = 2;
+            recipes(
+            Recipe.with().produceTime(1f * Time.toSeconds)
+            .output(new ItemStack(TestItems.rawItem, 5), null)
+            .consume(ItemStack.with(Items.silicon, 10, Items.titanium, 10), null),
+
+            Recipe.with().produceTime(1f * Time.toSeconds)
+            .output(new ItemStack(TestItems.rawItem, 5), null)
             .consume(ItemStack.with(Items.silicon, 20, Items.titanium, 20), null)
             );
             requirements(Category.crafting, with(Items.copper, 3));
