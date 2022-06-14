@@ -59,6 +59,7 @@ public class ModEntityProcess extends ModBaseProcessor{
     CreateMindustrySerialization createMindustrySerialization;
     //    Seq<String> anukeComponents = new Seq<>();
     boolean hasAnukeComps = false;
+    boolean secondIsFinalRound=false;
     private String compByAnukePackage;
 
     {
@@ -97,27 +98,30 @@ public class ModEntityProcess extends ModBaseProcessor{
             if(round == 1){
 //                Log.info("First round");
                 firstRound();
+                secondIsFinalRound = debug && !((JavacFiler)filer).newFiles();
             }
             if(round == 2){
 //                Log.info("Second round");
                 secondRound();
             }
-            boolean secondRound = round == 2 && debug && !((JavacFiler)filer).newFiles();
-            if(round == 3 || secondRound){
-                if (secondRound){
-                    this.round=rounds;
-                }
-//                Log.info("Third round");
-                thirdRound();
+            if (round == 3 || (round==2 && secondIsFinalRound)){
+//                this.round=rounds;
+
                 if(createMindustrySerialization != null){
                     boolean root = rootPackageName.equals("mma");
 //                  if(!root) throw new RuntimeException("You cannot use createMindustrySerialization")
                     if(root){
-                        messager.printMessage(Diagnostic.Kind.NOTE, "generating MindustrySerialization");
+                        messager.printMessage(Diagnostic.Kind.NOTE, "Generating MindustrySerialization.");
 //                        System.out.println("Generation minds");
                         new MindustrySerializationGenerator().generate(this);
+                    } else{
+                        messager.printMessage(Diagnostic.Kind.WARNING, "Cannot generate MindustrySerialization.");
                     }
                 }
+            }
+            if(round == 3 ){
+//                Log.info("Third round");
+                thirdRound();
                 clearZeroRound();
             }
         }catch(Exception e){
@@ -180,7 +184,7 @@ public class ModEntityProcess extends ModBaseProcessor{
         baseComponents.addAll(types(Annotations.BaseComponent.class));
         allComponents.addAll(types(Annotations.Component.class));
         if(createMindustrySerialization == null){
-            Seq<Stype> types = types(CreateMindustrySerialization.class);
+            Seq<Selement<?>> types = elements(CreateMindustrySerialization.class).as();
             if(types.any()){
                 createMindustrySerialization = types.first().annotation(CreateMindustrySerialization.class);
             }

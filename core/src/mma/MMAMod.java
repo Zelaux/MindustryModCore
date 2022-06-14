@@ -14,7 +14,7 @@ import mma.gen.*;
 
 import static mma.ModVars.*;
 
-@ModAnnotations.ModAssetsAnnotation
+//@ModAnnotations.ModAssetsAnnotation
 @CreateMindustrySerialization
 public class MMAMod extends Mod{/*
     @Load("fieldForGeneratingModContentRegions")
