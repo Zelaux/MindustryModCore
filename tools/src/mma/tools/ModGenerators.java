@@ -38,144 +38,148 @@ public class ModGenerators extends MindustryGenerators{
 
     @Override
     protected void blockIcons(){
-        Pixmap colors = new Pixmap(content.blocks().size, 1);
+//        Pixmap colors = new Pixmap(content.blocks().size, 1);
 
         for(Block block : content.blocks()){
-            if(block.isAir() || block instanceof ConstructBlock || block instanceof OreBlock || block instanceof LegacyBlock)
-                continue;
+            processBlock(block);
+        }
 
-            block.load();
-            block.loadIcon();
+//        save(colors, "../../../assets/sprites/block_colors");
+    }
 
-            TextureRegion[] regions = block.getGeneratedIcons();
+    public void processBlock(Block block){
+        if(block.isAir() || block instanceof ConstructBlock || block instanceof OreBlock || block instanceof LegacyBlock)
+            return;
 
-            if(block.variants > 0 || block instanceof Floor){
-                for(TextureRegion region : block.variantRegions()){
-                    GenRegion gen = (GenRegion)region;
-                    if(gen.path == null) continue;
-                    gen.path.copyTo(Fi.get("../editor/editor-" + gen.path.name()));
-                }
-            }
+        block.load();
+        block.loadIcon();
 
-            for(TextureRegion region : block.makeIconRegions()){
+        TextureRegion[] regions = block.getGeneratedIcons();
+
+        if(block.variants > 0 || block instanceof Floor){
+            for(TextureRegion region : block.variantRegions()){
                 GenRegion gen = (GenRegion)region;
-                save(get(region).outline(block.outlineColor, block.outlineRadius), gen.name + "-outline");
-            }
-
-            Pixmap shardTeamTop = null;
-
-            if(block.teamRegion.found()){
-                Pixmap teamr = get(block.teamRegion);
-
-                for(Team team : Team.all){
-                    if(team.hasPalette){
-                        Pixmap out = new Pixmap(teamr.width, teamr.height);
-                        teamr.each((x, y) -> {
-                            int color = teamr.getRaw(x, y);
-                            int index = color == 0xffffffff ? 0 : color == 0xdcc6c6ff ? 1 : color == 0x9d7f7fff ? 2 : -1;
-                            out.setRaw(x, y, index == -1 ? teamr.getRaw(x, y) : team.palette[index].rgba());
-                        });
-                        save(out, block.name + "-team-" + team.name);
-
-                        if(team == Team.sharded){
-                            shardTeamTop = out;
-                        }
-                    }
-                }
-            }
-
-            if(regions.length == 0){
-                continue;
-            }
-
-            try{
-                Pixmap last = null;
-                if(block.outlineIcon){
-                    GenRegion region = (GenRegion)regions[block.outlinedIcon >= 0 ? block.outlinedIcon : regions.length - 1];
-                    Pixmap base = get(region);
-                    Pixmap out = last = base.outline(block.outlineColor, block.outlineRadius);
-
-                    //do not run for legacy ones
-                    if(block.outlinedIcon >= 0){
-                        //prevents the regions above from being ignored/invisible/etc
-                        for(int i = block.outlinedIcon + 1; i < regions.length; i++){
-                            out.draw(get(regions[i]), true);
-                        }
-                    }
-
-
-                    if(false){
-                        region.path.delete();
-                        save(out, block.name);
-                    }
-                }
-
-                if(!regions[0].found()){
-                    continue;
-                }
-                boolean selfGenerator = block instanceof ImageGenerator;
-                Pixmap image = get(regions[0]);
-
-                int i = 0;
-
-                for(TextureRegion region : regions){
-                    i++;
-                    if(i == 1 && selfGenerator){
-                        image.draw(((ImageGenerator)block).generate(get(regions[0]), processor));
-                    }else if(i != regions.length || last == null){
-                        image.draw(get(region), true);
-                    }else{
-                        image.draw(last, true);
-                    }
-
-                    //draw shard (default team top) on top of first sprite
-                    if(region == block.teamRegions[Team.sharded.id] && shardTeamTop != null){
-                        image.draw(shardTeamTop, true);
-                    }
-                }
-                if(!(regions.length == 1 && regions[0] == Core.atlas.find(block.name) && shardTeamTop == null) || selfGenerator){
-                    save(image, /*"block-" +*/ block.name + "-full");
-                }
-
-                save(image, "../editor/" + block.name + "-icon-editor");
-
-                if(block.buildVisibility != BuildVisibility.hidden){
-                    saveScaled(image, block.name + "-icon-logic", logicIconSize);
-                }
-                saveScaled(image, "../ui/block-" + block.name + "-ui", Math.min(image.width, maxUiIcon));
-
-                boolean hasEmpty = false;
-                Color average = new Color(), c = new Color();
-                float asum = 0f;
-                for(int x = 0; x < image.width; x++){
-                    for(int y = 0; y < image.height; y++){
-                        Color color = c.set(image.get(x, y));
-                        average.r += color.r * color.a;
-                        average.g += color.g * color.a;
-                        average.b += color.b * color.a;
-                        asum += color.a;
-                        if(color.a < 0.9f){
-                            hasEmpty = true;
-                        }
-                    }
-                }
-
-                average.mul(1f / asum);
-
-                if(block instanceof Floor){
-                    average.mul(0.77f);
-                }else{
-                    average.mul(1.1f);
-                }
-                //encode square sprite in alpha channel
-                average.a = hasEmpty ? 0.1f : 1f;
-                colors.setRaw(block.id, 0, average.rgba());
-            }catch(NullPointerException e){
-                Log.err("Block &ly'@'&lr has an null region!", block);
+                if(gen.path == null) continue;
+                gen.path.copyTo(Fi.get("../editor/editor-" + gen.path.name()));
             }
         }
 
-        save(colors, "../../../assets/sprites/block_colors");
+        for(TextureRegion region : block.makeIconRegions()){
+            GenRegion gen = (GenRegion)region;
+            save(get(region).outline(block.outlineColor, block.outlineRadius), gen.name + "-outline");
+        }
+
+        Pixmap shardTeamTop = null;
+
+        if(block.teamRegion.found()){
+            Pixmap teamr = get(block.teamRegion);
+
+            for(Team team : Team.all){
+                if(team.hasPalette){
+                    Pixmap out = new Pixmap(teamr.width, teamr.height);
+                    teamr.each((x, y) -> {
+                        int color = teamr.getRaw(x, y);
+                        int index = color == 0xffffffff ? 0 : color == 0xdcc6c6ff ? 1 : color == 0x9d7f7fff ? 2 : -1;
+                        out.setRaw(x, y, index == -1 ? teamr.getRaw(x, y) : team.palette[index].rgba());
+                    });
+                    save(out, block.name + "-team-" + team.name);
+
+                    if(team == Team.sharded){
+                        shardTeamTop = out;
+                    }
+                }
+            }
+        }
+
+        if(regions.length == 0){
+            return;
+        }
+
+        try{
+            Pixmap last = null;
+            if(block.outlineIcon){
+                GenRegion region = (GenRegion)regions[block.outlinedIcon >= 0 ? block.outlinedIcon : regions.length - 1];
+                Pixmap base = get(region);
+                Pixmap out = last = base.outline(block.outlineColor, block.outlineRadius);
+
+                //do not run for legacy ones
+                if(block.outlinedIcon >= 0){
+                    //prevents the regions above from being ignored/invisible/etc
+                    for(int i = block.outlinedIcon + 1; i < regions.length; i++){
+                        out.draw(get(regions[i]), true);
+                    }
+                }
+
+
+                if(false){
+                    region.path.delete();
+                    save(out, block.name);
+                }
+            }
+
+            if(!regions[0].found()){
+                return;
+            }
+            boolean selfGenerator = block instanceof ImageGenerator;
+            Pixmap image = get(regions[0]);
+
+            int i = 0;
+
+            for(TextureRegion region : regions){
+                i++;
+                if(i == 1 && selfGenerator){
+                    image.draw(((ImageGenerator)block).generate(get(regions[0]), processor));
+                }else if(i != regions.length || last == null){
+                    image.draw(get(region), true);
+                }else{
+                    image.draw(last, true);
+                }
+
+                //draw shard (default team top) on top of first sprite
+                if(region == block.teamRegions[Team.sharded.id] && shardTeamTop != null){
+                    image.draw(shardTeamTop, true);
+                }
+            }
+            if(!(regions.length == 1 && regions[0] == Core.atlas.find(block.name) && shardTeamTop == null) || selfGenerator){
+                save(image, /*"block-" +*/ block.name + "-full");
+            }
+
+            save(image, "../editor/" + block.name + "-icon-editor");
+
+            if(block.buildVisibility != BuildVisibility.hidden){
+                saveScaled(image, block.name + "-icon-logic", logicIconSize);
+            }
+            saveScaled(image, "../ui/block-" + block.name + "-ui", Math.min(image.width, maxUiIcon));
+
+            /*boolean hasEmpty = false;
+            Color average = new Color(), c = new Color();
+            float asum = 0f;
+            for(int x = 0; x < image.width; x++){
+                for(int y = 0; y < image.height; y++){
+                    Color color = c.set(image.get(x, y));
+                    average.r += color.r * color.a;
+                    average.g += color.g * color.a;
+                    average.b += color.b * color.a;
+                    asum += color.a;
+                    if(color.a < 0.9f){
+                        hasEmpty = true;
+                    }
+                }
+            }
+
+            average.mul(1f / asum);
+
+            if(block instanceof Floor){
+                average.mul(0.77f);
+            }else{
+                average.mul(1.1f);
+            }
+            //encode square sprite in alpha channel
+            average.a = hasEmpty ? 0.1f : 1f;
+            colors.setRaw(block.id, 0, average.rgba());*/
+        }catch(NullPointerException e){
+            Log.err("Block &ly'@'&lr has an null region!", block);
+        }
     }
 
 
@@ -198,9 +202,9 @@ public class ModGenerators extends MindustryGenerators{
                         replace(t, outline.get(get(t)));
                     }
                 };
-                if (unitOutlines){
-                    for (Weapon weapon : type.weapons) {
-                        if (outlined.add(weapon.name) && has(weapon.name)) {
+                if(unitOutlines){
+                    for(Weapon weapon : type.weapons){
+                        if(outlined.add(weapon.name) && has(weapon.name)){
                             save(outline.get(get(weapon.name)), weapon.name + "-outline");
                         }
                     }
@@ -213,7 +217,7 @@ public class ModGenerators extends MindustryGenerators{
                 if(inst instanceof Legsc) outliner.get(type.legRegion);
 
                 Pixmap image = outline.get(get(type.region));
-                if (unitOutlines){
+                if(unitOutlines){
                     save(image, type.name + "-outline");
                 }
 
@@ -258,7 +262,7 @@ public class ModGenerators extends MindustryGenerators{
                 }
                 if(type instanceof ImageGenerator){
                     Pixmap generate = ((ImageGenerator)type).generate(image, processor);
-                    if (generate!=image && generate!=null){
+                    if(generate != image && generate != null){
                         image = generate;
                     }
                 }

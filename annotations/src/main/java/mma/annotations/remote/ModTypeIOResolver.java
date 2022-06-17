@@ -3,7 +3,6 @@ package mma.annotations.remote;
 import arc.func.*;
 import arc.struct.*;
 import mindustry.annotations.*;
-import mindustry.annotations.Annotations.*;
 import mindustry.annotations.util.*;
 import mindustry.annotations.util.TypeIOResolver.*;
 import mma.annotations.*;
@@ -18,24 +17,26 @@ public class ModTypeIOResolver{
         methods.clear();
         ClassSerializer out = new ClassSerializer(new ObjectMap<>(), new ObjectMap<>(), new ObjectMap<>(), new ObjectMap<>());
         Seq<Stype> types = processor.types(Annotations.TypeIOHandler.class);
-        ObjectMap<String, Stype> typeMap = new ObjectMap<>();
+        Seq<Stype> nTypes = new Seq<>();
+        ObjectSet<String> typesNames = new ObjectSet<>();
         Cons<Stype> addNewType = nt -> {
-            if(!typeMap.containsKey(nt.fullName())){
-                typeMap.put(nt.fullName(), nt);
+            if(typesNames.add(nt.fullName())){
+                nTypes.add(nt);
             }
         };
         for(Stype stype : types){
             addNewType.get(stype);
             Seq<Stype> allSuperclasses = stype.allSuperclasses();
-//            allSuperclasses.reverse();
+//            System.out.println(allSuperclasses);
+            allSuperclasses.reverse();
+//            System.out.println(allSuperclasses);
             for(Stype superclass : allSuperclasses){
                 String superFullname = superclass.fullName();
                 if(superFullname.equals(Object.class.getName())) continue;
                 addNewType.get(superclass);
             }
         }
-        Seq<Stype> array = typeMap.values().toSeq();
-        types.set(array);
+        types.set(nTypes);
         boolean debug = false;
         if(processor.annotationsSettings().getBool("debug")){
             debug = true;
@@ -118,7 +119,7 @@ public class ModTypeIOResolver{
             } else {
                 return false;
             }
-            return other.name().equals(method.name());
+            return other.name().equals(method.name()) && other.retn().toString().equals(method.retn().toString());
         })))
             return;
         methodsMap.get(parent, Seq::new).add(method);

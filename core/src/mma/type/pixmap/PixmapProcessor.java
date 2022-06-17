@@ -197,6 +197,7 @@ public interface PixmapProcessor{
 //                pixmap.set(nx,ny,copy.get(x,y));
             }
         }
+        copy.dispose();
         return pixmap;
     }
 }

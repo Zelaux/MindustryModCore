@@ -3,6 +3,7 @@ package mma.type.pixmap;
 import arc.*;
 import arc.graphics.*;
 import arc.graphics.g2d.*;
+import arc.graphics.g2d.PixmapPacker.*;
 import arc.graphics.g2d.TextureAtlas.*;
 import arc.struct.*;
 import mindustry.graphics.*;
@@ -45,6 +46,11 @@ public class MultiPackerPixmapProcessor{
 
             @Override
             public void delete(String name){
+                for(PageType type : PageType.all){
+                    for(Page page : packer.getPacker(type).getPages()){
+                        page.getRects().remove(name);
+                    }
+                }
 //                PixmapRegion region = packer.get(name);
             }
         });

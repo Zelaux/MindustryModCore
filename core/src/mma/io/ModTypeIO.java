@@ -28,6 +28,9 @@ import static mindustry.Vars.*;
 
 @Annotations.TypeIOHandler
 public class ModTypeIO extends TypeIO {
+    public static Entityc readEntity(Reads read){
+        return TypeIO.readEntity(read);
+    }
     public static void writeInteger(Writes write, Integer integer) {
         write.i(integer);
     }

@@ -15,6 +15,7 @@ import mmat.tests.gen.*;
 abstract class TestAnnotationsComp implements Entityc, Velc{
     public Vec2 vec2Test;
     Unit testUnit;
+    Entityc testEntity;
 
     public static int someStaticMethod(TestAnnotationsc testAnnotationsc){
         return (int)Time.timeSinceMillis(0);
