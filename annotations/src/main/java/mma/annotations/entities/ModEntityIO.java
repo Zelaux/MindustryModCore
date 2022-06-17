@@ -294,7 +294,7 @@ public class ModEntityIO {
                 Log.warn("Missing serialization code for collection '@' in '@'", type, name);
             }
         }else{
-            System.out.println(serializer.readers);
+//            System.out.println(serializer.readers);
             Log.warn("Missing serialization code for type '@' in '@'", type, name);
         }
     }
