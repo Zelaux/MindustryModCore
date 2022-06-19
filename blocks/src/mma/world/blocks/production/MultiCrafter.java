@@ -377,7 +377,7 @@ public class MultiCrafter extends ModBlock{
 
             if(efficiency > 0 && currentRecipe != -1){
 
-                progress += getProgressIncrease(craftTime);
+                progress += getProgressIncrease(recipes[currentRecipe].produceTime);
                 warmup = Mathf.approachDelta(warmup, warmupTarget(), warmupSpeed);
 
                 //continuously output based on efficiency
