@@ -23,6 +23,7 @@ public class AFill extends Fill{
     public static void swirl(float x, float y, float radius, float finion, float angle){
         pie(x, y, radius, finion, angle);
     }
+
     @Deprecated
     public static void circleRect(float x, float y, float radius){
         polyCircle(x, y, radius);
@@ -78,14 +79,15 @@ public class AFill extends Fill{
     }
 
     public static void pie(float x, float y, float radius, float finion, float rotation){
-        ellipse(x, y, radius * 2f, radius * 2f, finion, 0,rotation);
+        ellipse(x, y, radius * 2f, radius * 2f, finion, 0, rotation);
     }
 
-    public static void ellipse(float x, float y, float width, float height, float finion,  float rotation){
+    public static void ellipse(float x, float y, float width, float height, float finion, float rotation){
         ellipse(x, y, width, height, finion, 0, rotation);
     }
+
     public static void ellipse(float x, float y, float width, float height, float finion, float angle, float rotation){
-        donutEllipse(x,y,0,0,width,height,finion,angle,rotation);
+        donutEllipse(x, y, 0, 0, width, height, finion, angle, rotation);
        /* final float sides = 60;
         finion = Mathf.clamp(finion);
         int max = (int)(sides * (finion + 0.001F));
@@ -117,6 +119,13 @@ public class AFill extends Fill{
 */
     }
 
+    public static void donut(float x, float y, float radius1, float radius2){
+        donut(x, y, radius1, radius2,1f);
+    }
+    public static void donut(float x, float y, float radius1, float radius2, float finion){
+        donut(x, y, radius1, radius2,finion,0f);
+    }
+
     public static void donut(float x, float y, float radius1, float radius2, float finion, float rotation){
         donutEllipse(x, y, radius1 * 2, radius1 * 2, radius2 * 2, radius2 * 2, finion, 0f, rotation);
     }
@@ -131,23 +140,23 @@ public class AFill extends Fill{
      */
     public static void donutEllipse(float x, float y, float width, float height, float width2, float height2, float finion, float angleOffset, float rotation){
         final float sides = 50.0F;
-        float max =sides;
+        float max = sides;
         vector.set(0.0F, 0.0F);
         floats.clear();
         Cons<Float> cons = (ix) -> {
             float v = 7.2F * ix;
             v = 360.0F * finion / max * ix;
-            vector.set(1, 0.0F).setAngle(v + angleOffset).scl(width, height).rotate(rotation);
+            vector.set(0.5f, 0.0F).setAngle(v + angleOffset).scl(width, height).rotate(rotation);
             floats.add(vector.x + x, vector.y + y);
-            vector.set(1, 0.0F).setAngle(v + angleOffset).scl(width2, height2).rotate(rotation);
+            vector.set(0.5f, 0.0F).setAngle(v + angleOffset).scl(width2, height2).rotate(rotation);
             floats.add(vector.x + x, vector.y + y);
         };
         Cons<Float> undoCons = (ix) -> {
             float v = 7.2F * ix;
             v = 360.0F * finion / max * ix;
-            vector.set(1, 0.0F).setAngle(v + angleOffset).scl(width2, height2).rotate(rotation);
+            vector.set(0.5f, 0.0F).setAngle(v + angleOffset).scl(width2, height2).rotate(rotation);
             floats.add(vector.x + x, vector.y + y);
-            vector.set(1, 0.0F).setAngle(v + angleOffset).scl(width, height).rotate(rotation);
+            vector.set(0.5f, 0.0F).setAngle(v + angleOffset).scl(width, height).rotate(rotation);
             floats.add(vector.x + x, vector.y + y);
         };
         Runnable flush = () -> {
@@ -234,4 +243,5 @@ public class AFill extends Fill{
             floats.clear();
         }
     }
+
 }

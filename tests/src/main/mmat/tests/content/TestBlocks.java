@@ -7,6 +7,7 @@ import mindustry.world.*;
 import mma.type.*;
 import mma.world.blocks.distribution.*;
 import mma.world.blocks.production.*;
+import mmat.tests.world.*;
 
 import static mindustry.type.ItemStack.with;
 
@@ -150,6 +151,11 @@ public class TestBlocks{
             requirements(Category.crafting, with(Items.copper, 3));
             consumePower(1.10f);
             consumeLiquid(Liquids.water, 0.08f).boost();
+        }};
+        new TestBlock("test-block"){{
+            requirements(Category.distribution, with(Items.copper, 3));
+            size=2;
+            buildCostMultiplier = 4f;
         }};
     }
 }
