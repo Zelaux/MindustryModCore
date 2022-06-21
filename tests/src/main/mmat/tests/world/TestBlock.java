@@ -38,7 +38,7 @@ public class TestBlock extends ModBlock{
             Vec2 vec = Core.input.mouseWorld();
             Building selected = world.buildWorld(vec.x, vec.y);
 //            Building selected = Vars.control.input.config.getSelected();
-            if(selected != null){
+            if(selected ==this){
                 drawValue= Mathf.lerpDelta(drawValue,1f,0.1f);
 //                drawValue = Math.min(1f, drawValue + Time.time / 10f);
             }else{

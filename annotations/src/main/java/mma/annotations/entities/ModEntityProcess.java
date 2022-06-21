@@ -415,7 +415,12 @@ public class ModEntityProcess extends ModBaseProcessor{
             EntityDef ann = type.annotation(EntityDef.class);
             //all component classes (not interfaces)
             Seq<Stype> components = allComponents(type);
-            Seq<GroupDefinition> groups = groupDefs.select(g -> (!g.components.isEmpty() && !g.components.contains(s -> !components.contains(s))) || g.manualInclusions.contains(type));
+//            System.out.println("All components: "+components);
+            Seq<GroupDefinition> groups = groupDefs.select(g -> {
+//                System.out.println("Group: "+g.components);
+                return (!g.components.isEmpty() && !g.components.contains(s -> !components.contains(s))) || g.manualInclusions.contains(type);
+            });
+//            System.out.println("groups: "+groups);
             ObjectMap<String, Seq<Smethod>> methods = new ObjectMap<>();
             ObjectMap<FieldSpec, Svar> specVariables = new ObjectMap<>();
             ObjectSet<String> usedFields = new ObjectSet<>();
