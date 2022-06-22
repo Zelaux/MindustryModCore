@@ -4,7 +4,7 @@ import arc.math.geom.Rect;
 import arc.math.geom.Vec2;
 import arc.util.Tmp;
 
-public class ModGeometry {
+public class ModGeometry {private static final Vec2 tmp1=new Vec2(),tmp2=new Vec2();
     private static Vec2 vec2(float x,float y){
         return new Vec2(x,y);
     }
@@ -24,22 +24,19 @@ public class ModGeometry {
         return rectPoints(rect.x,rect.y,rect.width,rect.height,rot);
     }
 
-    public static Vec2 sqrtByAngle(float size, float angle,Vec2 vec2) {
+    public static Vec2 sqrtByAngle(float radius, float angle,Vec2 vec2) {
         int angleOffset = (int) (angle / 90);
-        float v1x=Tmp.v1.x,v1y=Tmp.v1.y,v2x=Tmp.v2.x,v2y=Tmp.v2.y;
-        Tmp.v1.trns(angle, 100f);
+        tmp1.trns(angle, 100f);
         float na = angle % 90;
-        Tmp.v2.set(Tmp.v1).rotate(-angleOffset * 90);
-        float sx = Tmp.v2.x, sy = Tmp.v2.y;
+        tmp2.set(tmp1).rotate(-angleOffset * 90);
+        float sx = tmp2.x, sy = tmp2.y;
         if (na <= 45) {
-            Tmp.v2.scl(size / sx, size / sx);
+            tmp2.scl(radius / sx, radius / sx);
         } else {
-            Tmp.v2.scl(size / sy, size / sy);
+            tmp2.scl(radius / sy, radius / sy);
         }
-        Tmp.v2.rotate(angleOffset * 90);
-        vec2.set(Tmp.v2);
-        Tmp.v1.set(v1x,v1y);
-        Tmp.v2.set(v2x,v2y);
+        tmp2.rotate(angleOffset * 90);
+        vec2.set(tmp2);
         return vec2;
     }
 }
