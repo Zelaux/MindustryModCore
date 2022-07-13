@@ -7,9 +7,9 @@ buildscript{
 
         // v7
         mindustryPath = "com.github.Anuken.MindustryJitpack"
-        mindustryVersionFull = '68f053f409c999f0a66bc6ac30760c331b2c0d6c'
-        mindustryVersion = '68f053f409'
-        arcVersion = "ef9d6ac655"
+        mindustryVersionFull = 'fa17da53c68cf2600b4640ff653cee2f48d50740'
+        mindustryVersion = 'fa17da53c6'
+        arcVersion = "b1b88883e2"
         mindustryVersionOld = "v135"
 //        arcVersion = "916c5a77"
 

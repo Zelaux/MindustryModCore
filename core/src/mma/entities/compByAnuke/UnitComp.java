@@ -72,6 +72,8 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
     @Nullable
     transient UnitType dockedType;
 
+    transient String lastCommanded;
+
     transient float shadowAlpha = -1f, healTime;
 
     transient int lastFogPos;
@@ -476,7 +478,7 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
         controller.removed(self());
         // make sure trail doesn't just go poof
         if (trail != null && trail.size() > 0) {
-            Fx.trailFade.at(x, y, trail.width(), team.color, trail.copy());
+            Fx.trailFade.at(x, y, trail.width(), type.trailColor == null ? team.color : type.trailColor, trail.copy());
         }
     }
 
@@ -624,7 +626,7 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
             Events.fire(Trigger.suicideBomb);
         }
         for (WeaponMount mount : mounts) {
-            if (mount.weapon.shootOnDeath && !(mount.weapon.bullet.killShooter && mount.shoot)) {
+            if (mount.weapon.shootOnDeath && !(mount.weapon.bullet.killShooter && mount.totalShots > 0)) {
                 mount.reload = 0f;
                 mount.shoot = true;
                 mount.weapon.update(self(), mount);
@@ -646,6 +648,7 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
         for (Ability a : abilities) {
             a.death(self());
         }
+        type.killed(self());
         remove();
     }
 

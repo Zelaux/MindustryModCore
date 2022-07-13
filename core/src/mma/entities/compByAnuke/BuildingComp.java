@@ -435,7 +435,7 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
     }
 
     public boolean isHealSuppressed() {
-        return Time.time <= healSuppressionTime;
+        return block.suppressable && Time.time <= healSuppressionTime;
     }
 
     public void recentlyHealed() {
@@ -682,6 +682,10 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
         }
         grabber.get(new UnitPayload(unit));
         Fx.unitDrop.at(unit);
+    }
+
+    public boolean canWithdraw() {
+        return true;
     }
 
     public boolean canUnload() {
@@ -1192,7 +1196,7 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
     }
 
     public void drawCracks() {
-        if (!damaged() || block.size > BlockRenderer.maxCrackSize)
+        if (!block.drawCracks || !damaged() || block.size > BlockRenderer.maxCrackSize)
             return;
         int id = pos();
         TextureRegion region = renderer.blocks.cracks[block.size - 1][Mathf.clamp((int) ((1f - healthf()) * BlockRenderer.crackRegions), 0, BlockRenderer.crackRegions - 1)];
@@ -1344,7 +1348,7 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
         if (value instanceof UnitType)
             type = UnitType.class;
         if (builder != null && builder.isPlayer()) {
-            lastAccessed = builder.getPlayer().name;
+            lastAccessed = builder.getPlayer().coloredName();
         }
         Building build;
         if (block.configurations.containsKey(type)) {
@@ -1419,7 +1423,7 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
             });
         }
         Damage.dynamicExplosion(x, y, flammability, explosiveness * 3.5f, power, tilesize * block.size / 2f, state.rules.damageExplosions, block.destroyEffect);
-        if (!floor().solid && !floor().isLiquid) {
+        if (block.createRubble && !floor().solid && !floor().isLiquid) {
             Effect.rubble(x, y, block.size);
         }
     }
@@ -1438,10 +1442,6 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
      */
     public ItemModule flowItems() {
         return items;
-    }
-
-    public boolean displayable() {
-        return true;
     }
 
     @Override
@@ -1782,7 +1782,7 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
     public void updateConsumption() {
         // everything is valid when cheating
         if (!block.hasConsumers || cheating()) {
-            potentialEfficiency = efficiency = optionalEfficiency = 1f;
+            potentialEfficiency = efficiency = optionalEfficiency = enabled ? 1f : 0f;
             return;
         }
         // disabled -> nothing works
@@ -1854,13 +1854,13 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
     @MethodPriority(100)
     @Override
     public void heal() {
-        indexer.notifyBuildHealed(self());
+        healthChanged();
     }
 
     @MethodPriority(100)
     @Override
     public void heal(float amount) {
-        indexer.notifyBuildHealed(self());
+        healthChanged();
     }
 
     @Override
@@ -1871,7 +1871,7 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
     @Replace
     @Override
     public void kill() {
-        Call.tileDestroyed(self());
+        Call.buildDestroyed(self());
     }
 
     @Replace
@@ -1886,10 +1886,22 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
         } else {
             damage = Damage.applyArmor(damage, block.armor) / dm;
         }
-        Call.tileDamage(self(), health - handleDamage(damage));
-        if (health <= 0) {
-            Call.tileDestroyed(self());
+        // TODO handle this better on the client.
+        if (!net.client()) {
+            health -= handleDamage(damage);
         }
+        healthChanged();
+        if (health <= 0) {
+            Call.buildDestroyed(self());
+        }
+    }
+
+    public void healthChanged() {
+        // server-side, health updates are batched.
+        if (net.server()) {
+            netServer.buildHealthUpdate(self());
+        }
+        indexer.notifyHealthChanged(self());
     }
 
     @Override

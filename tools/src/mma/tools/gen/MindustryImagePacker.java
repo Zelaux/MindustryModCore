@@ -81,6 +81,11 @@ public class MindustryImagePacker {
             }
 
             @Override
+            public PixmapRegion getPixmap(AtlasRegion region) {
+                return new PixmapRegion(get(region.name));
+            }
+
+            @Override
             public boolean has(String s) {
                 return cache.containsKey(s);
             }
@@ -88,6 +93,7 @@ public class MindustryImagePacker {
         Draw.scl = 1f / Core.atlas.find("scale_marker").width;
         load();
         Time.mark();
+        Vars.content.load();
         runGenerators();
         Log.info("&ly[Generator]&lc Total time to generate: &lg@&lcms", Time.elapsed());
         iconProcessing();

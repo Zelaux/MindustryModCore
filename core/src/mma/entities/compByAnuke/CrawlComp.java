@@ -36,7 +36,7 @@ abstract class CrawlComp implements Posc, Rotc, Hitboxc, Unitc {
 
     transient float lastCrawlSlowdown = 1f;
 
-    transient float segmentRot, crawlTime;
+    transient float segmentRot, crawlTime = Mathf.random(100f);
 
     @Replace
     @Override

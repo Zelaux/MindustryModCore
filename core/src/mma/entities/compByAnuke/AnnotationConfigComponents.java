@@ -2,7 +2,7 @@ package mma.entities.compByAnuke;
 
 import mma.annotations.ModAnnotations;
 
-class AnnotationConfigComponents {
+public class AnnotationConfigComponents {
 
     @ModAnnotations.EntitySuperClass()
     public interface BlockUnitc extends mindustry.gen.BlockUnitc {

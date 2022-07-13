@@ -108,6 +108,7 @@ public class MindustryGenerators {
         generate("shallows", this::shallows);
         generate("item-icons", this::itemIcons);
         generate("team-icons", this::teamIcons);
+        generate("all-icons", this::allIcons);
         generate("unit-icons", this::unitIcons);
         generate("ore-icons", this::oreIcons);
         generate("edges", this::edges);
@@ -124,6 +125,7 @@ public class MindustryGenerators {
         generateShallows = false;
         generateItemIcons = false;
         generateTeamIcons = false;
+        generateAllIcons = false;
         generateUnitIcons = false;
         generateOreIcons = false;
         generateEdges = false;
@@ -140,6 +142,7 @@ public class MindustryGenerators {
         generateShallows = true;
         generateItemIcons = true;
         generateTeamIcons = true;
+        generateAllIcons = true;
         generateUnitIcons = true;
         generateOreIcons = true;
         generateEdges = true;
@@ -363,8 +366,6 @@ public class MindustryGenerators {
         for (Block block : content.blocks()) {
             if (block.isAir() || block instanceof ConstructBlock || block instanceof OreBlock || block instanceof LegacyBlock)
                 continue;
-            block.load();
-            block.loadIcon();
             Seq<TextureRegion> toOutline = new Seq<>();
             block.getRegionsToOutline(toOutline);
             TextureRegion[] regions = block.getGeneratedIcons();
@@ -443,7 +444,7 @@ public class MindustryGenerators {
                 }
                 save(image, "../editor/" + block.name + "-icon-editor");
                 if (block.buildVisibility != BuildVisibility.hidden) {
-                    saveScaled(image, block.name + "-icon-logic", logicIconSize);
+                    saveScaled(image, block.name + "-icon-logic", Math.min(32 * 3, image.width));
                 }
                 saveScaled(image, "../ui/block-" + block.name + "-ui", Math.min(image.width, maxUiIcon));
                 boolean hasEmpty = false;
@@ -541,6 +542,38 @@ public class MindustryGenerators {
         }
     }
 
+    protected MultiPacker packer = new MultiPacker() {
+
+        @Override
+        public void add(PageType type, String name, PixmapRegion region, int[] splits, int[] pads) {
+            String prefix = type == PageType.main ? "" : "../" + type.name() + "/";
+            Log.info("@ | @x@", prefix + name, region.width, region.height);
+            // save(region.pixmap, prefix + name);
+        }
+    };
+
+    protected boolean generateAllIcons;
+
+    protected void allIcons() {
+        if (!generateAllIcons)
+            return;
+        for (Seq<Content> arr : content.getContentMap()) {
+            for (Content cont : arr) {
+                if (cont instanceof UnlockableContent && !(cont instanceof Planet)) {
+                    UnlockableContent unlock = (UnlockableContent) cont;
+                    if (unlock.generateIcons) {
+                        try {
+                            unlock.createIcons(packer);
+                        } catch (IllegalArgumentException e) {
+                            Log.err(e);
+                            Log.err("Skip: @", unlock.name);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     protected boolean generateUnitIcons;
 
     protected void unitIcons() {
@@ -553,9 +586,6 @@ public class MindustryGenerators {
             ObjectSet<String> outlined = new ObjectSet<>();
             try {
                 Unit sample = type.constructor.get();
-                type.load();
-                type.loadIcon();
-                type.init();
                 Func<Pixmap, Pixmap> outline = i -> i.outline(type.outlineColor, 3);
                 Cons<TextureRegion> outliner = t -> {
                     if (t != null && t.found()) {
@@ -733,7 +763,6 @@ public class MindustryGenerators {
         if (!generateOreIcons)
             return;
         content.blocks().<OreBlock>each(b -> b instanceof OreBlock, ore -> {
-            ore.load();
             int shadowColor = Color.rgba8888(0, 0, 0, 0.3f);
             for (int i = 0; i < ore.variants; i++) {
                 // get base image to draw on

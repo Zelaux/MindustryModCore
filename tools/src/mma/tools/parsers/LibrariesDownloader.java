@@ -170,7 +170,6 @@ public class LibrariesDownloader{
 //              System.out.println(")");
             }
 
-            //                You have to use setCreateBranch to create a branch:
             RevCommit startPoint = commits.find(r -> equalsHash ? r.name().equals(commitHash) : r.name().startsWith(commitHash));
 
             Ref ref = git.checkout().
