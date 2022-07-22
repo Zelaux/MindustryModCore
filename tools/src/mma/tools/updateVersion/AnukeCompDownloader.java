@@ -216,7 +216,8 @@ public class AnukeCompDownloader{
             String interfaceName = interfaceName(name);
             ClassOrInterfaceDeclaration comp = new ClassOrInterfaceDeclaration();
             annotationConfig.addMember(comp);
-            comp.addModifier(Modifier.Keyword.PUBLIC)
+            comp
+//            .addModifier(Modifier.Keyword.PUBLIC)
             .setInterface(true)
             .setName(interfaceName)
             .getExtendedTypes().add(codeConverter.javaParser.parseClassOrInterfaceType("mindustry.gen." + interfaceName).getResult().get());

@@ -28,7 +28,7 @@ public class MindustryVersionUpdater{
         arcVersion = arcVersion != null ? arcVersion.substring("arc_".length()) : mindustryVersion;
 //git log --pretty=format:"%H:%s"
 
-        LibrariesDownloader.downloadV7(mindustryVersion, arcVersion);
+        LibrariesDownloader.download(mindustryVersion, arcVersion);
 
         runTask("Checking Anuke's comps for " + mindustryVersion, AnukeCompDownloader::run);
 

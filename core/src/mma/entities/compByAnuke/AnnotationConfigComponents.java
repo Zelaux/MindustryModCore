@@ -5,182 +5,186 @@ import mma.annotations.ModAnnotations;
 public class AnnotationConfigComponents {
 
     @ModAnnotations.EntitySuperClass()
-    public interface BlockUnitc extends mindustry.gen.BlockUnitc {
+    interface BlockUnitc extends mindustry.gen.BlockUnitc {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Boundedc extends mindustry.gen.Boundedc {
+    interface Boundedc extends mindustry.gen.Boundedc {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Builderc extends mindustry.gen.Builderc {
+    interface Builderc extends mindustry.gen.Builderc {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Buildingc extends mindustry.gen.Buildingc {
+    interface Buildingc extends mindustry.gen.Buildingc {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface BuildingTetherc extends mindustry.gen.BuildingTetherc {
+    interface BuildingTetherc extends mindustry.gen.BuildingTetherc {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Bulletc extends mindustry.gen.Bulletc {
+    interface Bulletc extends mindustry.gen.Bulletc {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Childc extends mindustry.gen.Childc {
+    interface Childc extends mindustry.gen.Childc {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Crawlc extends mindustry.gen.Crawlc {
+    interface Crawlc extends mindustry.gen.Crawlc {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Damagec extends mindustry.gen.Damagec {
+    interface Damagec extends mindustry.gen.Damagec {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Decalc extends mindustry.gen.Decalc {
+    interface Decalc extends mindustry.gen.Decalc {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Drawc extends mindustry.gen.Drawc {
+    interface Drawc extends mindustry.gen.Drawc {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface EffectStatec extends mindustry.gen.EffectStatec {
+    interface EffectStatec extends mindustry.gen.EffectStatec {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface ElevationMovec extends mindustry.gen.ElevationMovec {
+    interface ElevationMovec extends mindustry.gen.ElevationMovec {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Entityc extends mindustry.gen.Entityc {
+    interface Entityc extends mindustry.gen.Entityc {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Firec extends mindustry.gen.Firec {
+    interface Firec extends mindustry.gen.Firec {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Flyingc extends mindustry.gen.Flyingc {
+    interface Flyingc extends mindustry.gen.Flyingc {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Healthc extends mindustry.gen.Healthc {
+    interface Healthc extends mindustry.gen.Healthc {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Hitboxc extends mindustry.gen.Hitboxc {
+    interface Hitboxc extends mindustry.gen.Hitboxc {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Itemsc extends mindustry.gen.Itemsc {
+    interface Itemsc extends mindustry.gen.Itemsc {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface LaunchCorec extends mindustry.gen.LaunchCorec {
+    interface LaunchCorec extends mindustry.gen.LaunchCorec {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Legsc extends mindustry.gen.Legsc {
+    interface Legsc extends mindustry.gen.Legsc {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Mechc extends mindustry.gen.Mechc {
+    interface Mechc extends mindustry.gen.Mechc {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Minerc extends mindustry.gen.Minerc {
+    interface Minerc extends mindustry.gen.Minerc {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Ownerc extends mindustry.gen.Ownerc {
+    interface Ownerc extends mindustry.gen.Ownerc {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Payloadc extends mindustry.gen.Payloadc {
+    interface Payloadc extends mindustry.gen.Payloadc {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Physicsc extends mindustry.gen.Physicsc {
+    interface Physicsc extends mindustry.gen.Physicsc {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Playerc extends mindustry.gen.Playerc {
+    interface Playerc extends mindustry.gen.Playerc {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Posc extends mindustry.gen.Posc {
+    interface Posc extends mindustry.gen.Posc {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface PowerGraphUpdaterc extends mindustry.gen.PowerGraphUpdaterc {
+    interface PowerGraphUpdaterc extends mindustry.gen.PowerGraphUpdaterc {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Puddlec extends mindustry.gen.Puddlec {
+    interface Puddlec extends mindustry.gen.Puddlec {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Rotc extends mindustry.gen.Rotc {
+    interface Rotc extends mindustry.gen.Rotc {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Shieldc extends mindustry.gen.Shieldc {
+    interface Shieldc extends mindustry.gen.Shieldc {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Shielderc extends mindustry.gen.Shielderc {
+    interface Shielderc extends mindustry.gen.Shielderc {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Statusc extends mindustry.gen.Statusc {
+    interface Statusc extends mindustry.gen.Statusc {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Syncc extends mindustry.gen.Syncc {
+    interface Syncc extends mindustry.gen.Syncc {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Tankc extends mindustry.gen.Tankc {
+    interface Tankc extends mindustry.gen.Tankc {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Teamc extends mindustry.gen.Teamc {
+    interface Teamc extends mindustry.gen.Teamc {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Timedc extends mindustry.gen.Timedc {
+    interface Timedc extends mindustry.gen.Timedc {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface TimedKillc extends mindustry.gen.TimedKillc {
+    interface TimedKillc extends mindustry.gen.TimedKillc {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Timerc extends mindustry.gen.Timerc {
+    interface Timerc extends mindustry.gen.Timerc {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Unitc extends mindustry.gen.Unitc {
+    interface Unitc extends mindustry.gen.Unitc {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Velc extends mindustry.gen.Velc {
+    interface UnitTetherc extends mindustry.gen.UnitTetherc {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface WaterMovec extends mindustry.gen.WaterMovec {
+    interface Velc extends mindustry.gen.Velc {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface Weaponsc extends mindustry.gen.Weaponsc {
+    interface WaterMovec extends mindustry.gen.WaterMovec {
     }
 
     @ModAnnotations.EntitySuperClass()
-    public interface WorldLabelc extends mindustry.gen.WorldLabelc {
+    interface Weaponsc extends mindustry.gen.Weaponsc {
+    }
+
+    @ModAnnotations.EntitySuperClass()
+    interface WorldLabelc extends mindustry.gen.WorldLabelc {
     }
 }

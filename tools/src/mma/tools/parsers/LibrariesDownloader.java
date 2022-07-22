@@ -63,7 +63,7 @@ public class LibrariesDownloader{
             if(downloadNew || !sourcesFi.exists() || errorInSources){
                 Log.info("Downloading new core version");
                 Time.mark();
-                FileUtils.copyURLToFile(new URL("https://codeload.github.com/Anuken/Mindustry/zip/refs/tags/" + mindustryVersion), sourcesFi.file(), 10000, 10000);
+                FileUtils.copyURLToFile(new URL("https://codeload.github.com/Anuken/Mindustry/zip/refs/tags/" + mindustryVersion), sourcesFi.file(), 10_000, 10_000);
                 Log.info("Time to download: @ms", Time.elapsed());
             }else{
                 Log.info("Game version and core version are the same");
@@ -71,7 +71,7 @@ public class LibrariesDownloader{
             if(downloadNew || !arcFi.exists() || errorInArc){
                 Log.info("Downloading new arc version");
                 Time.mark();
-                FileUtils.copyURLToFile(new URL("https://codeload.github.com/Anuken/Arc/zip/refs/tags/" + argVersion), arcFi.file(), 10000, 10000);
+                FileUtils.copyURLToFile(new URL("https://codeload.github.com/Anuken/Arc/zip/refs/tags/" + argVersion), arcFi.file(), 10_000, 10_000);
                 Log.info("Time to download: @ms", Time.elapsed());
             }else{
                 Log.info("Game version and arc version are the same");

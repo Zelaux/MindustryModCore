@@ -6,11 +6,12 @@ buildscript{
 
 
         // v7
-        mindustryPath = "com.github.Anuken.MindustryJitpack"
-        mindustryVersionFull = 'fa17da53c68cf2600b4640ff653cee2f48d50740'
-        mindustryVersion = 'fa17da53c6'
-        arcVersion = "b1b88883e2"
-        mindustryVersionOld = "v135"
+//        mindustryPath = "com.github.Anuken.MindustryJitpack"
+        mindustryPath = "com.github.Anuken.Mindustry"
+        mindustryVersionFull = 'v136.1'
+        mindustryVersion = mindustryVersionFull//10
+        arcVersion = "v136.1"
+        mindustryVersionOld = "v136.1"
 //        arcVersion = "916c5a77"
 
 
