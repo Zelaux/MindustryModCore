@@ -180,8 +180,10 @@ abstract class BulletComp implements Timedc, Damagec, Hitboxc, Teamc, Posc, Draw
 
     public boolean checkUnderBuild(Building build, float x, float y) {
         return (// direct hit on correct tile
-        !build.block.underBullets || // a piercing bullet overshot the aim tile, it's fine to hit things now
-        (aimTile != null && aimTile.build == build) || (type.pierce && aimTile != null && Mathf.dst(x, y, originX, originY) > aimTile.dst(originX, originY) + 2f));
+        !build.block.underBullets || // same team has no 'under build' mechanics
+        (aimTile != null && aimTile.build == build) || // a piercing bullet overshot the aim tile, it's fine to hit things now
+        (build.team == team) || // there was nothing to aim at
+        (type.pierce && aimTile != null && Mathf.dst(x, y, originX, originY) > aimTile.dst(originX, originY) + 2f) || (aimX == -1f && aimY == -1f));
     }
 
     // copy-paste of World#raycastEach, inlined for lambda capture performance.

@@ -8,10 +8,10 @@ buildscript{
         // v7
 //        mindustryPath = "com.github.Anuken.MindustryJitpack"
         mindustryPath = "com.github.Anuken.Mindustry"
-        mindustryVersionFull = 'v136.1'
+        mindustryVersionFull = 'v137'
         mindustryVersion = mindustryVersionFull//10
-        arcVersion = "v136.1"
-        mindustryVersionOld = "v136.1"
+        arcVersion = mindustryVersion
+        mindustryVersionOld = mindustryVersion
 //        arcVersion = "916c5a77"
 
 

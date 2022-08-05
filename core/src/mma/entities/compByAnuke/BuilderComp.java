@@ -89,6 +89,9 @@ abstract class BuilderComp implements Posc, Statusc, Teamc, Rotc {
         float finalPlaceDst = state.rules.infiniteResources ? Float.MAX_VALUE : type.buildRange;
         boolean infinite = state.rules.infiniteResources || team().rules().infiniteResources;
         buildCounter += Time.delta;
+        if (Float.isNaN(buildCounter) || Float.isInfinite(buildCounter))
+            buildCounter = 0f;
+        buildCounter = Math.min(buildCounter, 10f);
         while (buildCounter >= 1) {
             buildCounter -= 1f;
             validatePlans();
@@ -262,7 +265,8 @@ abstract class BuilderComp implements Posc, Statusc, Teamc, Rotc {
     boolean activelyBuilding() {
         // not actively building when not near the build plan
         if (isBuilding()) {
-            if (!state.isEditor() && !within(buildPlan(), state.rules.infiniteResources ? Float.MAX_VALUE : type.buildRange)) {
+            var plan = buildPlan();
+            if (!state.isEditor() && plan != null && !within(plan, state.rules.infiniteResources ? Float.MAX_VALUE : type.buildRange)) {
                 return false;
             }
         }
