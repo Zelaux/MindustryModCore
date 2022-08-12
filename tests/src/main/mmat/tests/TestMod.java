@@ -7,6 +7,7 @@ import mma.annotations.ModAnnotations.*;
 import mma.annotations.entities.*;
 import mma.gen.*;
 import mmat.tests.gen.*;
+import mmat.tests.ui.*;
 
 public class TestMod extends MMAMod {
 
@@ -27,7 +28,10 @@ public class TestMod extends MMAMod {
     @Override
     public void init(){
         super.init();
+
         TmTex.load();
+        TestStyles.load();
+        TmTex.loadStyles();
         System.out.println(TmTex.arrow);
     }
 

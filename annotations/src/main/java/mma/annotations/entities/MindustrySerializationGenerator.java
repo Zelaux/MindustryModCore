@@ -181,7 +181,7 @@ public class MindustrySerializationGenerator{
             .addStatement("return $S + $L", name + "#", "id").build());*/
 
             ModEntityIO io = new ModEntityIO(type.name(), /*entityClassBuilder*/null, allFieldSpecs, processor.serializer,
-            processor.rootDirectory().child(processor.annotationsSettings(AnnotationSetting.revisionsPath, "annotations/src/main/resources/revisions")).child(type.name()));
+            processor.rootDirectory().child(processor.annotationsSettings(AnnotationSettingsEnum.revisionsPath, "annotations/src/main/resources/revisions")).child(type.name()));
 
 
             ClassName className = ClassName.get("mindustry.gen", type.name().replace("Comp", ""));

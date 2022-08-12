@@ -82,7 +82,7 @@ public abstract class ModBaseProcessor extends BaseProcessor{
 
     @Nullable
     public ModMeta modInfoNull(){
-        String annotationsSettings = annotationsSettings(AnnotationSetting.modInfoPath, "\n");
+        String annotationsSettings = annotationsSettings(AnnotationSettingsEnum.modInfoPath, "\n");
 //        System.out.println("annotationsSettings: "+annotationsSettings);
         if(!annotationsSettings.equals("\n")){
             Fi file = rootDirectory.child(annotationsSettings);
@@ -155,7 +155,7 @@ public abstract class ModBaseProcessor extends BaseProcessor{
             }
         }
         if(annotationSettingsAnnotation != null){
-            for(AnnotationSetting value : AnnotationSetting.values()){
+            for(AnnotationSettingsEnum value : AnnotationSettingsEnum.values()){
                 Object invoke = Reflect.invoke(AnnotationSettings.class, annotationSettingsAnnotation, value.name(), new Object[]{});
                 if(String.valueOf(invoke).equals("\n")) continue;
                 annotationProperties.put(value.name(), String.valueOf(invoke));
@@ -274,24 +274,24 @@ public abstract class ModBaseProcessor extends BaseProcessor{
     public String classPrefix(){
         String classNamePrefix = "Mod";
         if(!rootPackageName.equals("mma")){
-            classNamePrefix = annotationsSettings(AnnotationSetting.classPrefix, Strings.capitalize(rootPackageName));
+            classNamePrefix = annotationsSettings(AnnotationSettingsEnum.classPrefix, Strings.capitalize(rootPackageName));
         }
         return classNamePrefix;
     }
 
-    public String annotationsSettings(AnnotationSetting settings, String defvalue){
+    public String annotationsSettings(AnnotationSettingsEnum settings, String defvalue){
         StringMap map = annotationsSettings();
         return map.containsKey(settings.name()) ? map.get(settings.name()) : defvalue;
     }
 
-    public String annotationsSettings(AnnotationSetting settings, Prov<String> defvalue){
+    public String annotationsSettings(AnnotationSettingsEnum settings, Prov<String> defvalue){
         StringMap map = annotationsSettings();
         return map.containsKey(settings.name()) ? map.get(settings.name()) : defvalue.get();
     }
 
     @Override
     protected String getPackageName(){
-        packageName = (rootPackageName = annotationsSettings(AnnotationSetting.rootPackage, () -> {
+        packageName = (rootPackageName = annotationsSettings(AnnotationSettingsEnum.rootPackage, () -> {
             Fi[] list = rootDirectory.child("core/src").list();
             if(list.length == 0) err("Cannot find rootPackage, please write rootPackage in annotation.properties");
             return list[0].name();

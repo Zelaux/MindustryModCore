@@ -40,7 +40,7 @@ public class MainClassProcessor extends ModBaseProcessor{
         }
 
         String descriptor = mainClass.fullName();
-        Fi path = findPath(annotationsSettings(AnnotationSetting.modInfoPath, "\n"));
+        Fi path = findPath(annotationsSettings(AnnotationSettingsEnum.modInfoPath, "\n"));
         if(path == null){
             err("Cannot find mod.(h)json file", mainClass);
             return;

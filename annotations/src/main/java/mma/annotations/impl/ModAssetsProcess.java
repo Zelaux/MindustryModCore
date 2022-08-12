@@ -2,6 +2,7 @@ package mma.annotations.impl;
 
 import arc.files.*;
 import arc.func.*;
+import arc.struct.*;
 import com.squareup.javapoet.*;
 import mindustry.annotations.*;
 import mma.annotations.*;
@@ -42,17 +43,18 @@ public class ModAssetsProcess extends ModBaseProcessor{
     }
 
     private String getAssetsPath(){
-        return annotationsSettings(AnnotationSetting.assetsPath, rootDirectory + "/core/assets");
+        return annotationsSettings(AnnotationSettingsEnum.assetsPath, rootDirectory + "/core/assets");
     }
 
     void processUI(Set<? extends Element> elements) throws Exception{
         TypeSpec.Builder type = TypeSpec.classBuilder(classPrefix() + "Tex").addModifiers(Modifier.PUBLIC);
 //        TypeSpec.Builder ictype = TypeSpec.classBuilder("Icon").addModifiers(Modifier.PUBLIC);
 //        TypeSpec.Builder ichtype = TypeSpec.classBuilder("Iconc").addModifiers(Modifier.PUBLIC);
+        MethodSpec.Builder loadStyles = MethodSpec.methodBuilder("loadStyles").addModifiers(Modifier.PUBLIC, Modifier.STATIC);
         MethodSpec.Builder load = MethodSpec.methodBuilder("load").addModifiers(Modifier.PUBLIC, Modifier.STATIC);
-        String assetsRawPath = annotationsSettings(AnnotationSetting.assetsRawPath, rootDirectory + "/core/assets-raw");
+        String assetsRawPath = annotationsSettings(AnnotationSettingsEnum.assetsRawPath, rootDirectory + "/core/assets-raw");
         if (assetsRawPath.equals("null"))assetsRawPath=getAssetsPath();
-        String[] resourcesArray = {assetsRawPath + "/sprites/ui", assetsRawPath + "/sprites/cui"};
+        String[] resourcesArray = {assetsRawPath + "/sprites/ui"/*, assetsRawPath + "/sprites/cui"*/};
         Cons<Fi> walker = p -> {
             if(!p.extEquals("png")) return;
 
@@ -69,6 +71,16 @@ public class ModAssetsProcess extends ModBaseProcessor{
             type.addField(ClassName.bestGuess(dtype), varname, Modifier.STATIC, Modifier.PUBLIC);
             load.addStatement(varname + " = (" + dtype + ")arc.Core.atlas.drawable(mma.ModVars.fullName($S))", sfilen);
         };
+
+
+        for(Element elem : elements){
+            Seq.with(elem.getEnclosedElements()).each(e -> e.getKind() == ElementKind.FIELD, field -> {
+                String fname = field.getSimpleName().toString();
+                if(fname.startsWith("default")){
+                    loadStyles.addStatement("arc.Core.scene.addStyle(" + field.asType().toString() + ".class, "+field.getEnclosingElement().toString()+"." + fname + ")");
+                }
+            });
+        }
         for(String resources : resourcesArray){
             Fi folder = rootDirectory.child(resources);
             if(folder.exists()){
@@ -80,6 +92,7 @@ public class ModAssetsProcess extends ModBaseProcessor{
         }
 
         type.addMethod(load.build());
+        type.addMethod(loadStyles.build());
         JavaFile.builder(packageName, type.build()).build().writeTo(BaseProcessor.filer);
     }
 

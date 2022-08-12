@@ -1,0 +1,7 @@
+sourceSets.main.java.srcDirs = ["src/main/java/", "mindustrySrc/"]
+copy{
+    from(file("../mindustrySrc"))
+    into(file("mindustrySrc"))
+}
+sourceSets.main.resources.srcDirs = ["src/main/resources/"]
+

@@ -2,10 +2,12 @@ package mma.annotations;
 
 import mindustry.annotations.*;
 import mindustry.mod.*;
+import mma.local.annotations.LocalAnnotations.*;
 
 import java.lang.annotation.*;
 
 @SuppressWarnings("ALL")
+@LocalAnnotation
 public class ModAnnotations extends Annotations{
     //Zelaux annotations
 
