@@ -162,3 +162,4 @@ compDownloader/arcSources.zip
 compDownloader/sources.zip
 #gradle.properties
 core/build/
+annotations/localAnnotations/mindustrySrc/
