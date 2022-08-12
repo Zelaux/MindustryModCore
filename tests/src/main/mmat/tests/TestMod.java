@@ -25,6 +25,13 @@ public class TestMod extends MMAMod {
     }
 
     @Override
+    public void init(){
+        super.init();
+        TmTex.load();
+        System.out.println(TmTex.arrow);
+    }
+
+    @Override
     protected void modContent(Content content) {
         super.modContent(content);
         Log.info("test-content: " + content);

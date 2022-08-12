@@ -70,8 +70,12 @@ public class ModAssetsProcess extends ModBaseProcessor{
             load.addStatement(varname + " = (" + dtype + ")arc.Core.atlas.drawable(mma.ModVars.fullName($S))", sfilen);
         };
         for(String resources : resourcesArray){
-            if(Fi.get(resources).exists()){
-                Fi.get(resources).walk(walker);
+            Fi folder = rootDirectory.child(resources);
+            if(folder.exists()){
+                folder.walk(walker);
+//                warn("Found ui folder "+ folder.file().getAbsolutePath());
+            } else{
+//                warn("Cannot find ui folder "+ folder.file().getAbsolutePath());
             }
         }
 
