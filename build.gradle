@@ -31,7 +31,7 @@ buildscript{
         mavenCentral()
         google()
         flatDir{
-            dirs("flabel/com/github/Anuken/Arc/flabel/eae3c2dc59")
+            dirs(rootProject.file("flabel/com/github/Anuken/Arc/flabel/eae3c2dc59"))
         }
         maven{ url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven{ url 'https://jitpack.io' }
@@ -94,7 +94,7 @@ allprojects{
     apply plugin: 'maven-publish'
     repositories{
         flatDir{
-            dirs("flabel/com/github/Anuken/Arc/flabel/eae3c2dc59")
+            dirs(rootProject.file("flabel/com/github/Anuken/Arc/flabel/eae3c2dc59"))
         }
         mavenLocal()
         google()
@@ -320,7 +320,7 @@ project(":annotations"){
     apply plugin: "java-library"
     repositories{
         flatDir{
-            dirs("flabel/com/github/Anuken/Arc/flabel/eae3c2dc59")
+            dirs(rootProject.file("flabel/com/github/Anuken/Arc/flabel/eae3c2dc59"))
         }
         maven{ url 'https://kotlinlang.org/' }
     }
