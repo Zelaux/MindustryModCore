@@ -30,6 +30,9 @@ buildscript{
         mavenLocal()
         mavenCentral()
         google()
+        flatDir{
+            dirs("flabel")
+        }
         maven{ url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven{ url 'https://jitpack.io' }
     }
