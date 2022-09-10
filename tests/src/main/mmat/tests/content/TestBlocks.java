@@ -2,6 +2,7 @@ package mmat.tests.content;
 
 import arc.util.*;
 import mindustry.content.*;
+import mindustry.gen.*;
 import mindustry.type.*;
 import mindustry.world.*;
 import mma.type.*;
@@ -116,7 +117,7 @@ public class TestBlocks{
 
             Recipe.with().produceTime(1f * Time.toSeconds)
             .output(null, new LiquidStack(Liquids.cryofluid, 20))
-            .outputLiquidDirection(4-1)//right
+            .outputLiquidDirection(4 - 1)//right
             .consume(ItemStack.with(Items.silicon, 20, Items.titanium, 20), null)
             );
             requirements(Category.crafting, with(Items.copper, 3));
@@ -154,7 +155,7 @@ public class TestBlocks{
         }};
         new TestBlock("test-block"){{
             requirements(Category.distribution, with(Items.copper, 3));
-            size=2;
+            size = 2;
             buildCostMultiplier = 4f;
         }};
     }

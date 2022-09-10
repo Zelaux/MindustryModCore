@@ -192,6 +192,13 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
     }
 
     @Override
+    public void add() {
+        if (power != null) {
+            power.graph.checkAdd();
+        }
+    }
+
+    @Override
     @Replace
     public int tileX() {
         return tile.x;
@@ -1175,6 +1182,13 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
     }
 
     /**
+     * @return volume cale of active sound.
+     */
+    public float activeSoundVolume() {
+        return 1f;
+    }
+
+    /**
      * @return whether this block should play its idle sound.
      */
     public boolean shouldAmbientSound() {
@@ -1777,6 +1791,16 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
      * Called after efficiency is updated but before consumers are updated. Use to apply your own multiplier.
      */
     public void updateEfficiencyMultiplier() {
+        float scale = efficiencyScale();
+        efficiency *= scale;
+        optionalEfficiency *= scale;
+    }
+
+    /**
+     * Calculate your own efficiency multiplier. By default, this is applied in updateEfficiencyMultiplier.
+     */
+    public float efficiencyScale() {
+        return 1f;
     }
 
     public void updateConsumption() {
@@ -2047,7 +2071,6 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
         afterDestroyed();
     }
 
-    // TODO atrocious method and should be squished
     @Final
     @Replace
     @Override
@@ -2065,7 +2088,7 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
         // TODO separate system for sound? AudioSource, etc
         if (!headless) {
             if (sound != null) {
-                sound.update(x, y, shouldActiveSound());
+                sound.update(x, y, shouldActiveSound(), activeSoundVolume());
             }
             if (block.ambientSound != Sounds.none && shouldAmbientSound()) {
                 control.sound.loop(block.ambientSound, self(), block.ambientSoundVolume * ambientVolume());
