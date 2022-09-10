@@ -31,7 +31,7 @@ buildscript{
         mavenCentral()
         google()
         flatDir{
-            dirs("flabel/com/github/Arc/flabel/eae3c2dc59")
+            dirs("flabel/com/github/Anuken/Arc/flabel/eae3c2dc59")
         }
         maven{ url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven{ url 'https://jitpack.io' }
