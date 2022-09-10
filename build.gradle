@@ -319,6 +319,9 @@ project(":tools"){
 project(":annotations"){
     apply plugin: "java-library"
     repositories{
+        flatDir{
+            dirs("flabel/com/github/Anuken/Arc/flabel/eae3c2dc59")
+        }
         maven{ url 'https://kotlinlang.org/' }
     }
     dependencies{
@@ -335,6 +338,9 @@ project(":annotations"){
 project(":annotations:localAnnotations"){
     apply plugin: "java-library"
     repositories{
+        flatDir{
+            dirs("flabel/com/github/Anuken/Arc/flabel/eae3c2dc59")
+        }
         maven{ url 'https://kotlinlang.org/' }
     }
     dependencies{
