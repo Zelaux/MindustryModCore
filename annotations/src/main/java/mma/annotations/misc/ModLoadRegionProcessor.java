@@ -19,7 +19,7 @@ import java.util.regex.*;
 public class ModLoadRegionProcessor extends ModBaseProcessor{
 
 
-    static Pattern accessExpressionPattern = Pattern.compile("@(\\w+(\\.\\w+(\\(\\))?)*)*");
+    static Pattern accessExpressionPattern = Pattern.compile("@(\\w+(\\(\\))?(\\.\\w+(\\(\\))?)*)*");
     static Pattern indexAccessPattern = Pattern.compile("#\\d*");
 
     private static int count(String str, String substring){
