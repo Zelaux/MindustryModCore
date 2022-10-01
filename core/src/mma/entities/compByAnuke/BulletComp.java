@@ -101,7 +101,12 @@ abstract class BulletComp implements Timedc, Damagec, Hitboxc, Teamc, Posc, Draw
 
     @Override
     public float damageMultiplier() {
-        return type.damageMultiplier(self());
+        Unit u;
+        if ((owner instanceof Unit && (u = (Unit) owner) == owner))
+            return u.damageMultiplier() * state.rules.unitDamage(team);
+        if (owner instanceof Building)
+            return state.rules.blockDamage(team);
+        return 1f;
     }
 
     @Override
