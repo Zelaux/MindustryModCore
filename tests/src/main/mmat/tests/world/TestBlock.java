@@ -6,6 +6,7 @@ import arc.math.*;
 import arc.math.geom.*;
 import arc.util.*;
 import mindustry.*;
+import mindustry.annotations.Annotations.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.type.*;
@@ -16,8 +17,19 @@ import mma.world.*;
 import static mindustry.Vars.*;
 
 public class TestBlock extends ModBlock{
+    @Load("@basePrefix-base")
+    public TextureRegion testRegion;
+    @Load("@basePrefix-@-@size-@group.ordinal()-base")
+    public TextureRegion testRegion2;
+    @Load(value = "@basePrefix-#-#0",lengths = {10})
+    public TextureRegion[] testRegion3;
+    @Load(value = "@basePrefix-#-#0-#1",lengths = {10,10})
+    public TextureRegion[][] testRegion4;
+    public String basePrefix;
+
     public TestBlock(String name){
         super(name);
+
         solid = false;
         underBullets = true;
         update = true;
@@ -38,15 +50,15 @@ public class TestBlock extends ModBlock{
             Vec2 vec = Core.input.mouseWorld();
             Building selected = world.buildWorld(vec.x, vec.y);
 //            Building selected = Vars.control.input.config.getSelected();
-            if(selected ==this){
-                drawValue= Mathf.lerpDelta(drawValue,1f,0.1f);
+            if(selected == this){
+                drawValue = Mathf.lerpDelta(drawValue, 1f, 0.1f);
 //                drawValue = Math.min(1f, drawValue + Time.time / 10f);
             }else{
-                drawValue= Mathf.lerpDelta(drawValue,0f,0.1f);
+                drawValue = Mathf.lerpDelta(drawValue, 0f, 0.1f);
 //                drawValue = Math.max(0f, drawValue - Time.time / 10f);
-                if (drawValue<0.001f){
+                if(drawValue < 0.001f){
                     Fill.circle(x, y, size * tilesize);
-                } else{
+                }else{
                     drawSelect();
                 }
             }

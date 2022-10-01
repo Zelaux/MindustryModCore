@@ -1,6 +1,7 @@
 package mma.annotations.misc;
 
 import arc.*;
+import arc.func.*;
 import arc.graphics.g2d.*;
 import arc.struct.*;
 import com.squareup.javapoet.*;
@@ -11,10 +12,15 @@ import mma.annotations.SupportedAnnotationTypes;
 
 import javax.annotation.processing.*;
 import javax.lang.model.element.*;
+import java.util.*;
+import java.util.regex.*;
 
 @SupportedAnnotationTypes(mindustry.annotations.Annotations.Load.class)
 public class ModLoadRegionProcessor extends ModBaseProcessor{
 
+
+    static Pattern accessExpressionPattern = Pattern.compile("@(\\w+(\\.\\w+(\\(\\))?)*)*");
+    static Pattern indexAccessPattern = Pattern.compile("#\\d*");
 
     private static int count(String str, String substring){
         int lastIndex = 0;
@@ -30,6 +36,30 @@ public class ModLoadRegionProcessor extends ModBaseProcessor{
             }
         }
         return count;
+    }
+
+    private static String replacePattern(String value, Pattern pattern, Func<String, String> replacement){
+        Matcher matcher = pattern.matcher(value);
+        //replacing @access -> "+((type)content).access+"
+//        System.out.println("==========================================");
+//        System.out.println("value: "+value);
+        if(matcher.find()){
+
+//            System.out.println("found: "+value);
+            StringJoiner joiner = new StringJoiner("");
+            int prevIndex = 0;
+            for(int i = 0; matcher.find(prevIndex); i++){
+
+//                System.out.println("i: "+i+" field: "+expression);
+                joiner.add(value.substring(prevIndex, matcher.start()));
+                joiner.add(replacement.get(matcher.group()));
+                prevIndex = matcher.end();
+            }
+            joiner.add(value.substring(prevIndex));
+            value = joiner.toString();
+
+        }
+        return value;
     }
 
     @Override
@@ -65,11 +95,11 @@ public class ModLoadRegionProcessor extends ModBaseProcessor{
                 //get # of array dimensions
                 int dims = count(field.mirror().toString(), "[]");
                 boolean doFallback = !an.fallback().equals("error");
-                String fallbackString = doFallback ? ", " + parse(an.fallback()) : "";
+                String fallbackString = doFallback ? ", " + parse(an.fallback(), type.fullName()) : "";
 
                 //not an array
                 if(dims == 0){
-                    method.addStatement("(($T)content).$L = $T.atlas.find($L$L)", type.tname(), field.name(), Core.class, parse(an.value()), fallbackString);
+                    method.addStatement("(($T)content).$L = $T.atlas.find($L$L)", type.tname(), field.name(), Core.class, parse(an.value(), type.fullName()), fallbackString);
                 }else{
                     //is an array, create length string
                     int[] lengths = an.lengths();
@@ -93,7 +123,7 @@ public class ModLoadRegionProcessor extends ModBaseProcessor{
                         indexString.append("[INDEX").append(i).append("]");
                     }
 
-                    method.addStatement("(($T)content).$L$L = $T.atlas.find($L$L)", type.tname(), field.name(), indexString.toString(), Core.class, parse(an.value()), fallbackString);
+                    method.addStatement("(($T)content).$L$L = $T.atlas.find($L$L)", type.tname(), field.name(), indexString.toString(), Core.class, parse(an.value(), type.fullName()), fallbackString);
 
                     for(int i = 0; i < dims; i++){
                         method.endControlFlow();
@@ -109,13 +139,28 @@ public class ModLoadRegionProcessor extends ModBaseProcessor{
         write(regionClass);
     }
 
-    private String parse(String value){
+    private String parse(String value, String type){
         value = '"' + value + '"';
-        value = value.replace("@size", "\" + ((mindustry.world.Block)content).size + \"");
-        value = value.replace("@", "\" + content.name + \"");
-        value = value.replace("#1", "\" + INDEX0 + \"");
-        value = value.replace("#2", "\" + INDEX1 + \"");
-        value = value.replace("#", "\" + INDEX0 + \"");
+//        StringBuilder builder = new StringBuilder("\"");
+        value = replacePattern(value, accessExpressionPattern, group -> {
+            String expression = group.substring(1);//removing "@"
+            if (expression.isEmpty()){
+                expression="name";
+            }
+            return "\" + ((" + type + ")content)." + expression + " + \"";
+        });
+//        value = value.replace("@size", "\" + ((mindustry.world.Block)content).size + \"");
+//        value = value.replace("@", "\" + content.name + \"");
+//        value = value.replace("#1", "\" + INDEX0 + \"");
+//        value = value.replace("#2", "\" + INDEX1 + \"");
+        value = replacePattern(value, indexAccessPattern, group -> {
+            String number = group.substring(1);//removing "#"
+            if (number.isEmpty()){
+                number="0";
+            }
+            return "\" + INDEX" + number + " + \"";
+        });
+//        value = value.replace("#", "\" + INDEX0 + \"");
         return value;
     }
 }
