@@ -9,6 +9,7 @@ buildscript{
 //        mindustryPath = "com.github.Anuken.MindustryJitpack"
         mindustryPath = "com.github.Anuken.Mindustry"
         mindustryVersionFull = 'v137'
+        mindustryVersionFull = 'v138'
         mindustryVersion = mindustryVersionFull//10
         arcVersion = mindustryVersion
         mindustryVersionOld = mindustryVersion
@@ -30,9 +31,6 @@ buildscript{
         mavenLocal()
         mavenCentral()
         google()
-        /*flatDir{
-//            dirs(rootProject.file("flabel/com/github/Anuken/Arc/flabel/eae3c2dc59"))
-        }*/
         maven{ url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven{ url 'https://jitpack.io' }
     }
@@ -93,9 +91,6 @@ allprojects{
 
     apply plugin: 'maven-publish'
     repositories{
-        /*flatDir{
-            dirs(rootProject.file("flabel/com/github/Anuken/Arc/flabel/eae3c2dc59"))
-        }*/
         mavenLocal()
         google()
         mavenCentral()
@@ -319,9 +314,6 @@ project(":tools"){
 project(":annotations"){
     apply plugin: "java-library"
     repositories{
-       /* flatDir{
-            dirs(rootProject.file("flabel/com/github/Anuken/Arc/flabel/eae3c2dc59"))
-        }*/
         maven{ url 'https://kotlinlang.org/' }
     }
     dependencies{
@@ -338,9 +330,6 @@ project(":annotations"){
 project(":annotations:localAnnotations"){
     apply plugin: "java-library"
     repositories{
-        /*flatDir{
-            dirs(rootProject.file("flabel/com/github/Anuken/Arc/flabel/eae3c2dc59"))
-        }*/
         maven{ url 'https://kotlinlang.org/' }
     }
     dependencies{
