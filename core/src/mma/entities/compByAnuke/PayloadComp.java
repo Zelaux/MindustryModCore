@@ -48,7 +48,7 @@ abstract class PayloadComp implements Posc, Rotc, Hitboxc, Unitc {
         for (Payload pay : payloads) {
             if (pay instanceof BuildPayload pb && pb.build.power != null) {
                 if (payloadPower == null)
-                    payloadPower = new PowerGraph();
+                    payloadPower = new PowerGraph(false);
                 // pb.build.team = team;
                 pb.build.power.graph = null;
                 payloadPower.add(pb.build);
@@ -76,7 +76,7 @@ abstract class PayloadComp implements Posc, Rotc, Hitboxc, Unitc {
     }
 
     boolean canPickup(Building build) {
-        return payloadUsed() + build.block.size * build.block.size * Vars.tilesize * Vars.tilesize <= type.payloadCapacity + 0.001f && build.canPickup();
+        return payloadUsed() + build.block.size * build.block.size * Vars.tilesize * Vars.tilesize <= type.payloadCapacity + 0.001f && build.canPickup() && build.team == team;
     }
 
     boolean canPickupPayload(Payload pay) {

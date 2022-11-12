@@ -54,6 +54,7 @@ abstract class StatusComp implements Posc, Flyingc {
                 // extend effect
                 if (entry.effect == effect) {
                     entry.time = Math.max(entry.time, duration);
+                    effect.applied(self(), entry.time, true);
                     return;
                 } else if (entry.effect.applyTransition(self(), effect, entry, duration)) {
                     // find reaction
@@ -68,6 +69,7 @@ abstract class StatusComp implements Posc, Flyingc {
             StatusEntry entry = Pools.obtain(StatusEntry.class, StatusEntry::new);
             entry.set(effect, duration);
             statuses.add(entry);
+            effect.applied(self(), duration, false);
         }
     }
 
