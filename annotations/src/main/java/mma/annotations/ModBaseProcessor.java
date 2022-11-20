@@ -32,7 +32,9 @@ import java.lang.annotation.*;
 import java.nio.file.*;
 import java.util.*;
 
+@SuppressWarnings("deprecation")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
+
 public abstract class ModBaseProcessor extends BaseProcessor{
     static final StringMap annotationProperties = new StringMap();
     public static String rootPackageName = null;

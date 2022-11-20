@@ -150,7 +150,7 @@ public class ModEntityProcess extends ModBaseProcessor{
             boolean root = rootPackageName.equals("mma");
             if(root && !getFilesFi(StandardLocation.CLASS_OUTPUT).absolutePath().contains("tests/build")) return;
             compByAnukePackage = "mma.entities.compByAnuke";
-            Fi tmp = Fi.get("tmp");
+            Fi tmp = Fi.tempFile("zelaux-comp-tmp");
             for(Entry<String, String> entry : CompData.compMap){
                 String compName = entry.key;
                 String code = entry.value;
