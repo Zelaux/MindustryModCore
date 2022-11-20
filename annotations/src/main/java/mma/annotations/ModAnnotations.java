@@ -59,7 +59,7 @@ public class ModAnnotations extends Annotations{
     }
 
     /**
-     * Ignores implementations for current method
+     * Ignores implementations from selected components for current method
      */
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.SOURCE)
