@@ -4,13 +4,12 @@ import arc.*;
 import arc.graphics.g2d.*;
 import arc.math.*;
 import arc.math.geom.*;
-import arc.util.*;
-import mindustry.*;
 import mindustry.annotations.Annotations.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.type.*;
 import mindustry.world.meta.*;
+import mma.annotations.ModAnnotations.*;
 import mma.graphics.*;
 import mma.world.*;
 
@@ -25,6 +24,10 @@ public class TestBlock extends ModBlock{
     public TextureRegion[] testRegion3;
     @Load(value = "@basePrefix-#-#0-#1",lengths = {10,10})
     public TextureRegion[][] testRegion4;
+    @Load(value = "1",fallback = "2")
+    public TextureRegion testRegion5;
+    @ALoad(value = "1",fallback = {"2","3","4","5","6"})
+    public TextureRegion testRegion6;
     public String basePrefix;
 
     public TestBlock(String name){
