@@ -45,6 +45,12 @@ public class MultiPackerPixmapProcessor{
             }
 
             @Override
+            public boolean replaceAbsolute(TextureRegion name, Pixmap image){
+                replace(name,image);
+                return true;
+            }
+
+            @Override
             public void delete(String name){
                 for(PageType type : PageType.all){
                     for(Page page : packer.getPacker(type).getPages()){

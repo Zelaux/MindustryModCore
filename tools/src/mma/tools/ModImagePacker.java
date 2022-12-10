@@ -9,15 +9,10 @@ import mindustry.ctype.*;
 import mindustry.mod.*;
 import mindustry.mod.Mods.*;
 import mma.*;
-import mma.annotations.*;
-import mma.annotations.ModAnnotations.*;
 import mma.core.*;
 import mma.gen.*;
 import mma.tools.gen.*;
 import mma.type.pixmap.*;
-import org.apache.commons.io.*;
-
-import java.net.*;
 
 public class ModImagePacker extends MindustryImagePacker{
     public static boolean unitOutlines = true;
@@ -55,6 +50,11 @@ public class ModImagePacker extends MindustryImagePacker{
         }
 
         @Override
+        public boolean replaceAbsolute(TextureRegion name, Pixmap image){
+            return replaceAbsolute(name, image);
+        }
+
+        @Override
         public void delete(String name){
             MindustryImagePacker.delete(name);
         }
@@ -67,6 +67,18 @@ public class ModImagePacker extends MindustryImagePacker{
         }catch(Exception e){
             throw new RuntimeException(e);
         }
+    }
+
+    static public boolean replaceAbsolute(String name, Pixmap image){
+        PackIndex packIndex = cache.get(name);
+        if(packIndex == null) return false;
+        packIndex.pixmap = image;
+        packIndex.file.writePng(image);
+        return true;
+    }
+
+    static public boolean replaceAbsolute(TextureRegion region, Pixmap image){
+        return replaceAbsolute(((GenRegion)region).name, image);
     }
 
     public static void main(String[] args) throws Exception{

@@ -19,6 +19,7 @@ public interface PixmapProcessor{
     void replace(String name, Pixmap image);
 
     void replace(TextureRegion name, Pixmap image);
+    boolean replaceAbsolute(TextureRegion name, Pixmap image);
 
     void delete(String name);
 
