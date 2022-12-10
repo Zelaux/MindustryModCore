@@ -51,7 +51,7 @@ public class ModImagePacker extends MindustryImagePacker{
 
         @Override
         public boolean replaceAbsolute(TextureRegion name, Pixmap image){
-            return replaceAbsolute(name, image);
+            return ModImagePacker.replaceAbsolute(name, image);
         }
 
         @Override
