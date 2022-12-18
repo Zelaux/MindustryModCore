@@ -20,7 +20,7 @@ import mindustry.type.*;
 import mindustry.ui.*;
 import mindustry.ui.dialogs.*;
 import mindustry.world.*;
-import rpmod.ui.tiledStructures.TiledStructures.*;
+import mma.ui.tiledStructures.TiledStructures.*;
 
 import java.lang.annotation.*;
 import java.lang.reflect.*;

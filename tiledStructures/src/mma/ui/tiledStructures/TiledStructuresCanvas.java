@@ -18,9 +18,9 @@ import mindustry.graphics.*;
 import mindustry.ui.*;
 import mindustry.ui.dialogs.*;
 import mma.ui.tiledStructures.TiledStructuresCanvas.StructureTilemap.StructureTile.*;
-import rpmod.ui.tiledStructures.TiledStructures.*;
-import rpmod.ui.tiledStructures.TiledStructuresCanvas.StructureTilemap.StructureTile.*;
-import rpmod.ui.tiledStructures.TiledStructuresDialog.*;
+import mma.ui.tiledStructures.TiledStructures.*;
+import mma.ui.tiledStructures.TiledStructuresCanvas.StructureTilemap.StructureTile.*;
+import mma.ui.tiledStructures.TiledStructuresDialog.*;
 
 import static mindustry.Vars.mobile;
 

@@ -14,7 +14,7 @@ import mindustry.game.MapObjectives.*;
 import mindustry.graphics.*;
 import mindustry.io.*;
 import mma.ui.tiledStructures.TiledStructures.TiledStructure.*;
-import rpmod.ui.tiledStructures.TiledStructures.TiledStructure.*;
+import mma.ui.tiledStructures.TiledStructures.TiledStructure.*;
 
 import java.lang.annotation.*;
 import java.util.*;
