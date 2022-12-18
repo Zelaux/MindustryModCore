@@ -183,7 +183,7 @@ public class TiledStructures implements
     public static abstract class TiledStructure<T extends TiledStructure<T>>{
         /** Temporary container to store references since this class is static. Will immediately be flattened. */
         private transient final Seq<T> children = new Seq<>(2);
-        public transient @Nullable
+        public transient @Nullable @org.jetbrains.annotations.Nullable
         @Multiline String details;
         /** The parents of this objective. All parents must be done in order for this to be updated. */
         public transient Seq<ConnectionWire<T>> inputWires = new Seq<>(2);

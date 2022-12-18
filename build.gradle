@@ -98,6 +98,11 @@ allprojects{
         maven{ url "https://oss.sonatype.org/content/repositories/releases/" }
         maven{ url 'https://jitpack.io' }
     }
+
+    dependencies{
+        implementation 'org.jetbrains:annotations:23.1.0'
+    }
+
     tasks.withType(JavaCompile){
         targetCompatibility = 8
         sourceCompatibility = JavaVersion.VERSION_16
@@ -212,7 +217,7 @@ project(":core"){
 
     afterEvaluate{
         task mergedJavadoc(type: Javadoc){
-            def blacklist = [/*project(":ios"), project(":desktop"), project(":server"),*/ project(":annotations"),project(":annotations:localAnnotations")]
+            def blacklist = [/*project(":ios"), project(":desktop"), project(":server"),*/ project(":annotations"), project(":annotations:localAnnotations")]
             if(findProject(":android") != null){
                 blacklist += project(":android")
             }
@@ -348,7 +353,9 @@ project(":annotations:localAnnotations"){
         implementation "com.github.javaparser:javaparser-symbol-solver-core:$jparcerVersion"
     }
 }
+
 for(def subproject in allprojects){
+
     if(subproject.name in ["annotations", "localAnnotations", "tools", "core", project.name]) continue
     project(":${subproject.name}"){
 //        compileTestJava
