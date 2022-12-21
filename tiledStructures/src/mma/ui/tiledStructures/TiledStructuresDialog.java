@@ -438,7 +438,11 @@ public class TiledStructuresDialog extends BaseDialog{
                         null,
                         () -> Reflect.get(obj, f),
                         Modifier.isFinal(mods) ? res -> {
-                        } : res -> Reflect.set(obj, f, res));
+                        instance.canvas.updateStructures();
+                        } : res -> {
+                            Reflect.set(obj, f, res);
+                            instance.canvas.updateStructures();
+                        });
                 }
             }).padTop(-10f).growX().fillY();
 

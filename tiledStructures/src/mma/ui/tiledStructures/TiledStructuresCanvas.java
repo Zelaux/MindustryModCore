@@ -131,7 +131,7 @@ public class TiledStructuresCanvas extends WidgetGroup{
         return pressed || visualPressed > Time.millis();
     }
 
-    private void updateStructures(){
+    public void updateStructures(){
         if(!updateOnlyOnStructuresOnChange || tiledStructuresDialog.originalStructures == null) return;
 
 
@@ -431,6 +431,7 @@ public class TiledStructuresCanvas extends WidgetGroup{
                                             null,
                                             () -> obj,
                                             res -> {
+                                            updateStructures();
                                             });
                                     }).width(400f).fillY()).grow();
 
@@ -459,6 +460,7 @@ public class TiledStructuresCanvas extends WidgetGroup{
                                             null,
                                             () -> obj,
                                             res -> {
+                                                updateStructures();
                                             });
                                     }).width(400f).fillY()).grow();
 
