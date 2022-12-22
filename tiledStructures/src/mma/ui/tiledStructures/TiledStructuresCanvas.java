@@ -4,23 +4,27 @@ import arc.*;
 import arc.func.*;
 import arc.graphics.*;
 import arc.graphics.g2d.*;
+import arc.graphics.g2d.TextureAtlas.*;
 import arc.input.*;
 import arc.math.*;
 import arc.math.geom.*;
 import arc.scene.*;
 import arc.scene.event.*;
+import arc.scene.style.*;
 import arc.scene.ui.*;
+import arc.scene.ui.Button.*;
 import arc.scene.ui.layout.*;
 import arc.struct.*;
+import arc.util.Nullable;
 import arc.util.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.ui.*;
 import mindustry.ui.dialogs.*;
-import mma.ui.tiledStructures.TiledStructuresCanvas.StructureTilemap.StructureTile.*;
 import mma.ui.tiledStructures.TiledStructures.*;
 import mma.ui.tiledStructures.TiledStructuresCanvas.StructureTilemap.StructureTile.*;
 import mma.ui.tiledStructures.TiledStructuresDialog.*;
+import org.jetbrains.annotations.*;
 
 import static mindustry.Vars.mobile;
 
@@ -240,6 +244,7 @@ public class TiledStructuresCanvas extends WidgetGroup{
 
                     Connector parentConnector = conFrom;//[parent.parentOutput];
                     Connector childConnector = conTo;//[parent.input];
+                    if(conFrom.isDisabled() || conTo.isDisabled()) continue;
                     Vec2
                         from = parentConnector.localToAscendantCoordinates(this, Tmp.v1.set(parentConnector.getWidth() / 2f, parentConnector.getHeight() / 2f)).add(x, y),
                         to = childConnector.localToAscendantCoordinates(this, Tmp.v2.set(childConnector.getWidth() / 2f, childConnector.getHeight() / 2f)).add(x, y);
@@ -377,6 +382,74 @@ public class TiledStructuresCanvas extends WidgetGroup{
             return bounds * unitSize;
         }
 
+        public static class ConnectorStyle{
+            public ButtonStyle inputStyle;
+            public ButtonStyle outputStyle;
+
+            public ConnectorStyle(ButtonStyle inputStyle, ButtonStyle outputStyle){
+                this.inputStyle = inputStyle;
+                this.outputStyle = outputStyle;
+            }
+
+            public ConnectorStyle(){
+            }
+
+            public static ConnectorStyle defaultStyle(){
+                if(!Core.scene.hasStyle(ConnectorStyle.class)){
+                    Core.scene.addStyle(ConnectorStyle.class, innerDefault());
+                }
+                return Core.scene.getStyle(ConnectorStyle.class);
+            }
+
+            @NotNull
+            private static ConnectorStyle innerDefault(){
+                float drawableScale = Reflect.get(TextureAtlas.class, Core.atlas, "drawableScale");
+                Color fillColor = Tmp.c1.set(0x252525FF);
+                ButtonStyle input = new ButtonStyle(){{
+                    down = Tex.buttonSideLeftDown;
+                    up = Tex.buttonSideLeft;
+                    over = Tex.buttonSideLeftOver;
+                    AtlasRegion region = Core.atlas.find("button-side-left-over");
+                    Pixmap pixmap = Core.atlas.getPixmap(region).crop();
+
+                    pixmap.each((x, y) -> {
+                        if(pixmap.getA(x, y) > 0){
+                            pixmap.set(x, y, fillColor);
+                        }
+                    });
+
+                    int[] splits = region.splits;
+                    NinePatch patch = new NinePatch(new Texture(pixmap), splits[0], splits[1], splits[2], splits[3]);
+                    pixmap.dispose();
+                    int[] pads = region.pads;
+                    if(pads != null) patch.setPadding(pads[0], pads[1], pads[2], pads[3]);
+                    disabled = new ScaledNinePatchDrawable(patch, drawableScale);
+                }};
+                ButtonStyle output = new ButtonStyle(){{
+                    down = Tex.buttonSideRightDown;
+                    up = Tex.buttonSideRight;
+                    over = Tex.buttonSideRightOver;
+
+                    AtlasRegion region = Core.atlas.find("button-side-right-over");
+                    Pixmap pixmap = Core.atlas.getPixmap(region).crop();
+
+                    pixmap.each((x, y) -> {
+                        if(pixmap.getA(x, y) > 0){
+                            pixmap.set(x, y, fillColor);
+                        }
+                    });
+
+                    int[] splits = region.splits;
+                    NinePatch patch = new NinePatch(new Texture(pixmap), splits[0], splits[1], splits[2], splits[3]);
+                    pixmap.dispose();
+                    int[] pads = region.pads;
+                    if(pads != null) patch.setPadding(pads[0], pads[1], pads[2], pads[3]);
+                    disabled = new ScaledNinePatchDrawable(patch, drawableScale);
+                }};
+                return new ConnectorStyle(input, output);
+            }
+        }
+
         public class StructureTile extends Table{
             public final TiledStructure<?> obj;
             public final Mover mover;
@@ -397,7 +470,9 @@ public class TiledStructuresCanvas extends WidgetGroup{
                         float height1 = unitSize * obj.objHeight() / scl;
                         table(inputButtons -> {
                             for(int i = 0; i < conParent.length; i++){
-                                inputButtons.add(conParent[i] = new Connector(true, i)).growX().height(height1 / conParent.length);
+                                inputButtons.add(conParent[i] = new Connector(true, i))
+
+                                    .growX().height(height1 / conParent.length);
                                 inputButtons.row();
                                 Tooltip tooltip = obj.inputConnectorTooltip(i);
                                 if(tooltip != null) conParent[i].addListener(tooltip);
@@ -431,7 +506,7 @@ public class TiledStructuresCanvas extends WidgetGroup{
                                             null,
                                             () -> obj,
                                             res -> {
-                                            updateStructures();
+                                                updateStructures();
                                             });
                                     }).width(400f).fillY()).grow();
 
@@ -578,12 +653,12 @@ public class TiledStructuresCanvas extends WidgetGroup{
                 public float pointX, pointY;
 
                 public Connector(boolean findParent, int id){
-                    super(new ButtonStyle(){{
-                        down = findParent ? Tex.buttonSideLeftDown : Tex.buttonSideRightDown;
-                        up = findParent ? Tex.buttonSideLeft : Tex.buttonSideRight;
-                        over = findParent ? Tex.buttonSideLeftOver : Tex.buttonSideRightOver;
-                    }});
-
+                    super(new ButtonStyle(findParent ? obj.connectorStyle().inputStyle : obj.connectorStyle().outputStyle));
+                    if(findParent){
+                        setDisabled(() -> !obj.enabledInput(id));
+                    }else{
+                        setDisabled(() -> !obj.enabledOutput(id));
+                    }
                     this.findParent = findParent;
                     this.id = id;
 
@@ -594,7 +669,7 @@ public class TiledStructuresCanvas extends WidgetGroup{
 
                         @Override
                         public boolean touchDown(InputEvent event, float x, float y, int pointer, KeyCode button){
-                            if(conPointer != -1) return false;
+                            if(conPointer != -1 || isDisabled()) return false;
                             conPointer = pointer;
 
                             if(connecting != null) return false;
@@ -639,7 +714,7 @@ public class TiledStructuresCanvas extends WidgetGroup{
 
                 public boolean canConnectTo(Connector other){
                     return
-                        findParent != other.findParent/* &&
+                        findParent != other.findParent && !other.isDisabled()/* &&
                             tile() != other.tile()*/;
                 }
 

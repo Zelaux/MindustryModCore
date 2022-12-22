@@ -4,6 +4,7 @@ import arc.func.*;
 import arc.graphics.*;
 import arc.math.*;
 import arc.scene.ui.*;
+import arc.scene.ui.Button.*;
 import arc.scene.ui.layout.*;
 import arc.struct.*;
 import arc.util.*;
@@ -14,7 +15,7 @@ import mindustry.game.MapObjectives.*;
 import mindustry.graphics.*;
 import mindustry.io.*;
 import mma.ui.tiledStructures.TiledStructures.TiledStructure.*;
-import mma.ui.tiledStructures.TiledStructures.TiledStructure.*;
+import mma.ui.tiledStructures.TiledStructuresCanvas.StructureTilemap.*;
 
 import java.lang.annotation.*;
 import java.util.*;
@@ -183,13 +184,16 @@ public class TiledStructures implements
     public static abstract class TiledStructure<T extends TiledStructure<T>>{
         /** Temporary container to store references since this class is static. Will immediately be flattened. */
         private transient final Seq<T> children = new Seq<>(2);
-        public transient @Nullable @org.jetbrains.annotations.Nullable
+
+        public transient @Nullable
+        @org.jetbrains.annotations.Nullable
         @Multiline String details;
         /** The parents of this objective. All parents must be done in order for this to be updated. */
         public transient Seq<ConnectionWire<T>> inputWires = new Seq<>(2);
         /** For the objectives UI dialog. Do not modify directly! */
         @CodeEdit
         public int editorX = -1, editorY = -1;
+        public ConnectorStyle connectorStyle;
         /** Whether this objective has been done yet. This is internally set. */
         private boolean completed;
         /** Internal value. Do not modify! */
@@ -312,6 +316,17 @@ public class TiledStructures implements
             return null;
         }
 
+        public boolean enabledInput(int index){
+            return true;
+        }
+        public boolean enabledOutput(int index){
+            return true;
+        }
+
+        public ConnectorStyle connectorStyle(){
+            if (connectorStyle==null)connectorStyle=ConnectorStyle.defaultStyle();
+            return connectorStyle;
+        }
 
         public static class ConnectionWire<T extends TiledStructure>{
             public T obj;
