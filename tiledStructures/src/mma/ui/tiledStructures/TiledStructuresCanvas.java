@@ -37,7 +37,6 @@ public class TiledStructuresCanvas extends WidgetGroup{
 
     public Seq<TiledStructure> structures = new Seq<>();
     public StructureTilemap tilemap;
-    public boolean updateOnlyOnStructuresOnChange = true;
     protected TiledStructure query;
     private boolean pressed;
     private long visualPressed;
@@ -136,7 +135,7 @@ public class TiledStructuresCanvas extends WidgetGroup{
     }
 
     public void updateStructures(){
-        if(!updateOnlyOnStructuresOnChange || tiledStructuresDialog.originalStructures == null) return;
+        if(!tiledStructuresDialog.settings.updateStructuresOnChange || tiledStructuresDialog.originalStructures == null) return;
 
 
         tiledStructuresDialog.out.get(structures); //<-NPE where?!
@@ -496,23 +495,7 @@ public class TiledStructuresCanvas extends WidgetGroup{
                         if(editor != null || oneHeight){
                             label.button(Icon.trashSmall, () -> removeTile(this)).right().size(40f);
                             if(oneHeight && obj.hasFields()){
-                                label.button(Icon.pencilSmall, () -> {
-                                    BaseDialog dialog = new BaseDialog(tiledStructuresDialog.title.getText().toString());
-                                    dialog.cont.pane(Styles.noBarPane, list -> list.top().table(e -> {
-                                        e.margin(0f);
-                                        tiledStructuresDialog.getInterpreter((Class<TiledStructure>)obj.getClass()).build(tiledStructuresDialog,
-                                            e, obj.typeName(),
-                                            new TypeInfo(obj.getClass()), null, null,
-                                            null,
-                                            () -> obj,
-                                            res -> {
-                                                updateStructures();
-                                            });
-                                    }).width(400f).fillY()).grow();
-
-                                    dialog.addCloseButton();
-                                    dialog.show();
-                                }).disabled(!obj.hasFields()).size(40f);
+                                label.button(Icon.pencilSmall, () -> showEditDialog(obj)).disabled(!obj.hasFields()).size(40f);
                             }
                         }
                     }).grow();
@@ -526,21 +509,7 @@ public class TiledStructuresCanvas extends WidgetGroup{
                             }else{
                                 b.left().defaults().size(40f);
                                 b.button(Icon.pencilSmall, () -> {
-                                    BaseDialog dialog = new BaseDialog(tiledStructuresDialog.title.getText().toString());
-                                    dialog.cont.pane(Styles.noBarPane, list -> list.top().table(e -> {
-                                        e.margin(0f);
-                                        tiledStructuresDialog.getInterpreter((Class<TiledStructure>)obj.getClass()).build(tiledStructuresDialog,
-                                            e, obj.typeName(),
-                                            new TypeInfo(obj.getClass()), null, null,
-                                            null,
-                                            () -> obj,
-                                            res -> {
-                                                updateStructures();
-                                            });
-                                    }).width(400f).fillY()).grow();
-
-                                    dialog.addCloseButton();
-                                    dialog.show();
+                                    showEditDialog(obj);
                                 }).disabled(!obj.hasFields());
                                 b.button(Icon.trashSmall, () -> removeTile(this)).right().size(40f);
                             }
@@ -749,5 +718,29 @@ public class TiledStructuresCanvas extends WidgetGroup{
                 }
             }
         }
+    }
+
+    private void showEditDialog(TiledStructure<?> obj){
+        BaseDialog dialog = new BaseDialog(tiledStructuresDialog.title.getText().toString());
+        dialog.cont.pane(Styles.noBarPane, list -> list.top().table(e -> {
+            e.margin(0f);
+            tiledStructuresDialog.getInterpreter((Class<TiledStructure>)obj.getClass()).build(tiledStructuresDialog,
+                e, obj.typeName(),
+                new TypeInfo(obj.getClass()), null, null,
+                null,
+                () -> obj,
+                res -> {if (tiledStructuresDialog.settings.updateStructuresAfterConfig){
+                    updateStructures();
+                }
+                });
+        }).width(400f).fillY()).grow();
+
+        dialog.addCloseButton();
+        dialog.show();
+        dialog.hidden(()->{
+            if (!tiledStructuresDialog.settings.updateStructuresAfterConfig){
+                updateStructures();
+            }
+        });
     }
 }

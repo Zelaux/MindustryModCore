@@ -349,6 +349,7 @@ public class TiledStructuresDialog extends BaseDialog{
         });
     }
 
+    public final TiledStructureSettings settings = new TiledStructureSettings();
     private final ObjectMap<Class<?>, FieldProvider<?>> localProviders = new ObjectMap<>();
     private final ObjectMap<Class<? extends Annotation>, ObjectMap<Class<?>, FieldInterpreter<?>>> localInterpreters = new ObjectMap<>();
     public TiledStructuresCanvas canvas;
@@ -385,7 +386,7 @@ public class TiledStructuresDialog extends BaseDialog{
         ).grow().pad(0f).margin(0f);
 
         hidden(() -> {
-            if(!canvas.updateOnlyOnStructuresOnChange) out.get(canvas.structures);
+            if(!settings.updateStructuresOnChange) out.get(canvas.structures);
             originalStructures = null;
             out = arr -> {
             };
@@ -438,10 +439,10 @@ public class TiledStructuresDialog extends BaseDialog{
                         null,
                         () -> Reflect.get(obj, f),
                         Modifier.isFinal(mods) ? res -> {
-                        instance.canvas.updateStructures();
+                            if(instance.settings.updateStructuresAfterConfig) instance.canvas.updateStructures();
                         } : res -> {
                             Reflect.set(obj, f, res);
-                            instance.canvas.updateStructures();
+                            if(instance.settings.updateStructuresAfterConfig) instance.canvas.updateStructures();
                         });
                 }
             }).padTop(-10f).growX().fillY();
@@ -661,6 +662,10 @@ public class TiledStructuresDialog extends BaseDialog{
         void get(TypeInfo type, Cons<T> cons);
     }
 
+    public static class TiledStructureSettings{
+        public boolean updateStructuresOnChange = true;
+        public boolean updateStructuresAfterConfig = true;
+    }
 
     /**
      * Stores parameterized or array type information for convenience.
