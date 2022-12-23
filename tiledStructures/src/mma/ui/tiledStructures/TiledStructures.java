@@ -193,7 +193,7 @@ public class TiledStructures implements
         /** For the objectives UI dialog. Do not modify directly! */
         @CodeEdit
         public int editorX = -1, editorY = -1;
-        public ConnectorStyle connectorStyle;
+        public transient ConnectorStyle connectorStyle;
         /** Whether this objective has been done yet. This is internally set. */
         private boolean completed;
         /** Internal value. Do not modify! */
