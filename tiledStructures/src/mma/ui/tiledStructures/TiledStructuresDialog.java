@@ -359,6 +359,17 @@ public class TiledStructuresDialog extends BaseDialog{
 
     public TiledStructuresDialog(String title, Class<? extends TiledStructure> initClass){
         super(title);
+        setupUI(initClass);
+
+        hidden(() -> {
+            if(!settings.updateStructuresOnChange) out.get(canvas.structures);
+            originalStructures = null;
+            out = arr -> {
+            };
+        });
+    }
+
+    protected void setupUI(Class<? extends TiledStructure> initClass){
         clear();
         margin(0f);
 
@@ -384,13 +395,6 @@ public class TiledStructuresDialog extends BaseDialog{
                 addCloseListener();
             }}
         ).grow().pad(0f).margin(0f);
-
-        hidden(() -> {
-            if(!settings.updateStructuresOnChange) out.get(canvas.structures);
-            originalStructures = null;
-            out = arr -> {
-            };
-        });
     }
 
     public static <T> FieldInterpreter<T> defaultInterpreter(){
