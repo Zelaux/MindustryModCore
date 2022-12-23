@@ -106,7 +106,7 @@ public class TiledStructuresCanvas extends WidgetGroup{
         tilemap.clearTiles();
     }
 
-    protected void stopQuery(){
+    public void stopQuery(){
         if(query == null) return;
         query = null;
 
@@ -124,6 +124,11 @@ public class TiledStructuresCanvas extends WidgetGroup{
             stopQuery();
             updateStructures();
         }
+    }
+
+    @org.jetbrains.annotations.Nullable
+    public TiledStructure getQuery(){
+        return query;
     }
 
     public boolean isQuerying(){
@@ -145,6 +150,31 @@ public class TiledStructuresCanvas extends WidgetGroup{
         for(TiledStructure<?> structure : structures){
             tilemap.createTile(structure.editorX, structure.editorY, structure);
         }
+    }
+
+    private void showEditDialog(TiledStructure<?> obj){
+        BaseDialog dialog = new BaseDialog(tiledStructuresDialog.title.getText().toString());
+        dialog.cont.pane(Styles.noBarPane, list -> list.top().table(e -> {
+            e.margin(0f);
+            tiledStructuresDialog.getInterpreter((Class<TiledStructure>)obj.getClass()).build(tiledStructuresDialog,
+                e, obj.typeName(),
+                new TypeInfo(obj.getClass()), null, null,
+                null,
+                () -> obj,
+                res -> {
+                    if(tiledStructuresDialog.settings.updateStructuresAfterConfig){
+                        updateStructures();
+                    }
+                });
+        }).width(400f).fillY()).grow();
+
+        dialog.addCloseButton();
+        dialog.show();
+        dialog.hidden(() -> {
+            if(!tiledStructuresDialog.settings.updateStructuresAfterConfig){
+                updateStructures();
+            }
+        });
     }
 
     public class StructureTilemap extends WidgetGroup{
@@ -718,29 +748,5 @@ public class TiledStructuresCanvas extends WidgetGroup{
                 }
             }
         }
-    }
-
-    private void showEditDialog(TiledStructure<?> obj){
-        BaseDialog dialog = new BaseDialog(tiledStructuresDialog.title.getText().toString());
-        dialog.cont.pane(Styles.noBarPane, list -> list.top().table(e -> {
-            e.margin(0f);
-            tiledStructuresDialog.getInterpreter((Class<TiledStructure>)obj.getClass()).build(tiledStructuresDialog,
-                e, obj.typeName(),
-                new TypeInfo(obj.getClass()), null, null,
-                null,
-                () -> obj,
-                res -> {if (tiledStructuresDialog.settings.updateStructuresAfterConfig){
-                    updateStructures();
-                }
-                });
-        }).width(400f).fillY()).grow();
-
-        dialog.addCloseButton();
-        dialog.show();
-        dialog.hidden(()->{
-            if (!tiledStructuresDialog.settings.updateStructuresAfterConfig){
-                updateStructures();
-            }
-        });
     }
 }
