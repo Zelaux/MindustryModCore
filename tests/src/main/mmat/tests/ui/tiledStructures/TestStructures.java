@@ -14,7 +14,7 @@ public class TestStructures{
 
         @Override
         public int outputConnections(){
-            return 2;
+            return 4;
         }
 
         @Override

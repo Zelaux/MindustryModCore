@@ -77,7 +77,8 @@ public class TiledStructuresCanvas extends WidgetGroup{
 
                 Vec2 pos = localToDescendantCoordinates(tilemap, Tmp.v1.set(x, y));
                 queryX = Mathf.round((pos.x - query.objWidth() * unitSize / 2f) / unitSize);
-                queryY = Mathf.floor((pos.y - unitSize) / unitSize);
+                //noinspection IntegerDivisionInFloatingPointContext
+                queryY = Mathf.floor((pos.y - unitSize*(query.objHeight()/2)) / unitSize);
 
                 // In mobile, placing the query is done in a separate button.
                 if(!mobile) placeQuery();
@@ -491,26 +492,28 @@ public class TiledStructuresCanvas extends WidgetGroup{
                 setClip(false);
                 int childrenSizes = Mathf.num(obj.inputConnections() > 0) + Mathf.num(obj.outputConnections() > 0);
                 float scl = Scl.scl(1f);
-                float oneUnitWidth = unitSize / scl;
+                float maxConnectorSize = unitSize / scl;
+                float minConnectorSize = unitSize / scl / 2f;
                 inputs:
                 {
                     conParent = new Connector[obj.inputConnections()];
                     if(conParent.length > 0){
                         float height1 = unitSize * obj.objHeight() / scl;
+                        float connectorHeight = height1 / conParent.length;
+                        float connectorWidth = Mathf.clamp(connectorHeight,minConnectorSize, maxConnectorSize);
                         table(inputButtons -> {
                             for(int i = 0; i < conParent.length; i++){
                                 inputButtons.add(conParent[i] = new Connector(true, i))
-
-                                    .growX().height(height1 / conParent.length);
+                                    .growX().size(connectorWidth,connectorHeight);
                                 inputButtons.row();
                                 Tooltip tooltip = obj.inputConnectorTooltip(i);
                                 if(tooltip != null) conParent[i].addListener(tooltip);
                             }
-                        }).size(oneUnitWidth, height1);
+                        }).size(connectorWidth, height1);
                     }
                 }
                 table(Tex.whiteui, t -> {
-                    float pad = (oneUnitWidth - 32f) / 2f - 4f;
+                    float pad = (unitSize/scl - 32f) / 2f - 4f;
                     t.margin(pad);
                     t.touchable(() -> Touchable.enabled);
                     t.setColor(Pal.gray);
@@ -551,14 +554,17 @@ public class TiledStructuresCanvas extends WidgetGroup{
                     conChildren = new Connector[obj.outputConnections()];
                     if(conChildren.length > 0){
                         float height1 = unitSize * obj.objHeight() / scl;
+                        float connectorHeight = height1 / conChildren.length;
+                        float connectorWidth = Mathf.clamp(connectorHeight, minConnectorSize, maxConnectorSize);
                         table(outputButtons -> {
                             for(int i = 0; i < conChildren.length; i++){
-                                outputButtons.add(conChildren[i] = new Connector(false, i)).growX().height(height1 / conChildren.length);
+                                outputButtons.add(conChildren[i] = new Connector(false, i)).growX().height(height1 / conChildren.length)
+                                    .growX().size(connectorWidth,connectorHeight);;
                                 outputButtons.row();
                                 Tooltip tooltip = obj.outputConnectorTooltip(i);
                                 if(tooltip != null) conChildren[i].addListener(tooltip);
                             }
-                        }).size(oneUnitWidth, height1);
+                        }).size(connectorWidth, height1);
                     }
                 }
 

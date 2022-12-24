@@ -4,7 +4,6 @@ import arc.func.*;
 import arc.graphics.*;
 import arc.math.*;
 import arc.scene.ui.*;
-import arc.scene.ui.Button.*;
 import arc.scene.ui.layout.*;
 import arc.struct.*;
 import arc.util.*;
@@ -134,10 +133,21 @@ public class TiledStructures implements
         json.writeObjectStart("wires");
         for(int i = 0; i < all.size; i++){
             TiledStructure<?> structure = all.get(i);
-            json.writeArrayStart(structureToString(structure));
+            String name = structureToString(structure);
+            if(name.equals("-1")){
+                Log.err("Cannot save wires for @", JsonIO.print(JsonIO.write(structure)));
+                continue;
+            }
+            json.writeArrayStart(name);
             for(ConnectionWire<?> inputWire : structure.inputWires){
+                if(inputWire.obj == null) continue;
+                String value = structureToString(inputWire.obj);
+                if(value.equals("-1")){
+                    Log.err("Cannot save wire with @ for @", JsonIO.write(inputWire.obj), JsonIO.write(structure));
+                    continue;
+                }
                 json.writeObjectStart();
-                json.writeValue("obj", structureToString(inputWire.obj));
+                json.writeValue("obj", value);
                 json.writeValue("input", inputWire.input);
                 json.writeValue("output", inputWire.parentOutput);
                 json.writeObjectEnd();
@@ -319,12 +329,13 @@ public class TiledStructures implements
         public boolean enabledInput(int index){
             return true;
         }
+
         public boolean enabledOutput(int index){
             return true;
         }
 
         public ConnectorStyle connectorStyle(){
-            if (connectorStyle==null)connectorStyle=ConnectorStyle.defaultStyle();
+            if(connectorStyle == null) connectorStyle = ConnectorStyle.defaultStyle();
             return connectorStyle;
         }
 
