@@ -23,13 +23,13 @@ public class StructureTileGroup{
 
     public void clear(){
         tiles.clear();
-        setPosition(0,0);
+        setPosition(0, 0);
         setSize(0, 0);
     }
 
-    public void add(StructureTile group){
+    public void add(StructureTile tile){
 
-        tiles.add(group);
+        tiles.add(tile);
         calculateSize();
     }
 
@@ -53,6 +53,7 @@ public class StructureTileGroup{
         structureY = minY;
         x = minElementX;
         y = minElementY;
+
     }
 
     private void setSize(int width, int height){
@@ -99,5 +100,34 @@ public class StructureTileGroup{
         }
         x += dx;
         y += dy;
+    }
+
+    public boolean contains(StructureTile structureTile){
+        return tiles.contains(structureTile);
+    }
+
+    public void add(StructureTileGroup group){
+        tiles.set(group.tiles);
+    }
+    public void set(StructureTileGroup group){
+        clear();
+        tiles.set(group.tiles);
+        structureX=group.structureX;
+        structureY=group.structureY;
+        x=group.x;
+        y=group.y;
+        width=group.width;
+        height=group.height;
+    }
+
+    public void updateSize(){
+        calculateSize();
+    }
+
+    public float x(){
+        return x;
+    }
+    public float y(){
+        return y;
     }
 }

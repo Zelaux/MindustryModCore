@@ -22,6 +22,7 @@ import mindustry.graphics.*;
 import mindustry.ui.*;
 import mindustry.ui.dialogs.*;
 import mma.ui.tiledStructures.TiledStructures.*;
+import mma.ui.tiledStructures.TiledStructuresCanvas.StructureTilemap.*;
 import mma.ui.tiledStructures.TiledStructuresCanvas.StructureTilemap.StructureTile.*;
 import mma.ui.tiledStructures.TiledStructuresDialog.*;
 import org.jetbrains.annotations.*;
@@ -34,6 +35,7 @@ public class TiledStructuresCanvas extends WidgetGroup{
         bounds = 100;
     public static final float unitSize = Scl.scl(48f);
     public final TiledStructuresDialog tiledStructuresDialog;
+    public final StructureTileGroup selection = new StructureTileGroup();
     @NotNull
     protected final TiledStructureGroup query = new TiledStructureGroup();
     public Seq<TiledStructure> structures = new Seq<>();
@@ -198,6 +200,31 @@ public class TiledStructuresCanvas extends WidgetGroup{
         });
     }
 
+    public void moveSelection(StructureTile head){
+        tilemap.moving.set(selection);
+//        Seq<StructureTile> list = tilemap.moving.list();
+//        list.swap(list.indexOf(head), 0);
+    }
+
+    public void setSelection(int x, int y, int width, int height){
+        selection.clear();
+        for(Element it : tilemap.getChildren()){
+
+            if(!(it instanceof StructureTile tile)){
+                continue;
+            }
+            Tmp.r1.set(x + 0.0001f, y + 0.0001f, width - 0.0001f, height - 0.0001f);
+            Tmp.r2.set(tile.tx + 0.0001f, tile.ty + 0.0001f, tile.obj.objWidth() - 0.0001f, tile.obj.objHeight() - 0.0001f);
+
+
+            if(Tmp.r1.overlaps(Tmp.r2)){
+                selection.add(tile);
+            }
+        }
+        ;
+
+    }
+
     public class StructureTilemap extends WidgetGroup{
 
         /** The current tile that is being moved. */
@@ -265,7 +292,7 @@ public class TiledStructuresCanvas extends WidgetGroup{
                     float y = this.y + (ty = Mathf.round(moving.y / unitSize)) * unitSize;
 
                     Draw.color(
-                        validPlace(tx, ty, moving, moving.obj) ? Pal.accent : Pal.remove,
+                        validPlace(tx, ty, null, moving.obj) ? Pal.accent : Pal.remove,
                         0.5f * parentAlpha
                     );
 
@@ -273,6 +300,21 @@ public class TiledStructuresCanvas extends WidgetGroup{
                 });
             }
 
+            if(moving.isEmpty()){
+                for(StructureTile tile : selection.list()){
+                    int tx, ty;
+                    float x = this.x + (tx = tile.obj.editorX) * unitSize;
+                    float y = this.y + (ty = tile.obj.editorY) * unitSize;
+
+                    Draw.color(
+                        Pal.accent,
+                        0.5f * parentAlpha
+                    );
+
+                    Fill.crect(x, y, tile.obj.objWidth() * unitSize, tile.obj.objHeight() * unitSize);
+                }
+                Draw.reset();
+            }
             Draw.reset();
             super.draw();
 
@@ -382,7 +424,7 @@ public class TiledStructuresCanvas extends WidgetGroup{
             Draw.reset();
         }
 
-        public boolean validPlace(int x, int y, @Nullable StructureTile ignore, TiledStructure<?> structure){
+        public boolean validPlace(int x, int y, @Nullable StructureTileGroup ignore, TiledStructure<?> structure){
             float offset = 0.f;
             Tmp.r1.set(x + offset, y + offset, structure.objWidth() - offset, structure.objHeight() - offset).grow(-0.001f);
 
@@ -391,10 +433,10 @@ public class TiledStructuresCanvas extends WidgetGroup{
             }
 
             for(var other : children){
-                if(other instanceof StructureTile tile){
+                if(other instanceof StructureTile tile && tile.obj != structure){
                     Rect collider = Tmp.r2.set(tile.tx + offset, tile.ty + offset, tile.obj.objWidth() - offset, tile.obj.objHeight() - offset);
 
-                    if(tile != ignore && collider.overlaps(Tmp.r1)){
+                    if(!(ignore != null && ignore.contains(tile)) && collider.overlaps(Tmp.r1)){
                         return false;
                     }
                 }
@@ -419,9 +461,7 @@ public class TiledStructuresCanvas extends WidgetGroup{
         }
 
         public boolean moveTile(StructureTile tile, StructureTileGroup ignore, int newX, int newY){
-            for(StructureTile other : ignore.list()){
-                if(!validPlace(newX, newY, other, tile.obj)) return false;
-            }
+            if(!validPlace(newX, newY, ignore, tile.obj)) return false;
             int editorX = tile.obj.editorX;
             int editorY = tile.obj.editorY;
             tile.pos(newX, newY);
@@ -656,9 +696,15 @@ public class TiledStructuresCanvas extends WidgetGroup{
 
                 @Override
                 public boolean touchDown(InputEvent event, float x, float y, int pointer, KeyCode button){
-                    if(moving.any()) return false;
-                    moving.add(StructureTile.this);
-                    moving.get(0).toFront();
+                    if(selection.contains(StructureTile.this)){
+                        TiledStructuresCanvas.this.moveSelection(StructureTile.this);
+//                        return true;
+                    }else{
+                        selection.clear();
+                        if(moving.any()) return false;
+                        moving.add(StructureTile.this);
+                        moving.get(0).toFront();
+                    }
 
                     prevX = moving.get(0).tx;
                     prevY = moving.get(0).ty;
@@ -681,11 +727,22 @@ public class TiledStructuresCanvas extends WidgetGroup{
 
                 @Override
                 public void touchUp(InputEvent event, float x, float y, int pointer, KeyCode button){
-                    if(moving.contains(moving -> !moveTile(moving, StructureTilemap.this.moving,
-                        Mathf.round(moving.x / unitSize),
-                        Mathf.round(moving.y / unitSize)
+                    if(moving.contains(moving -> !validPlace(Mathf.round(moving.x / unitSize),
+                        Mathf.round(moving.y / unitSize), StructureTilemap.this.moving, moving.obj
                     ))){
                         moving.setPosition(prevX, prevY);
+                    } else if(moving.any()){
+                        int prevX = moving.get(0).tx;
+                        int prevY = moving.get(0).ty;
+                        moving.setPosition(Mathf.round(moving.x()/unitSize), Mathf.round(moving.y()/unitSize));
+                        if (prevX!=moving.get(0).tx || prevY!= moving.get(0).ty){
+                            updateStructures();
+                        }
+                    }
+                    if (moving.list().size>1){
+                        selection.set(moving);
+                    } else{
+                        selection.clear();
                     }
                     moving.clear();
                 }
