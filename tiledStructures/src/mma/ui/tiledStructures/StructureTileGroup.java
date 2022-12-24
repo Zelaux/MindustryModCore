@@ -130,4 +130,11 @@ public class StructureTileGroup{
     public float y(){
         return y;
     }
+
+    public int structureX(){
+        return structureX;
+    }
+    public int structureY(){
+        return structureY;
+    }
 }

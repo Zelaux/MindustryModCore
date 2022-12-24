@@ -166,13 +166,22 @@ public class TiledStructuresCanvas extends WidgetGroup{
         if(!tiledStructuresDialog.settings.updateStructuresOnChange || tiledStructuresDialog.originalStructures == null) return;
 
 
-        tiledStructuresDialog.out.get(structures); //<-NPE where?!
+        tiledStructuresDialog.out.get(structures);
 
         clearObjectives();
         structures.set(tiledStructuresDialog.originalStructures.get());
+        LongMap<StructureTile> newTiles = new LongMap<>();
         for(TiledStructure<?> structure : structures){
             tilemap.createTile(structure.editorX, structure.editorY, structure);
+            StructureTile tile = (StructureTile)tilemap.getChildren().peek();
+            newTiles.put(Pack.longInt(tile.tx, tile.ty),tile);
         }
+
+        Func<StructureTile, StructureTile> updater = it -> {
+            return newTiles.get(Pack.longInt(it.tx, it.ty));
+        };
+        selection.list().replace(updater);
+        tilemap.moving.list().replace(updater);
     }
 
     private void showEditDialog(TiledStructure<?> obj){
@@ -202,6 +211,9 @@ public class TiledStructuresCanvas extends WidgetGroup{
 
     public void moveSelection(StructureTile head){
         tilemap.moving.set(selection);
+        for(int i = 0; i < tilemap.moving.list().size; i++){
+            tilemap.moving.list().get(i).toFront();
+        }
 //        Seq<StructureTile> list = tilemap.moving.list();
 //        list.swap(list.indexOf(head), 0);
     }
@@ -288,11 +300,11 @@ public class TiledStructuresCanvas extends WidgetGroup{
             if(moving.any()){
                 moving.each(moving -> {
                     int tx, ty;
-                    float x = this.x + (tx = Mathf.round(moving.x / unitSize)) * unitSize;
-                    float y = this.y + (ty = Mathf.round(moving.y / unitSize)) * unitSize;
+                    float x = this.x + (tx = roundCords(moving.x / unitSize)) * unitSize;
+                    float y = this.y + (ty = roundCords(moving.y / unitSize)) * unitSize;
 
                     Draw.color(
-                        validPlace(tx, ty, null, moving.obj) ? Pal.accent : Pal.remove,
+                        validPlace(tx, ty, StructureTilemap.this.moving, moving.obj) ? Pal.accent : Pal.remove,
                         0.5f * parentAlpha
                     );
 
@@ -706,8 +718,8 @@ public class TiledStructuresCanvas extends WidgetGroup{
                         moving.get(0).toFront();
                     }
 
-                    prevX = moving.get(0).tx;
-                    prevY = moving.get(0).ty;
+                    prevX = moving.structureX();
+                    prevY = moving.structureY();
 
                     // Convert to world pos first because the button gets dragged too.
                     Vec2 pos = event.listenerActor.localToStageCoordinates(Tmp.v1.set(x, y));
@@ -727,21 +739,21 @@ public class TiledStructuresCanvas extends WidgetGroup{
 
                 @Override
                 public void touchUp(InputEvent event, float x, float y, int pointer, KeyCode button){
-                    if(moving.contains(moving -> !validPlace(Mathf.round(moving.x / unitSize),
-                        Mathf.round(moving.y / unitSize), StructureTilemap.this.moving, moving.obj
+                    if(moving.contains(moving -> !validPlace(roundCords(moving.x / unitSize),
+                        roundCords(moving.y / unitSize), StructureTilemap.this.moving, moving.obj
                     ))){
                         moving.setPosition(prevX, prevY);
-                    } else if(moving.any()){
+                    }else if(moving.any()){
                         int prevX = moving.get(0).tx;
                         int prevY = moving.get(0).ty;
-                        moving.setPosition(Mathf.round(moving.x()/unitSize), Mathf.round(moving.y()/unitSize));
-                        if (prevX!=moving.get(0).tx || prevY!= moving.get(0).ty){
+                        moving.setPosition(roundCords(moving.x() / unitSize), roundCords(moving.y() / unitSize));
+                        if(prevX != moving.get(0).tx || prevY != moving.get(0).ty){
                             updateStructures();
                         }
                     }
-                    if (moving.list().size>1){
+                    if(moving.list().size > 1){
                         selection.set(moving);
-                    } else{
+                    }else{
                         selection.clear();
                     }
                     moving.clear();
@@ -850,5 +862,9 @@ public class TiledStructuresCanvas extends WidgetGroup{
                 }
             }
         }
+    }
+
+    public int roundCords(float cords){
+        return Mathf.round(cords);
     }
 }
