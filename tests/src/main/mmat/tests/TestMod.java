@@ -27,28 +27,8 @@ public class TestMod extends MMAMod{
         TestVars.load();
 //        TmDependencies.enabledHmmm();
         Events.run(ClientLoadEvent.class, () -> {
-            new TiledStructuresDialog("tests-structures", TestStructure.class){{
-                setGlobalProvider(TestStructure.class, (type, cons) -> new BaseDialog("@add"){{
-                    cont.pane(p -> {
-                        p.background(Tex.button);
-                        p.marginRight(14f);
-                        p.defaults().size(195f, 56f);
+            new TestTiledStructuresDialog("tests-structures", TestStructure.class){{
 
-                        int i = 0;
-                        for(Prov<TestStructure> gen : TestStructures.providers){
-                            TestStructure obj = gen.get();
-                            p.button(obj.typeName(), Styles.flatt, () -> {
-                                cons.get(obj);
-                                hide();
-                            }).with(Table::left).get().getLabelCell().growX().left().padLeft(5f).labelAlign(Align.left);
-
-                            if(++i % 3 == 0) p.row();
-                        }
-                    }).scrollX(false);
-
-                    addCloseButton();
-                    show();
-                }});
                 Seq<TiledStructure> tiledStructures = new Seq<>();
                 show(() -> tiledStructures, tiledStructures::set);
             }};

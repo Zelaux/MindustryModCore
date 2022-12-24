@@ -379,7 +379,7 @@ public class TiledStructuresDialog extends BaseDialog{
             new Table(){{
                 buttons.defaults().size(160f, 64f).pad(2f);
                 buttons.button("@back", Icon.left, () -> hide());
-                buttons.button("@add", Icon.add, () -> getProvider(initClass).get(new TypeInfo(initClass), canvas::query));
+                buttons.button("@add", Icon.add, () -> getProvider(initClass).get(new TypeInfo(initClass), canvas::beginQuery));
 
                 if(mobile){
                     buttons.button("@cancel", Icon.cancel, canvas::stopQuery).disabled(b -> !canvas.isQuerying());

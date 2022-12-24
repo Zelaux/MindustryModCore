@@ -32,15 +32,15 @@ public class TiledStructuresCanvas extends WidgetGroup{
     public static final int
         /*objWidth = 4,*/ /*objHeight = 2,*/
         bounds = 100;
+    public static final float unitSize = Scl.scl(48f);
     public final TiledStructuresDialog tiledStructuresDialog;
-    public final float unitSize = Scl.scl(48f);
-
+    @NotNull
+    protected final TiledStructureGroup query = new TiledStructureGroup();
     public Seq<TiledStructure> structures = new Seq<>();
     public StructureTilemap tilemap;
-    protected TiledStructure query;
     private boolean pressed;
     private long visualPressed;
-    private int queryX = -4, queryY = -2;
+//    private int queryX = -4, queryY = -2;
 
     public TiledStructuresCanvas(TiledStructuresDialog tiledStructuresDialog){
         this.tiledStructuresDialog = tiledStructuresDialog;
@@ -50,7 +50,7 @@ public class TiledStructuresCanvas extends WidgetGroup{
         addCaptureListener(new InputListener(){
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, KeyCode button){
-                if(query != null && button == KeyCode.mouseRight){
+                if(query.any() && button == KeyCode.mouseRight){
                     stopQuery();
 
                     event.stop();
@@ -66,19 +66,22 @@ public class TiledStructuresCanvas extends WidgetGroup{
 
             @Override
             public void pan(InputEvent event, float x, float y, float deltaX, float deltaY){
-                if(tilemap.moving != null || tilemap.connecting != null) return;
+                if(tilemap.moving.any() || tilemap.connecting != null) return;
                 tilemap.x = Mathf.clamp(tilemap.x + deltaX, -bounds * unitSize + width, bounds * unitSize);
                 tilemap.y = Mathf.clamp(tilemap.y + deltaY, -bounds * unitSize + height, bounds * unitSize);
             }
 
             @Override
             public void tap(InputEvent event, float x, float y, int count, KeyCode button){
-                if(query == null) return;
+                if(query.isEmpty()) return;
 
                 Vec2 pos = localToDescendantCoordinates(tilemap, Tmp.v1.set(x, y));
-                queryX = Mathf.round((pos.x - query.objWidth() * unitSize / 2f) / unitSize);
+                query.setPosition(
+                    queryX(pos), queryY(pos)
+                );
+//                queryX = queryX(pos);
                 //noinspection IntegerDivisionInFloatingPointContext
-                queryY = Mathf.floor((pos.y - unitSize*(query.objHeight()/2)) / unitSize);
+//                queryY = queryY(pos);
 
                 // In mobile, placing the query is done in a separate button.
                 if(!mobile) placeQuery();
@@ -102,38 +105,55 @@ public class TiledStructuresCanvas extends WidgetGroup{
         });
     }
 
+    private int queryX(Vec2 pos){
+        return Mathf.floor((pos.x - query.width() * unitSize / 2f) / unitSize);
+    }
+
+    private int queryY(Vec2 pos){
+        return Mathf.floor((pos.y - query.height() * unitSize / 2f) / unitSize);
+    }
+
     public void clearObjectives(){
         stopQuery();
         tilemap.clearTiles();
     }
 
     public void stopQuery(){
-        if(query == null) return;
-        query = null;
+        if(query.isEmpty()) return;
+        query.clear();
 
         Core.graphics.restoreCursor();
     }
 
-    public void query(TiledStructure obj){
+    public void beginQuery(TiledStructure obj){
         stopQuery();
-        query = obj;
+        addQuery(obj);
+    }
+
+    public void addQuery(TiledStructure obj){
+        query.add(obj, false);
     }
 
     public void placeQuery(){
-        if(isQuerying() && tilemap.createTile(queryX, queryY, query)){
-            structures.add(query);
-            stopQuery();
-            updateStructures();
+        if(!isQuerying()) return;
+        if(query.contains(it -> !tilemap.validPlace(it.editorX, it.editorY, null, it))){
+            return;
         }
+        for(TiledStructure<?> tiledStructure : query.list()){
+            tilemap.createTile(tiledStructure.editorX, tiledStructure.editorY, tiledStructure);
+            structures.add(tiledStructure);
+        }
+        ;
+        stopQuery();
+        updateStructures();
     }
 
-    @org.jetbrains.annotations.Nullable
-    public TiledStructure getQuery(){
+    public TiledStructureGroup getQuery(){
         return query;
     }
 
     public boolean isQuerying(){
-        return query != null;
+        return query.any();
     }
 
     public boolean isVisualPressed(){
@@ -180,10 +200,10 @@ public class TiledStructuresCanvas extends WidgetGroup{
 
     public class StructureTilemap extends WidgetGroup{
 
+        /** The current tile that is being moved. */
+        protected final StructureTileGroup moving = new StructureTileGroup();
         /** The connector button that is being pressed. */
         protected @Nullable Connector connecting;
-        /** The current tile that is being moved. */
-        protected @Nullable StructureTile moving;
 
         public StructureTilemap(){
             setTransform(false);
@@ -205,36 +225,52 @@ public class TiledStructuresCanvas extends WidgetGroup{
             for(int y = minY; y <= maxY; y++) Lines.line(minX * unitSize, progY + y * unitSize, maxX * unitSize, progY + y * unitSize);
 
             if(isQuerying()){
-                int tx, ty;
-                if(mobile){
-                    tx = queryX;
-                    ty = queryY;
-                }else{
-                    Vec2 pos = screenToLocalCoordinates(Core.input.mouse());
-                    tx = Mathf.round((pos.x - query.objWidth() * unitSize / 2f) / unitSize);
-                    ty = Mathf.floor((pos.y - unitSize) / unitSize);
+                for(TiledStructure<?> query : query.list()){
+                    int tx, ty;
+                    /*if(mobile){
+                        tx = TiledStructuresCanvas.this.query.x();
+                        ty = TiledStructuresCanvas.this.query.y();
+                    }else{
+                        Vec2 pos = screenToLocalCoordinates(Core.input.mouse());
+                        tx=queryX(pos);
+                        ty=queryY(pos);
+                    }*/
+                    if(mobile){
+                        tx = query.editorX;
+                        ty = query.editorY;
+                    }else{
+                        Vec2 pos = screenToLocalCoordinates(Core.input.mouse());
+                        int qx = TiledStructuresCanvas.this.query.x();
+                        int qy = TiledStructuresCanvas.this.query.y();
+                        int queryX = queryX(pos);
+                        int queryY = queryY(pos);
+                        tx = queryX + query.editorX - qx;
+                        ty = queryY + query.editorY - qy;
+                    }
+
+                    Lines.stroke(4f);
+                    Draw.color(
+                        isVisualPressed() ? Pal.metalGrayDark : validPlace(tx, ty, null, query) ? Pal.accent : Pal.remove,
+                        parentAlpha
+                    );
+
+                    Lines.rect(x + tx * unitSize, y + ty * unitSize, query.objWidth() * unitSize, query.objHeight() * unitSize);
                 }
-
-                Lines.stroke(4f);
-                Draw.color(
-                    isVisualPressed() ? Pal.metalGrayDark : validPlace(tx, ty, null, query) ? Pal.accent : Pal.remove,
-                    parentAlpha
-                );
-
-                Lines.rect(x + tx * unitSize, y + ty * unitSize, query.objWidth() * unitSize, query.objHeight() * unitSize);
             }
 
-            if(moving != null){
-                int tx, ty;
-                float x = this.x + (tx = Mathf.round(moving.x / unitSize)) * unitSize;
-                float y = this.y + (ty = Mathf.round(moving.y / unitSize)) * unitSize;
+            if(moving.any()){
+                moving.each(moving -> {
+                    int tx, ty;
+                    float x = this.x + (tx = Mathf.round(moving.x / unitSize)) * unitSize;
+                    float y = this.y + (ty = Mathf.round(moving.y / unitSize)) * unitSize;
 
-                Draw.color(
-                    validPlace(tx, ty, moving, moving.obj) ? Pal.accent : Pal.remove,
-                    0.5f * parentAlpha
-                );
+                    Draw.color(
+                        validPlace(tx, ty, moving, moving.obj) ? Pal.accent : Pal.remove,
+                        0.5f * parentAlpha
+                    );
 
-                Fill.crect(x, y, moving.obj.objWidth() * unitSize, moving.obj.objHeight() * unitSize);
+                    Fill.crect(x, y, moving.obj.objWidth() * unitSize, moving.obj.objHeight() * unitSize);
+                });
             }
 
             Draw.reset();
@@ -382,8 +418,10 @@ public class TiledStructuresCanvas extends WidgetGroup{
             return true;
         }
 
-        public boolean moveTile(StructureTile tile, int newX, int newY){
-            if(!validPlace(newX, newY, tile, tile.obj)) return false;
+        public boolean moveTile(StructureTile tile, StructureTileGroup ignore, int newX, int newY){
+            for(StructureTile other : ignore.list()){
+                if(!validPlace(newX, newY, other, tile.obj)) return false;
+            }
             int editorX = tile.obj.editorX;
             int editorY = tile.obj.editorY;
             tile.pos(newX, newY);
@@ -500,11 +538,11 @@ public class TiledStructuresCanvas extends WidgetGroup{
                     if(conParent.length > 0){
                         float height1 = unitSize * obj.objHeight() / scl;
                         float connectorHeight = height1 / conParent.length;
-                        float connectorWidth = Mathf.clamp(connectorHeight,minConnectorSize, maxConnectorSize);
+                        float connectorWidth = Mathf.clamp(connectorHeight, minConnectorSize, maxConnectorSize);
                         table(inputButtons -> {
                             for(int i = 0; i < conParent.length; i++){
                                 inputButtons.add(conParent[i] = new Connector(true, i))
-                                    .growX().size(connectorWidth,connectorHeight);
+                                    .growX().size(connectorWidth, connectorHeight);
                                 inputButtons.row();
                                 Tooltip tooltip = obj.inputConnectorTooltip(i);
                                 if(tooltip != null) conParent[i].addListener(tooltip);
@@ -513,7 +551,7 @@ public class TiledStructuresCanvas extends WidgetGroup{
                     }
                 }
                 table(Tex.whiteui, t -> {
-                    float pad = (unitSize/scl - 32f) / 2f - 4f;
+                    float pad = (unitSize / scl - 32f) / 2f - 4f;
                     t.margin(pad);
                     t.touchable(() -> Touchable.enabled);
                     t.setColor(Pal.gray);
@@ -559,7 +597,8 @@ public class TiledStructuresCanvas extends WidgetGroup{
                         table(outputButtons -> {
                             for(int i = 0; i < conChildren.length; i++){
                                 outputButtons.add(conChildren[i] = new Connector(false, i)).growX().height(height1 / conChildren.length)
-                                    .growX().size(connectorWidth,connectorHeight);;
+                                    .growX().size(connectorWidth, connectorHeight);
+                                ;
                                 outputButtons.row();
                                 Tooltip tooltip = obj.outputConnectorTooltip(i);
                                 if(tooltip != null) conChildren[i].addListener(tooltip);
@@ -617,12 +656,12 @@ public class TiledStructuresCanvas extends WidgetGroup{
 
                 @Override
                 public boolean touchDown(InputEvent event, float x, float y, int pointer, KeyCode button){
-                    if(moving != null) return false;
-                    moving = StructureTile.this;
-                    moving.toFront();
+                    if(moving.any()) return false;
+                    moving.add(StructureTile.this);
+                    moving.get(0).toFront();
 
-                    prevX = moving.tx;
-                    prevY = moving.ty;
+                    prevX = moving.get(0).tx;
+                    prevY = moving.get(0).ty;
 
                     // Convert to world pos first because the button gets dragged too.
                     Vec2 pos = event.listenerActor.localToStageCoordinates(Tmp.v1.set(x, y));
@@ -642,13 +681,13 @@ public class TiledStructuresCanvas extends WidgetGroup{
 
                 @Override
                 public void touchUp(InputEvent event, float x, float y, int pointer, KeyCode button){
-                    if(!moveTile(moving,
+                    if(moving.contains(moving -> !moveTile(moving, StructureTilemap.this.moving,
                         Mathf.round(moving.x / unitSize),
                         Mathf.round(moving.y / unitSize)
-                    )){
-                        moving.pos(prevX, prevY);
+                    ))){
+                        moving.setPosition(prevX, prevY);
                     }
-                    moving = null;
+                    moving.clear();
                 }
             }
 
