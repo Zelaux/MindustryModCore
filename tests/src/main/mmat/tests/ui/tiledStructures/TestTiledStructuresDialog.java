@@ -105,7 +105,7 @@ public class TestTiledStructuresDialog extends TiledStructuresDialog{
                 float y = Math.min(mouse.y, startPosition.y);
                 float width = Math.abs(mouse.x - startPosition.x);
                 float height = Math.abs(mouse.y - startPosition.y);
-                Draw.color(Pal.accent,0.5f);
+                Draw.color(Pal.accent, 0.5f);
                 Fill.crect(x, y, width, height);
                 Draw.color();
             }
@@ -146,6 +146,13 @@ public class TestTiledStructuresDialog extends TiledStructuresDialog{
                         canvas.beginQuery(new TestStructure());
                     }
                 });
+                buttons.button("add 2", Icon.add, () -> {
+                    TestStructure a = new TestStructure();
+                    TestStructure b = new TestStructure();
+                    a.addParent(b, 1, 0);
+                    canvas.addQuery(a);
+                    canvas.addQuery(b);
+                });
                 buttons.button("select", Styles.flatTogglet, () -> {
                     if(!selectionTable.remove()){
                         Core.scene.add(selectionTable);
@@ -153,7 +160,7 @@ public class TestTiledStructuresDialog extends TiledStructuresDialog{
                     }else{
                         System.out.println("disabled");
                     }
-                }).checked(it->selectionTable.parent!=null);
+                }).checked(it -> selectionTable.parent != null);
                 if(mobile){
                     buttons.button("@cancel", Icon.cancel, canvas::stopQuery).disabled(b -> !canvas.isQuerying());
                     buttons.button("@ok", Icon.ok, canvas::placeQuery).disabled(b -> !canvas.isQuerying());
