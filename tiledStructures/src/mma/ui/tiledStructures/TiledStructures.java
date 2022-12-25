@@ -135,7 +135,7 @@ public class TiledStructures implements
             TiledStructure<?> structure = all.get(i);
             String name = structureToString(structure);
             if(name.equals("-1")){
-                Log.err("Cannot save wires for @", JsonIO.print(JsonIO.write(structure)));
+                Log.err("Cannot save wires for @(@, @)", structure.typeName(), structure.editorX, structure.editorY);
                 continue;
             }
             json.writeArrayStart(name);
@@ -143,7 +143,7 @@ public class TiledStructures implements
                 if(inputWire.obj == null) continue;
                 String value = structureToString(inputWire.obj);
                 if(value.equals("-1")){
-                    Log.err("Cannot save wire with @ for @", JsonIO.write(inputWire.obj), JsonIO.write(structure));
+                    Log.err("Cannot save wire with @(@, @) for @(@, @)", inputWire.obj.typeName(), inputWire.obj.editorX, inputWire.obj.editorY, structure.typeName(), structure.editorX, structure.editorY);
                     continue;
                 }
                 json.writeObjectStart();
