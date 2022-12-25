@@ -364,7 +364,7 @@ public class TiledStructuresCanvas extends WidgetGroup{
                     }
                     for(ConnectionWire<?> inputWire : queryStructure.inputWires){
                         StructureTile parentTile = queryTiles.find(it -> inputWire.obj == it.obj);
-                        drawWire(tile,parentTile, inputWire);
+                        drawWire(tile,parentTile, inputWire, false);
                     }
                 }
 
@@ -444,7 +444,7 @@ public class TiledStructuresCanvas extends WidgetGroup{
                     }
 
 
-                    drawWire(tile,parentTile, parent);
+                    drawWire(tile,parentTile, parent, true);
                 }
             }
 
@@ -466,14 +466,18 @@ public class TiledStructuresCanvas extends WidgetGroup{
             Draw.reset();
         }
 
-        private void drawWire(StructureTile tile ,StructureTile parentTile, ConnectionWire<?> parent){
+        private void drawWire(StructureTile tile , StructureTile parentTile, ConnectionWire<?> parent, boolean shouldOffset){
             Connector
                 conFrom = parentTile.conChildren[parent.parentOutput],
                 conTo = tile.conParent[parent.input];
             if(conFrom.isDisabled() || conTo.isDisabled()) return;
             Vec2
-                from = conFrom.localToAscendantCoordinates(this, Tmp.v1.set(conFrom.getWidth() / 2f, conFrom.getHeight() / 2f)).add(x, y),
-                to = conTo.localToAscendantCoordinates(this, Tmp.v2.set(conTo.getWidth() / 2f, conTo.getHeight() / 2f)).add(x, y);
+                from = conFrom.localToAscendantCoordinates(this, Tmp.v1.set(conFrom.getWidth() / 2f, conFrom.getHeight() / 2f)),
+                to = conTo.localToAscendantCoordinates(this, Tmp.v2.set(conTo.getWidth() / 2f, conTo.getHeight() / 2f));
+            if (shouldOffset){
+                from.add(x, y);
+                to.add(x, y);
+            }
 
             drawCurve(parent.obj.colorForInput(parent.parentOutput), from.x, from.y, to.x, to.y, parent.obj == tile.obj);
         }

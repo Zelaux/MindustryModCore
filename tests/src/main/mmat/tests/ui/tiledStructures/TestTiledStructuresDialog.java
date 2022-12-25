@@ -130,6 +130,11 @@ public class TestTiledStructuresDialog extends TiledStructuresDialog{
             new Image(Styles.black5),
             canvas = new TiledStructuresCanvas(this),
             new Table(){{
+                canvas.update(() -> {
+                    canvas.originX = canvas.getWidth() / 2f;
+                    canvas.originY = canvas.getHeight() / 2f;
+                });
+                canvas.setTransform(true);
                 buttons.defaults().size(160f, 64f).pad(2f);
                 buttons.button("@back", Icon.left, () -> hide());
               /*  buttons.button("@add", Icon.add, () -> getProvider(initClass).get(new TypeInfo(initClass), it -> {
@@ -153,7 +158,6 @@ public class TestTiledStructuresDialog extends TiledStructuresDialog{
                     canvas.addQuery(a);
                     canvas.addQuery(b);
                 });
-                canvas.setTransform(true);
                 buttons.button("+", () -> {
                     float scale = (1f / 4) + 1;
                     canvas.scaleX *= scale;
