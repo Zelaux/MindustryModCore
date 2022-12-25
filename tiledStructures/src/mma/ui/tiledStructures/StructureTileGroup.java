@@ -109,15 +109,16 @@ public class StructureTileGroup{
     public void add(StructureTileGroup group){
         tiles.set(group.tiles);
     }
+
     public void set(StructureTileGroup group){
         clear();
         tiles.set(group.tiles);
-        structureX=group.structureX;
-        structureY=group.structureY;
-        x=group.x;
-        y=group.y;
-        width=group.width;
-        height=group.height;
+        structureX = group.structureX;
+        structureY = group.structureY;
+        x = group.x;
+        y = group.y;
+        width = group.width;
+        height = group.height;
     }
 
     public void updateSize(){
@@ -127,6 +128,7 @@ public class StructureTileGroup{
     public float x(){
         return x;
     }
+
     public float y(){
         return y;
     }
@@ -134,7 +136,13 @@ public class StructureTileGroup{
     public int structureX(){
         return structureX;
     }
+
     public int structureY(){
         return structureY;
+    }
+
+    public void remove(StructureTile tile){
+        tiles.remove(tile);
+        calculateSize();
     }
 }

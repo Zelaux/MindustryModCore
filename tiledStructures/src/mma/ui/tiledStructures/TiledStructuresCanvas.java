@@ -484,6 +484,7 @@ public class TiledStructuresCanvas extends WidgetGroup{
 
         public void removeTile(StructureTile tile){
             if(!tile.isDescendantOf(this)) return;
+            selection.remove(tile);
             tile.remove();
             updateStructures();
         }
