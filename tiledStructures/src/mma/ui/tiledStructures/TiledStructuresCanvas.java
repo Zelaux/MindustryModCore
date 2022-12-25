@@ -811,6 +811,7 @@ public class TiledStructuresCanvas extends WidgetGroup{
 
                     // Convert to world pos first because the button gets dragged too.
                     Vec2 pos = event.listenerActor.localToStageCoordinates(Tmp.v1.set(x, y));
+                    tilemap.stageToLocalCoordinates(pos);
                     lastX = pos.x;
                     lastY = pos.y;
                     return true;
@@ -819,6 +820,8 @@ public class TiledStructuresCanvas extends WidgetGroup{
                 @Override
                 public void touchDragged(InputEvent event, float x, float y, int pointer){
                     Vec2 pos = event.listenerActor.localToStageCoordinates(Tmp.v1.set(x, y));
+tilemap.stageToLocalCoordinates(pos);
+
 
                     moving.moveBy(pos.x - lastX, pos.y - lastY);
                     lastX = pos.x;

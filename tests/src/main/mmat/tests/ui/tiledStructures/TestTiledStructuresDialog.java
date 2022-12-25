@@ -153,6 +153,17 @@ public class TestTiledStructuresDialog extends TiledStructuresDialog{
                     canvas.addQuery(a);
                     canvas.addQuery(b);
                 });
+                canvas.setTransform(true);
+                buttons.button("+", () -> {
+                    float scale = (1f / 4) + 1;
+                    canvas.scaleX *= scale;
+                    canvas.scaleY *= scale;
+                }).size(48f);
+                buttons.button("-", () -> {
+                    float scale = (-1f / 4) + 1;
+                    canvas.scaleX *= scale;
+                    canvas.scaleY *= scale;
+                }).size(48f);
                 buttons.button("select", Styles.flatTogglet, () -> {
                     if(!selectionTable.remove()){
                         Core.scene.add(selectionTable);

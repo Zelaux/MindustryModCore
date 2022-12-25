@@ -5,7 +5,7 @@ import arc.struct.*;
 import mma.ui.tiledStructures.TiledStructuresCanvas.StructureTilemap.*;
 
 public class StructureTileGroup{
-    private Seq<StructureTile> tiles = new Seq<>();
+    private final Seq<StructureTile> tiles = new Seq<>();
     private float x, y;
     private int structureX, structureY;
     private int width = 0, height = 0;
