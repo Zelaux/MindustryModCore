@@ -33,7 +33,7 @@ public class StructureTileGroup{
         calculateSize();
     }
 
-    private void calculateSize(){
+    public void calculateSize(){
         int minX = Integer.MAX_VALUE, minY = Integer.MAX_VALUE;
         float minElementX = Integer.MAX_VALUE, minElementY = Integer.MAX_VALUE;
         int maxX = Integer.MIN_VALUE, maxY = Integer.MIN_VALUE;
@@ -119,10 +119,6 @@ public class StructureTileGroup{
         y = group.y;
         width = group.width;
         height = group.height;
-    }
-
-    public void updateSize(){
-        calculateSize();
     }
 
     public float x(){

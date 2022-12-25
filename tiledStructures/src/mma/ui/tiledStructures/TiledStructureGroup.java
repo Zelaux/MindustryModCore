@@ -34,7 +34,7 @@ public class TiledStructureGroup{
         if(hasPosition) calculateSize();
     }
 
-    private void calculateSize(){
+    public void calculateSize(){
         int minX = Integer.MAX_VALUE, minY = Integer.MAX_VALUE;
         int maxX = Integer.MIN_VALUE, maxY = Integer.MIN_VALUE;
         for(TiledStructure<?> structure : structures){
