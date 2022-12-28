@@ -44,8 +44,8 @@ public class StructureTileGroup{
             minElementX = Math.min(structure.x, minElementX);
             minElementY = Math.min(structure.y, minElementY);
 
-            maxX = Math.max(structure.obj.editorX, maxX);
-            maxY = Math.max(structure.obj.editorY, maxY);
+            maxX = Math.max(structure.obj.editorX + structure.obj.objWidth(), maxX);
+            maxY = Math.max(structure.obj.editorY + structure.obj.objHeight(), maxY);
         }
         width = maxX - minX;
         height = maxY - minY;

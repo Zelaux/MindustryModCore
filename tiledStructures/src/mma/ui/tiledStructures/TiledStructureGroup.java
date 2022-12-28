@@ -41,8 +41,8 @@ public class TiledStructureGroup{
             minX = Math.min(structure.editorX, minX);
             minY = Math.min(structure.editorY, minY);
 
-            maxX = Math.max(structure.editorX, maxX);
-            maxY = Math.max(structure.editorY, maxY);
+            maxX = Math.max(structure.editorX + structure.objWidth(), maxX);
+            maxY = Math.max(structure.editorY + structure.objHeight(), maxY);
         }
         width = maxX - minX;
         height = maxY - minY;
