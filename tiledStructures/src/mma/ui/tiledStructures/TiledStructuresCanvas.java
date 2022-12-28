@@ -355,8 +355,8 @@ public class TiledStructuresCanvas extends WidgetGroup{
                     float queryX;
                     float queryY;
                     if(mobile){
-                        queryX=query.x()*unitSize;
-                        queryY=query.y()*unitSize;
+                        queryX = query.x() * unitSize;
+                        queryY = query.y() * unitSize;
                     }else{
                         Vec2 pos = screenToLocalCoordinates(Core.input.mouse());
                         queryX = floatQueryX(pos);
@@ -364,7 +364,7 @@ public class TiledStructuresCanvas extends WidgetGroup{
                     }
                     for(ConnectionWire<?> inputWire : queryStructure.inputWires){
                         StructureTile parentTile = queryTiles.find(it -> inputWire.obj == it.obj);
-                        drawWire(tile,parentTile, inputWire, false);
+                        drawWire(tile, parentTile, inputWire, false);
                     }
                 }
 
@@ -373,7 +373,7 @@ public class TiledStructuresCanvas extends WidgetGroup{
                 Tmp.m2.set(Draw.trans());
                 Draw.proj(0, 0, Core.graphics.getWidth(), Core.graphics.getHeight());
                 Draw.trans().idt();
-                Draw.color(Color.white, Mathf.absin(5, 0.5f)+0.25f);
+                Draw.color(Color.white, Mathf.absin(5, 0.5f) + 0.25f);
                 Draw.rect(Draw.wrap(frameBuffer.getTexture()), Core.graphics.getWidth() / 2f, Core.graphics.getHeight() / 2f, Core.graphics.getWidth(), -Core.graphics.getHeight());
                 Draw.proj(Tmp.m1);
                 Draw.trans(Tmp.m2);
@@ -444,7 +444,7 @@ public class TiledStructuresCanvas extends WidgetGroup{
                     }
 
 
-                    drawWire(tile,parentTile, parent, true);
+                    drawWire(tile, parentTile, parent, true);
                 }
             }
 
@@ -466,7 +466,7 @@ public class TiledStructuresCanvas extends WidgetGroup{
             Draw.reset();
         }
 
-        private void drawWire(StructureTile tile , StructureTile parentTile, ConnectionWire<?> parent, boolean shouldOffset){
+        private void drawWire(StructureTile tile, StructureTile parentTile, ConnectionWire<?> parent, boolean shouldOffset){
             Connector
                 conFrom = parentTile.conChildren[parent.parentOutput],
                 conTo = tile.conParent[parent.input];
@@ -474,7 +474,7 @@ public class TiledStructuresCanvas extends WidgetGroup{
             Vec2
                 from = conFrom.localToAscendantCoordinates(this, Tmp.v1.set(conFrom.getWidth() / 2f, conFrom.getHeight() / 2f)),
                 to = conTo.localToAscendantCoordinates(this, Tmp.v2.set(conTo.getWidth() / 2f, conTo.getHeight() / 2f));
-            if (shouldOffset){
+            if(shouldOffset){
                 from.add(x, y);
                 to.add(x, y);
             }
@@ -686,12 +686,16 @@ public class TiledStructuresCanvas extends WidgetGroup{
                         table(inputButtons -> {
                             for(int i = 0; i < conParent.length; i++){
                                 inputButtons.add(conParent[i] = new Connector(true, i))
-                                    .growX().size(connectorWidth, connectorHeight);
+                                    .growX().size(connectorWidth, connectorHeight)
+                                    .name("input-connector-" + i)
+                                ;
                                 inputButtons.row();
                                 Tooltip tooltip = obj.inputConnectorTooltip(i);
                                 if(tooltip != null) conParent[i].addListener(tooltip);
                             }
-                        }).size(connectorWidth, height1);
+                        }).size(connectorWidth, height1)
+                            .name("input-connectors")
+                        ;
                     }
                 }
                 table(Tex.whiteui, t -> {
@@ -705,15 +709,20 @@ public class TiledStructuresCanvas extends WidgetGroup{
                     t.table(label -> {
                         label.labelWrap(obj.typeName())
                             .style(Styles.outlineLabel)
+                            .name("name-label")
                             .left().grow().get()
                             .setAlignment(Align.left);
                         if(editor != null || oneHeight){
-                            label.button(Icon.trashSmall, () -> removeTile(this)).right().size(40f);
+                            label.button(Icon.trashSmall, () -> removeTile(this))
+                                .right()
+                                .size(40f)
+                                .name("remove-button")
+                            ;
                             if(oneHeight && obj.hasFields()){
-                                label.button(Icon.pencilSmall, () -> showEditDialog(obj)).disabled(!obj.hasFields()).size(40f);
+                                label.button(Icon.pencilSmall, () -> showEditDialog(obj)).disabled(!obj.hasFields()).size(40f).name("edit-button");
                             }
                         }
-                    }).grow();
+                    }).name("label-table").grow();
 
                     t.row();
                     if(!oneHeight){
@@ -725,12 +734,15 @@ public class TiledStructuresCanvas extends WidgetGroup{
                                 b.left().defaults().size(40f);
                                 b.button(Icon.pencilSmall, () -> {
                                     showEditDialog(obj);
-                                }).disabled(!obj.hasFields());
-                                b.button(Icon.trashSmall, () -> removeTile(this)).right().size(40f);
+                                }).disabled(!obj.hasFields()).name("edit-button");
+                                b.button(Icon.trashSmall, () -> removeTile(this)).right().size(40f)
+                                    .name("remove-button");
                             }
                         }).left().grow();
                     }
-                }).growX().height(unitSize * obj.objHeight() / scl).get().addCaptureListener(mover = new Mover());
+                }).growX().height(unitSize * obj.objHeight() / scl)
+                    .name("center-table")
+                    .get().addCaptureListener(mover = new Mover());
                 outputs:
                 {
                     conChildren = new Connector[obj.outputConnections()];
@@ -741,13 +753,13 @@ public class TiledStructuresCanvas extends WidgetGroup{
                         table(outputButtons -> {
                             for(int i = 0; i < conChildren.length; i++){
                                 outputButtons.add(conChildren[i] = new Connector(false, i)).growX().height(height1 / conChildren.length)
-                                    .growX().size(connectorWidth, connectorHeight);
+                                    .growX().size(connectorWidth, connectorHeight).name("output-connector-" + i);
                                 ;
                                 outputButtons.row();
                                 Tooltip tooltip = obj.outputConnectorTooltip(i);
                                 if(tooltip != null) conChildren[i].addListener(tooltip);
                             }
-                        }).size(connectorWidth, height1);
+                        }).size(connectorWidth, height1).name("output-connectors");
                     }
                 }
 
@@ -824,7 +836,7 @@ public class TiledStructuresCanvas extends WidgetGroup{
                 @Override
                 public void touchDragged(InputEvent event, float x, float y, int pointer){
                     Vec2 pos = event.listenerActor.localToStageCoordinates(Tmp.v1.set(x, y));
-tilemap.stageToLocalCoordinates(pos);
+                    tilemap.stageToLocalCoordinates(pos);
 
 
                     moving.moveBy(pos.x - lastX, pos.y - lastY);
