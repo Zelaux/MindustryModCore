@@ -669,6 +669,7 @@ public class TiledStructuresDialog extends BaseDialog{
     public static class TiledStructureSettings{
         public boolean updateStructuresOnChange = true;
         public boolean updateStructuresAfterConfig = true;
+        public boolean ignoreEmptyWires;
     }
 
     /**

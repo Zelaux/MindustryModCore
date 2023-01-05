@@ -29,6 +29,8 @@ import mma.ui.tiledStructures.TiledStructuresCanvas.StructureTilemap.StructureTi
 import mma.ui.tiledStructures.TiledStructuresDialog.*;
 import org.jetbrains.annotations.*;
 
+import java.util.*;
+
 import static mindustry.Vars.mobile;
 
 public class TiledStructuresCanvas extends WidgetGroup{
@@ -428,7 +430,7 @@ public class TiledStructuresCanvas extends WidgetGroup{
             for(var tile : tiles){
                 for(var parent : tile.obj.inputWires){
                     var parentTile = tiles.find(t -> t.obj == parent.obj);
-
+                    if(tiledStructuresDialog.settings.ignoreEmptyWires && parentTile == null) continue;
                     Connector
                         conFrom = parentTile.conChildren[parent.parentOutput],
                         conTo = tile.conParent[parent.input];
@@ -669,7 +671,7 @@ public class TiledStructuresCanvas extends WidgetGroup{
             public int tx, ty;
 
             public StructureTile(TiledStructure<?> obj, int x, int y){
-                this.obj = obj;
+                this.obj = Objects.requireNonNull(obj, "obj cannot be null");
                 setTransform(false);
                 setClip(false);
                 int childrenSizes = Mathf.num(obj.inputConnections() > 0) + Mathf.num(obj.outputConnections() > 0);
