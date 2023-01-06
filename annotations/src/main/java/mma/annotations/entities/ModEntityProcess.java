@@ -237,7 +237,7 @@ public class ModEntityProcess extends ModBaseProcessor{
                     );
                 }
             }
-            if (defaultImpl!=null)write(defaultImpl);
+            if (defaultImpl!=null)write(defaultImpl,getImports(component.e));
         }
 
         //store components
