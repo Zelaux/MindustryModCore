@@ -196,6 +196,8 @@ public class ModEntityProcess extends ModBaseProcessor{
         //store code
         for(Stype component : allComponents){
 
+
+
             for(Svar f : component.fields()){
 
                 //add initializer if it exists
@@ -204,18 +206,33 @@ public class ModEntityProcess extends ModBaseProcessor{
                     varInitializers.put(f.descString(), init);
                 }
             }
+            TypeSpec.Builder defaultImpl=null;
+            if(component.annotation(GenerateDefaultImplementation.class) != null){
 
+                defaultImpl = TypeSpec.interfaceBuilder(component.name().replace("Comp", "cImpl"))
+                                          .addSuperinterface(ClassName.bestGuess(interfaceName(component)));
+            }
             for(Smethod elem : component.methods()){
                 if(elem.is(Modifier.ABSTRACT) || elem.is(Modifier.NATIVE)) continue;
                 //get all statements in the method, store them
-                String value = elem.tree().getBody().toString()
+                String stringBody = elem.tree().getBody().toString();
+                String value = stringBody
                 .replaceAll("this\\.<(.*)>self\\(\\)", "this") //fix parameterized self() calls
                 .replaceAll("self\\(\\)", "this") //fix self() calls
                 .replaceAll(" yield ", "") //fix enchanced switch
                 .replaceAll("\\/\\*missing\\*\\/", "var");
                 methodBlocks.put(elem.descString(), value //fix vars
                 );
+                if (defaultImpl!=null){
+                    defaultImpl.addMethod(MethodSpec.methodBuilder(elem.name())
+                                              .addAnnotation(Override.class)
+                                              .addModifiers(Modifier.PUBLIC,Modifier.DEFAULT)
+                                              .addCode(stringBody)
+                                              .build()
+                    );
+                }
             }
+            if (defaultImpl!=null)write(defaultImpl);
         }
 
         //store components

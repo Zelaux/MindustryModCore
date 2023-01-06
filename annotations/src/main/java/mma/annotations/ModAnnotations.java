@@ -73,13 +73,16 @@ public class ModAnnotations extends Annotations{
     //endregion
 
     //region entity interfaces
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface GenerateDefaultImplementation{
+    }
 
     /** The return statement of a method with this annotation will not be replaced. */
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.SOURCE)
     public @interface GlobalReturn{
     }
-
     /**
      * Ignores implementations from selected components for current method
      */
