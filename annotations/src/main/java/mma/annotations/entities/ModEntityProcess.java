@@ -231,6 +231,8 @@ public class ModEntityProcess extends ModBaseProcessor{
                                               .addAnnotation(Override.class)
                                               .addModifiers(Modifier.PUBLIC,Modifier.DEFAULT)
                                               .addCode(stringBody)
+                                              .addParameters(Seq.with(elem.params()).map(it-> ParameterSpec.builder(it.tname(),it.name()).build()))
+                                              .returns(elem.retn())
                                               .build()
                     );
                 }
