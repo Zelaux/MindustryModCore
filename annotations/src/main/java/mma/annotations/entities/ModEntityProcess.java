@@ -210,7 +210,10 @@ public class ModEntityProcess extends ModBaseProcessor{
             if(component.annotation(GenerateDefaultImplementation.class) != null){
 
                 defaultImpl = TypeSpec.interfaceBuilder(component.name().replace("Comp", "cImpl"))
-                                          .addSuperinterface(ClassName.bestGuess(interfaceName(component)));
+                                          .addSuperinterface(ClassName.bestGuess(interfaceName(component)))
+                                  .addModifiers(Modifier.PUBLIC)
+
+                ;
             }
             for(Smethod elem : component.methods()){
                 if(elem.is(Modifier.ABSTRACT) || elem.is(Modifier.NATIVE)) continue;
