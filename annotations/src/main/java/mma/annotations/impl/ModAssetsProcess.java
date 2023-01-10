@@ -3,10 +3,14 @@ package mma.annotations.impl;
 import arc.files.*;
 import arc.func.*;
 import arc.struct.*;
+import arc.util.*;
 import com.squareup.javapoet.*;
+import mindustry.*;
 import mindustry.annotations.*;
-import mma.annotations.*;
+import mindustry.mod.*;
+import mindustry.mod.Mods.*;
 import mma.annotations.SupportedAnnotationTypes;
+import mma.annotations.*;
 
 import javax.annotation.processing.*;
 import javax.lang.model.*;
@@ -43,7 +47,7 @@ public class ModAssetsProcess extends ModBaseProcessor{
     }
 
     private String getAssetsPath(){
-        return annotationsSettings(AnnotationSettingsEnum.assetsPath, rootDirectory + "/core/assets");
+        return rootDirectory + "/" + annotationsSettings(AnnotationSettingsEnum.assetsPath, "core/assets");
     }
 
     void processUI(Set<? extends Element> elements) throws Exception{
@@ -53,7 +57,7 @@ public class ModAssetsProcess extends ModBaseProcessor{
         MethodSpec.Builder loadStyles = MethodSpec.methodBuilder("loadStyles").addModifiers(Modifier.PUBLIC, Modifier.STATIC);
         MethodSpec.Builder load = MethodSpec.methodBuilder("load").addModifiers(Modifier.PUBLIC, Modifier.STATIC);
         String assetsRawPath = annotationsSettings(AnnotationSettingsEnum.assetsRawPath, rootDirectory + "/core/assets-raw");
-        if (assetsRawPath.equals("null"))assetsRawPath=getAssetsPath();
+        if(assetsRawPath.equals("null")) assetsRawPath = getAssetsPath();
         String[] resourcesArray = {assetsRawPath + "/sprites/ui"/*, assetsRawPath + "/sprites/cui"*/};
         Cons<Fi> walker = p -> {
             if(!p.extEquals("png")) return;
@@ -77,7 +81,7 @@ public class ModAssetsProcess extends ModBaseProcessor{
             Seq.with(elem.getEnclosedElements()).each(e -> e.getKind() == ElementKind.FIELD, field -> {
                 String fname = field.getSimpleName().toString();
                 if(fname.startsWith("default")){
-                    loadStyles.addStatement("arc.Core.scene.addStyle(" + field.asType().toString() + ".class, "+field.getEnclosingElement().toString()+"." + fname + ")");
+                    loadStyles.addStatement("arc.Core.scene.addStyle(" + field.asType().toString() + ".class, " + field.getEnclosingElement().toString() + "." + fname + ")");
                 }
             });
         }
@@ -86,7 +90,7 @@ public class ModAssetsProcess extends ModBaseProcessor{
             if(folder.exists()){
                 folder.walk(walker);
 //                warn("Found ui folder "+ folder.file().getAbsolutePath());
-            } else{
+            }else{
 //                warn("Cannot find ui folder "+ folder.file().getAbsolutePath());
             }
         }
@@ -97,13 +101,17 @@ public class ModAssetsProcess extends ModBaseProcessor{
     }
 
     void processSounds(String classname, String path, String rtype) throws Exception{
+        System.out.println("classname: " + classname + ", path: " + path);
         TypeSpec.Builder type = TypeSpec.classBuilder(classname).addModifiers(Modifier.PUBLIC);
         MethodSpec.Builder loadBegin = MethodSpec.methodBuilder("load").addModifiers(Modifier.PUBLIC, Modifier.STATIC).addException(ClassName.get(Exception.class));
+        MethodSpec.Builder loadNowBegin = MethodSpec.methodBuilder("loadNow").addModifiers(Modifier.PUBLIC, Modifier.STATIC).addException(ClassName.get(Exception.class));
 
         HashSet<String> names = new HashSet<>();
-        Fi.get(path).walk(p -> {
-            String name = p.nameWithoutExtension();
 
+        loadNowBegin.addStatement("$T __loadedMod__=$T.mods.getMod($S)", LoadedMod.class, Vars.class,modInfo().name);
+        Fi.get(path).walk(p -> {
+//            System.out.println("p: "+p);
+            String name = p.nameWithoutExtension();
             if(names.contains(name)){
                 BaseProcessor.err("Duplicate file name: " + p.toString() + "!");
             }else{
@@ -119,6 +127,8 @@ public class ModAssetsProcess extends ModBaseProcessor{
 //            loadBegin.addStatement(Strings.format("@=new @(ModVars.modVars.modAssets.get(\"@\",\"@\"));", name, rtype, path.substring(path.lastIndexOf("/")+1) ,p.path().substring(p.path().lastIndexOf(path) + path.length()+1)));
 //            loadBegin.addStatement(                    Strings.format("@=new @(ModVars.modVars.modInfo.root.child(@));",name,rtype,filename));
             loadBegin.addStatement("arc.Core.assets.load(" + filename + ", " + rtype + ".class).loaded = a -> " + name + " = (" + rtype + ")a", filepath, filepath.replace(".ogg", ".mp3"));
+            loadNowBegin.addStatement(name + " = new " + rtype + "(__loadedMod__.root.child("+filename+"))");
+//            loadNowBegin.addStatement("arc.Core.assets.load(" + filename + ", " + rtype + ".class).loaded = a -> " + name + " = (" + rtype + ")a", filepath, filepath.replace(".ogg", ".mp3"));
 
             type.addField(FieldSpec.builder(ClassName.bestGuess(rtype), name, Modifier.STATIC, Modifier.PUBLIC).initializer("new arc.audio." + rtype.substring(rtype.lastIndexOf(".") + 1) + "()").build());
         });
@@ -128,6 +138,7 @@ public class ModAssetsProcess extends ModBaseProcessor{
         }
 
         type.addMethod(loadBegin.build());
+        type.addMethod(loadNowBegin.build());
         JavaFile.builder(packageName, type.build()).build().writeTo(BaseProcessor.filer);
     }
 }
