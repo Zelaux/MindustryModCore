@@ -72,7 +72,8 @@ public abstract class ModBaseProcessor extends BaseProcessor{
         ModMeta meta = modInfoNull();
         if(meta == null){
             if(annotationSettingsAnnotation != null && !annotationSettingsAnnotation.modInfoPath().equals("\n")){
-                err("Cannot find mod info file", annotationSettingsAnnotationElement);
+
+                err("Cannot find mod info file("+rootDirectory.child(annotationSettingsAnnotation.modInfoPath()).file().getAbsolutePath()+")", annotationSettingsAnnotationElement);
             }else{
                 err("Cannot find mod info file");
             }
