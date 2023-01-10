@@ -127,7 +127,7 @@ public class ModAssetsProcess extends ModBaseProcessor{
 //            loadBegin.addStatement(Strings.format("@=new @(ModVars.modVars.modAssets.get(\"@\",\"@\"));", name, rtype, path.substring(path.lastIndexOf("/")+1) ,p.path().substring(p.path().lastIndexOf(path) + path.length()+1)));
 //            loadBegin.addStatement(                    Strings.format("@=new @(ModVars.modVars.modInfo.root.child(@));",name,rtype,filename));
             loadBegin.addStatement("arc.Core.assets.load(" + filename + ", " + rtype + ".class).loaded = a -> " + name + " = (" + rtype + ")a", filepath, filepath.replace(".ogg", ".mp3"));
-            loadNowBegin.addStatement(name + " = new " + rtype + "(__loadedMod__.root.child("+filename+"))");
+            loadNowBegin.addStatement(name + " = new " + rtype + "(__loadedMod__.root.child("+ Strings.join("\").child(\"",filename.split("[/\\\\]")) +"))");
 //            loadNowBegin.addStatement("arc.Core.assets.load(" + filename + ", " + rtype + ".class).loaded = a -> " + name + " = (" + rtype + ")a", filepath, filepath.replace(".ogg", ".mp3"));
 
             type.addField(FieldSpec.builder(ClassName.bestGuess(rtype), name, Modifier.STATIC, Modifier.PUBLIC).initializer("new arc.audio." + rtype.substring(rtype.lastIndexOf(".") + 1) + "()").build());
