@@ -423,7 +423,9 @@ public class ModEntityProcess extends ModBaseProcessor{
                 groupDefs.add(new GroupDefinition(name,
                 baseType, types, an.spatial(), an.mapping(), collides, modGroup));
 
-                TypeSpec.Builder accessor = TypeSpec.interfaceBuilder("IndexableEntity__" + name);
+                TypeSpec.Builder accessor = TypeSpec.interfaceBuilder("IndexableEntity__" + name)
+                .addModifiers(Modifier.PUBLIC)
+                ;
                 accessor.addMethod(MethodSpec.methodBuilder("setIndex__" + name).addModifiers(Modifier.ABSTRACT, Modifier.PUBLIC).addParameter(int.class, "index").returns(void.class).build());
                 write(accessor);
 
