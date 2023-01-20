@@ -20,11 +20,11 @@ import mma.tools.parsers.*;
 import java.util.*;
 
 public class AnukeCompDownloader{
-    private static final String annotationsClassName = "ModAnnotations";
-    private static final JavaCodeConverter codeConverter = new JavaCodeConverter(false);
-    private static final Seq<String> mindustryAnnotations = new Seq<>();
-    private static String packageName = null;
-    private static String selectedClassName = "";
+    protected static final String annotationsClassName = "ModAnnotations";
+    protected static final JavaCodeConverter codeConverter = new JavaCodeConverter(false);
+    protected static final Seq<String> mindustryAnnotations = new Seq<>();
+    protected static String packageName = null;
+    protected static String selectedClassName = "";
 
     public static void run(String mindustryVersion, String[] args){
         Seq<String> argsSeq = Seq.with(args);
@@ -118,7 +118,7 @@ public class AnukeCompDownloader{
             Fi.get("core/src/" + packageName + "/entities/GroupDefs.java").readString()
             .replace("\"", "\\\"").replace("\'", "\\\'")
             ));
-
+            EntityGroupsUpdater.run(mindustryVersion,compData,initializer,args);
             compilationUnit.setPackageDeclaration(packageName + ".annotations.entities");
             compDataFile.writeString(compilationUnit.toString());
         }catch(Exception e){
@@ -129,7 +129,7 @@ public class AnukeCompDownloader{
         folder.delete();
     }
 
-    private static void loadAnnotations(Fi annotations){
+    protected static void loadAnnotations(Fi annotations){
         ParseResult<CompilationUnit> result = codeConverter.javaParser.parse(annotations.readString());
         CompilationUnit compilationUnit = result.getResult().get();
         mindustryAnnotations.clear();
@@ -142,7 +142,7 @@ public class AnukeCompDownloader{
         }, null);
     }
 
-    private static String fixCode(String convert){
+    protected static String fixCode(String convert){
         CompilationUnit compilationUnit = codeConverter.javaParser.parse(convert).getResult().get();
         compilationUnit.setPackageDeclaration(packageName + ".entities.compByAnuke");
         compilationUnit.addImport("mindustry.logic.LAccess", true, true);
@@ -181,7 +181,7 @@ public class AnukeCompDownloader{
         return compilationUnit.toString();
     }
 
-    private static void addComment(Node parent, Comment comment, boolean replace){
+    protected static void addComment(Node parent, Comment comment, boolean replace){
         Optional<Comment> optional = parent.getComment();
         if(optional.isPresent()){
             if(replace){
@@ -203,7 +203,7 @@ public class AnukeCompDownloader{
         }
     }
 
-    private static void createAnnotationsConfigClass(Fi dir, Seq<String> names){
+    protected static void createAnnotationsConfigClass(Fi dir, Seq<String> names){
 
         CompilationUnit compilationUnit = new CompilationUnit();
         compilationUnit.setPackageDeclaration(packageName + ".entities.compByAnuke");
@@ -233,7 +233,7 @@ public class AnukeCompDownloader{
         return comp.substring(0, comp.length() - suffix.length()) + "c";
     }
 
-    private static Seq<String> transform(String line, Seq<String> out){
+    protected static Seq<String> transform(String line, Seq<String> out){
         out = new Seq<>();
         boolean debug = selectedClassName.equals("BuilderComp") && false;
         if(line.contains("return switch")){
@@ -399,12 +399,12 @@ public class AnukeCompDownloader{
         return out;
     }
 
-    private static String transform(String line){
+    protected static String transform(String line){
         Seq<String> transform = transform(line, null);
         return transform.toString("\n");
     }
 
-    private static String strip(String str){
+    protected static String strip(String str){
         while(str.startsWith(" ")){
             str = str.substring(1);
         }
@@ -414,7 +414,7 @@ public class AnukeCompDownloader{
         return str;
     }
 
-    private static boolean isMethod(String mline){
+    protected static boolean isMethod(String mline){
         return mline.contains("(") && mline.contains(")") && mline.contains("{") && mline.startsWith("    ") && !mline.substring(4).startsWith("    ");
     }
 }

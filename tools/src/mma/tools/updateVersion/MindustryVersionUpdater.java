@@ -36,6 +36,7 @@ public class MindustryVersionUpdater{
         runTask("ModPacker update", ModPackingUpdater::run);
 
         runTask("Annotations update", AnnotationsUpdater::run);
+//        runTask("Entity groups update", EntityGroupsUpdater::run);
 
 
     }

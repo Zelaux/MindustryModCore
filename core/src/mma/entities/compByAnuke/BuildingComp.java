@@ -415,6 +415,10 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
         for (var edge : block.getEdges()) {
             Building build = nearby(edge.x, edge.y);
             if (build != null && build.team == team && build instanceof HeatBlock heater) {
+                // massive hack but I don't really care anymore
+                if (heater instanceof HeatConductorBuild cond) {
+                    cond.updateHeat();
+                }
                 boolean split = build.block instanceof HeatConductor cond && cond.splitHeat;
                 // non-routers must face us, routers must face away - next to a redirector, they're forced to face away due to cycles anyway
                 if (!build.block.rotate || (!split && (relativeTo(build) + 2) % 4 == build.rotation) || (split && relativeTo(build) != build.rotation)) {
@@ -633,7 +637,7 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
         if (efficiency <= 0 || !productionValid()) {
             return BlockStatus.noInput;
         }
-        return BlockStatus.active;
+        return ((state.tick / 30f) % 1f) < efficiency ? BlockStatus.active : BlockStatus.noInput;
     }
 
     /**
@@ -1687,7 +1691,11 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
      */
     public boolean collision(Bullet other) {
         boolean wasDead = health <= 0;
-        damage(other.team, other.damage() * other.type().buildingDamageMultiplier);
+        float damage = other.damage() * other.type().buildingDamageMultiplier;
+        if (!other.type.pierceArmor) {
+            damage = Damage.applyArmor(damage, block.armor);
+        }
+        damage(other.team, damage);
         Events.fire(bulletDamageEvent.set(self(), other));
         if (health <= 0 && !wasDead) {
             Events.fire(new BuildingBulletDestroyEvent(self(), other));
@@ -1937,7 +1945,7 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
         if (Mathf.zero(dm)) {
             damage = health + 1;
         } else {
-            damage = Damage.applyArmor(damage, block.armor) / dm;
+            damage /= dm;
         }
         // TODO handle this better on the client.
         if (!net.client()) {
