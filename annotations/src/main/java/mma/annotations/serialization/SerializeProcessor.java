@@ -122,11 +122,22 @@ public class SerializeProcessor extends ModBaseProcessor{
             "$T rootObject = $L(obtain);\n" +
             "readsPool.free(obtain);\n" +
             "return rootObject",byteReads,byteReads,type.tname(),readMethod(type)));
+            MethodSpec.Builder fromBytesMethod2 = MethodSpec.methodBuilder(fromBytesMethod(type))
+            .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+            .addParameter(byte[].class, "bytes")
+            .addParameter(type.tname(), "rootObject")
+            .returns(type.tname());
+            fromBytesMethod2.addStatement(CodeBlock.of("$T obtain = ($T)readsPool.obtain();\n" +
+            "obtain.setBytes(bytes);\n"+
+            "$L(obtain,rootObject);\n" +
+            "readsPool.free(obtain);\n" +
+            "return rootObject",byteReads,byteReads,readMethod(type)));
 
             builder.addMethod(writeMethod.build());
             builder.addMethod(toBytesMethod.build());
             builder.addMethod(readMethod.build());
             builder.addMethod(fromBytesMethod.build());
+            builder.addMethod(fromBytesMethod2.build());
 
             //extra readMethod
             builder.addMethod(MethodSpec.methodBuilder(readMethod(type))
