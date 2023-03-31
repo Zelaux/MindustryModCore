@@ -226,4 +226,12 @@ public class ModAnnotations extends Annotations{
     @Retention(RetentionPolicy.SOURCE)
     public @interface CreateMindustrySerialization{
     }
+
+    /**
+     * Generates serializers and deserializers
+     */
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface Serialize{
+    }
 }

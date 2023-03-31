@@ -6,3 +6,4 @@ mma.annotations.impl.StructProcess
 mma.annotations.misc.LogicStatementProcessor
 mma.annotations.misc.ModLoadRegionProcessor
 mma.annotations.remote.ModRemoteProcess
+mma.annotations.serialization.SerializeProcessor
