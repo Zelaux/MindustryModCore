@@ -233,5 +233,6 @@ public class ModAnnotations extends Annotations{
     @Target(ElementType.TYPE)
     @Retention(RetentionPolicy.SOURCE)
     public @interface Serialize{
+        public String prefix() default "NIL";
     }
 }

@@ -5,6 +5,7 @@ import arc.struct.*;
 import arc.struct.ObjectMap.*;
 import arc.util.*;
 import arc.util.io.*;
+import arc.util.pooling.*;
 import com.squareup.javapoet.*;
 import com.squareup.javapoet.TypeSpec.*;
 import mindustry.annotations.util.*;
@@ -28,7 +29,8 @@ public class SerializeProcessor extends ModBaseProcessor{
         resolve = ModTypeIOResolver.resolve(this);
         ObjectMap<String, Seq<Stype>> map = new ObjectMap<>();
         for(Stype type : types){
-            map.get(classPrefix(), Seq::new).add(type);
+            String prefix = type.annotation(Serialize.class).prefix();
+            map.get(prefix.equals("NIL") ? classPrefix() : prefix, Seq::new).add(type);
         }
         for(Entry<String, Seq<Stype>> entry : map){
             generateSerializer(entry.key, entry.value);
@@ -44,22 +46,41 @@ public class SerializeProcessor extends ModBaseProcessor{
     public void generateSerializer(String serializerPrefix, Seq<Stype> types) throws Exception{
         ObjectMap<String, Stype> typeMap = types.asMap(Stype::fullName);
 
-        ObjectSet<String> imports=new ObjectSet<>();
+        ObjectSet<String> imports = new ObjectSet<>();
         Builder builder = TypeSpec.classBuilder(serializerPrefix + "Serializer").addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 //        CompilationUnit compilationUnit = new CompilationUnit();
 
 //        ClassOrInterfaceDeclaration declaration = compilationUnit.addClass("Serializer", Keyword.PUBLIC, Keyword.FINAL);
 
         for(Entry<String, Stype> entry : typeMap){
-            String name = entry.key;
             Stype type = entry.value;
             imports.addAll(getImports(type));
             resolve.writers.get(type.fullName(), () -> serializerPrefix + "Serializer." + writeMethod(type));
             resolve.readers.get(type.fullName(), () -> serializerPrefix + "Serializer." + readMethod(type));
         }
-
+        ClassName byteWrites = ClassName.get("mma.io", "ByteWrites");
+        ClassName byteReads = ClassName.get("mma.io", "ByteReads");
+        builder.addField(FieldSpec.builder(Pool.class,"writesPool",Modifier.STATIC,Modifier.FINAL)
+        .initializer(CodeBlock.of(
+        "new $L<$T>(){\n" +
+        "    @Override\n" +
+        "    protected $T newObject(){\n" +
+        "        return new $T();\n" +
+        "    }\n" +
+        "}",Pool.class.getCanonicalName(),byteWrites,byteWrites,byteWrites
+        ))
+        .build());
+        builder.addField(FieldSpec.builder(Pool.class,"readsPool",Modifier.STATIC,Modifier.FINAL)
+        .initializer(CodeBlock.of(
+        "new $L<$T>(){\n" +
+        "    @Override\n" +
+        "    protected $T newObject(){\n" +
+        "        return new $T();\n" +
+        "    }\n" +
+        "}",Pool.class.getCanonicalName(),byteReads,byteReads,byteReads
+        ))
+        .build());
         for(Entry<String, Stype> entry : typeMap){
-            String name = entry.key;
             Stype type = entry.value;
 
             Fi directory = rootDirectory.child(annotationsSettings(AnnotationSettingsEnum.revisionsPath, "annotations/src/main/resources/revisions")).child(type.name());
@@ -80,8 +101,32 @@ public class SerializeProcessor extends ModBaseProcessor{
             .addParameter(Reads.class, "read");
             io.write(readMethod, false);
 
+            MethodSpec.Builder toBytesMethod = MethodSpec.methodBuilder(toBytesMethod(type))
+            .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+            .addParameter(type.tname(), "rootObject")
+            .returns(byte[].class);
+            toBytesMethod.addStatement(CodeBlock.of("$T obtain = ($T)writesPool.obtain();\n" +
+            "obtain.reset();\n" +
+            "$L(obtain, rootObject);\n" +
+            "byte[] bytes = obtain.getBytes();\n" +
+            "obtain.reset();\n" +
+            "writesPool.free(obtain);\n" +
+            "return bytes",byteWrites,byteWrites,writeMethod(type)));
+
+            MethodSpec.Builder fromBytesMethod = MethodSpec.methodBuilder(fromBytesMethod(type))
+            .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+            .addParameter(byte[].class, "bytes")
+            .returns(type.tname());
+            fromBytesMethod.addStatement(CodeBlock.of("$T obtain = ($T)readsPool.obtain();\n" +
+            "obtain.setBytes(bytes);\n"+
+            "$T rootObject = $L(obtain);\n" +
+            "readsPool.free(obtain);\n" +
+            "return rootObject",byteReads,byteReads,type.tname(),readMethod(type)));
+
             builder.addMethod(writeMethod.build());
+            builder.addMethod(toBytesMethod.build());
             builder.addMethod(readMethod.build());
+            builder.addMethod(fromBytesMethod.build());
 
             //extra readMethod
             builder.addMethod(MethodSpec.methodBuilder(readMethod(type))
@@ -95,9 +140,15 @@ public class SerializeProcessor extends ModBaseProcessor{
 
         }
 
-        write(builder,imports.toSeq());
+        write(builder, imports.toSeq());
     }
 
+    private String toBytesMethod(Stype type){
+        return "toBytes" + Strings.capitalize(type.name());
+    }
+    private String fromBytesMethod(Stype type){
+        return "fromBytes" + Strings.capitalize(type.name());
+    }
     private String writeMethod(Stype type){
         return "write" + Strings.capitalize(type.name());
     }
