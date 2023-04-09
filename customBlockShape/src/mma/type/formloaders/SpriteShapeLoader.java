@@ -53,9 +53,7 @@ public class SpriteShapeLoader extends CustomShapeLoader<Pixmap>{
                 float counter = 0;
                 for(int dx = 0; dx < size; dx++){
                     for(int dy = 0; dy < size; dy++){
-                        Color color = Tmp.c1.set(pixmap.get(worldX + dx, worldY + dy));
-                        float max = Math.max(Math.max(color.r, color.g), color.b);
-                        counter += max;
+                        counter += pixmap.getA(worldX+dx,worldY+dy)/255f;
                     }
                 }
                 return counter / total > percent ? BlockType.block : BlockType.voidBlock;
