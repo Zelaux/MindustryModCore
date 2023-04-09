@@ -49,13 +49,13 @@ public class SpriteShapeLoader extends CustomShapeLoader<Pixmap>{
 
             @Override
             public BlockType process(Pixmap pixmap, int chunkX, int chunkY, int size){
-                BufferedImage image = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+                /*BufferedImage image = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
                 for(int dx = 0; dx < size; dx++){
                     for(int dy = 0; dy < size; dy++){
 
                         image.setRGB(dx, dy, Tmp.c1.set( pixmap.get(chunkX*size+dx,chunkY*size+dy)).argb8888());
                     }
-                }
+                }*/
                 if(chunkX == anchorChunkX && chunkY == anchorChunkY) return BlockType.anchorBlock;
                 int total = size * size;
                 int worldX = chunkX * size;
