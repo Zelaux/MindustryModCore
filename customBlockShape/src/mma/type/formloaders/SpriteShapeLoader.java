@@ -7,11 +7,11 @@ import mma.struct.BitWordList.*;
 import mma.type.CustomShape.*;
 import mma.type.*;
 
-public class SpriteLoader extends CustomShapeLoader<Pixmap>{
+public class SpriteShapeLoader extends CustomShapeLoader<Pixmap>{
     public final int chunkSize;
     public final ChunkProcessor chunkProcessor;
 
-    public SpriteLoader(int chunkSize, ChunkProcessor chunkProcessor){
+    public SpriteShapeLoader(int chunkSize, ChunkProcessor chunkProcessor){
         this.chunkSize = chunkSize;
         this.chunkProcessor = chunkProcessor;
     }

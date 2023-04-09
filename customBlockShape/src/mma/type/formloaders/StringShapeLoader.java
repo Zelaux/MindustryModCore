@@ -5,10 +5,10 @@ import mma.struct.BitWordList.*;
 import mma.type.CustomShape.*;
 import mma.type.*;
 
-public class StringLoader extends CustomShapeLoader<String[]>{
+public class StringShapeLoader extends CustomShapeLoader<String[]>{
     public final char voidChar, blockChar, anchorChar;
 
-    public StringLoader(char voidChar, char blockChar, char anchorChar){
+    public StringShapeLoader(char voidChar, char blockChar, char anchorChar){
         this.voidChar = voidChar;
         this.blockChar = blockChar;
         this.anchorChar = anchorChar;

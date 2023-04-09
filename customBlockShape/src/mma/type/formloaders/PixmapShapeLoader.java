@@ -6,16 +6,16 @@ import mma.struct.BitWordList.*;
 import mma.type.CustomShape.*;
 import mma.type.*;
 
-public class PixmapLoader extends CustomShapeLoader<Pixmap>{
+public class PixmapShapeLoader extends CustomShapeLoader<Pixmap>{
     public final int voidColor, blockColor, anchorColor;
 
-    public PixmapLoader(int voidColor, int blockColor, int anchorColor){
+    public PixmapShapeLoader(int voidColor, int blockColor, int anchorColor){
         this.voidColor = voidColor;
         this.blockColor = blockColor;
         this.anchorColor = anchorColor;
     }
 
-    public PixmapLoader(Color voidColor, Color blockColor, Color anchorColor){
+    public PixmapShapeLoader(Color voidColor, Color blockColor, Color anchorColor){
         this(voidColor.rgba(), blockColor.rgba(), anchorColor.rgba());
     }
 

@@ -9,7 +9,7 @@ public abstract class CustomShapeLoader<T>{
 
     public abstract void load(T type);
 
-    public CustomShape toForm(){
+    public CustomShape toShape(){
         return new CustomShape(width, height, blocks);
     }
 }

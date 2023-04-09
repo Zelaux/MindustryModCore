@@ -9,8 +9,8 @@ import arc.util.*;
 import arc.util.io.*;
 import mindustry.*;
 import mindustry.entities.units.*;
-import mindustry.game.*;
 import mindustry.game.EventType.*;
+import mindustry.game.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.world.*;
@@ -20,9 +20,11 @@ import mma.type.*;
 import static mindustry.Vars.tilesize;
 
 public class CustomShapeBlock extends Block{
+    private static final TileChangeEvent tileChangeEvent = new TileChangeEvent();
+    protected final int[] emptySubBuildings = new int[0];
     public CustomShape customShape;
     boolean checking = false;
-    protected final int[] emptySubBuildings = new int[0];
+    boolean removingSubs = false;
 
     public CustomShapeBlock(String name){
         super(name);
@@ -33,6 +35,17 @@ public class CustomShapeBlock extends Block{
     @Override
     public void init(){
         super.init();
+        if(customShape != null) updateClipSize();
+    }
+
+    @Override
+    public void load(){
+        super.load();
+
+        if(customShape != null) updateClipSize();
+    }
+
+    private void updateClipSize(){
         clipSize = Math.max(Math.max(customShape.width, customShape.height) * tilesize, clipSize);
     }
 
@@ -74,9 +87,6 @@ public class CustomShapeBlock extends Block{
             Drawf.selected(dx, dy, this, bool ? Pal.accent : Pal.remove);
         });
     }
-
-    boolean removingSubs = false;
-    private static final TileChangeEvent tileChangeEvent = new TileChangeEvent();
 
     @Override
     public void placeBegan(Tile tile, Block previous){
