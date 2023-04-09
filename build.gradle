@@ -204,7 +204,7 @@ project(":core"){
 //            println "sub adding "+sub.getName()
             String name = sub.getName();
             println "subproject: " + sub.getName()
-            if(!["tools", "annotations", "localAnnotations", "plugins", "blocks", "tiledStructures", "tests", "utils", project.getName()].contains(name)){
+            if(!["tools", "annotations", "localAnnotations", "plugins", "blocks","customBlockShape", "tiledStructures", "tests", "utils", project.getName()].contains(name)){
                 println "implemented"
                 implementation sub
             }
@@ -259,6 +259,7 @@ project(":tests"){
     dependencies{
         implementation project(":core")
         implementation project(":blocks")
+        implementation project(":customBlockShape")
         implementation project(":tiledStructures")
         implementation project(":graphics")
         compileOnly arcModule('arc-core')
@@ -268,6 +269,7 @@ project(":tests"){
 
         testImplementation project(":core")
         testImplementation project(":blocks")
+        testImplementation project(":customBlockShape")
         testImplementation project(":tiledStructures")
 
         testImplementation arcModule('arc-core')
