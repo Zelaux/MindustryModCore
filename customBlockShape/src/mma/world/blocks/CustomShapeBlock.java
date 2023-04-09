@@ -17,9 +17,20 @@ import mindustry.world.*;
 import mindustry.world.blocks.ConstructBlock.*;
 import mma.type.*;
 
+import java.lang.reflect.*;
+
 import static mindustry.Vars.tilesize;
 
 public class CustomShapeBlock extends Block{
+    protected static final Field blockField = ((Prov<Field>)() -> {
+        try{
+            Field field = Tile.class.getDeclaredField("block");
+            field.setAccessible(true);
+            return field;
+        }catch(NoSuchFieldException e){
+            throw new RuntimeException(e);
+        }
+    }).get();
     private static final TileChangeEvent tileChangeEvent = new TileChangeEvent();
     protected final int[] emptySubBuildings = new int[0];
     public CustomShape customShape;
@@ -99,7 +110,7 @@ public class CustomShapeBlock extends Block{
     }
 
     protected void setTile(Tile nearby, Block block, Building build){
-        Reflect.set(nearby, "block", block);
+        Reflect.set(nearby, blockField, block);
         nearby.build = build;
         Events.fire(tileChangeEvent.set(nearby));
         tileChangeEvent.set(null);
