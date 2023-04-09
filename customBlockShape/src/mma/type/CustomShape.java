@@ -45,6 +45,13 @@ public class CustomShape{
         return list;
     }
 
+    public int anchorX(){
+        return centerX;
+    }
+
+    public int anchorY(){
+        return centerY;
+    }
 
     private void findCenter(){
 

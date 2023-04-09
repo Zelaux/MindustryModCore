@@ -5,6 +5,7 @@ import arc.func.*;
 import arc.graphics.*;
 import arc.graphics.g2d.*;
 import arc.math.*;
+import arc.math.geom.*;
 import arc.util.*;
 import arc.util.io.*;
 import mindustry.*;
@@ -19,7 +20,7 @@ import mma.type.*;
 
 import java.lang.reflect.*;
 
-import static mindustry.Vars.tilesize;
+import static mindustry.Vars.*;
 
 public class CustomShapeBlock extends Block{
     protected static final Field blockField = ((Prov<Field>)() -> {
@@ -34,6 +35,7 @@ public class CustomShapeBlock extends Block{
     private static final TileChangeEvent tileChangeEvent = new TileChangeEvent();
     protected final int[] emptySubBuildings = new int[0];
     public CustomShape customShape;
+    public Vec2[] worldDrawOffsets = new Vec2[4];
     boolean checking = false;
     boolean removingSubs = false;
 
@@ -46,18 +48,27 @@ public class CustomShapeBlock extends Block{
     @Override
     public void init(){
         super.init();
-        if(customShape != null) updateClipSize();
+        if(customShape != null) updateClipSizeAndOffset();
+
     }
 
     @Override
     public void load(){
         super.load();
 
-        if(customShape != null) updateClipSize();
+        if(customShape != null) updateClipSizeAndOffset();
     }
 
-    private void updateClipSize(){
+    private void updateClipSizeAndOffset(){
         clipSize = Math.max(Math.max(customShape.width, customShape.height) * tilesize, clipSize);
+        worldDrawOffsets[0] = new Vec2()
+        .set(customShape.width, customShape.height)
+        .scl(1 / 2f)
+        .sub(customShape.anchorX() + 0.5f, customShape.anchorY() + 0.5f)
+        .scl(tilesize);
+        for(int i = 1; i < 4; i++){
+            worldDrawOffsets[i] = worldDrawOffsets[i-1].cpy().rotate90(1);
+        }
     }
 
     @Override
@@ -109,6 +120,21 @@ public class CustomShapeBlock extends Block{
         super.placeBegan(tile, previous);
     }
 
+    /** this is a different method so subclasses can call it even after overriding the base */
+    public void drawDefaultPlanRegion(BuildPlan plan, Eachable<BuildPlan> list){
+        TextureRegion reg = getPlanRegion(plan, list);
+        Vec2 worldDrawOffset = worldDrawOffsets[plan.rotation];
+        Draw.rect(reg, plan.drawx() + worldDrawOffset.x, plan.drawy() + worldDrawOffset.y, !rotate || !rotateDraw ? 0 : plan.rotation * 90);
+
+        if(plan.worldContext && player != null && teamRegion != null && teamRegion.found()){
+            if(teamRegions[player.team().id] == teamRegion) Draw.color(player.team().color);
+            Draw.rect(teamRegions[player.team().id], plan.drawx() + worldDrawOffset.x, plan.drawy() + worldDrawOffset.y);
+            Draw.color();
+        }
+
+        drawPlanConfig(plan, list);
+    }
+
     protected void setTile(Tile nearby, Block block, Building build){
         Reflect.set(nearby, blockField, block);
         nearby.build = build;
@@ -125,15 +151,27 @@ public class CustomShapeBlock extends Block{
             updateRotation(super::update);
         }
 
+
+        public void innerDraw(){
+            Vec2 worldDrawOffset = worldDrawOffsets[rotation];
+            if(variants != 0 && variantRegions != null){
+                Draw.rect(variantRegions[Mathf.randomSeed(pos(), 0, Math.max(0, variantRegions.length - 1))], x + worldDrawOffset.x, y + worldDrawOffset.y, drawrot());
+            }else{
+                Draw.rect(region, x + worldDrawOffset.x, y + worldDrawOffset.y, drawrot());
+            }
+            drawTeamTop();
+        }
+
         @Override
         public void draw(){
-            if(updateRotation(super::draw)){
+            if(updateRotation(this::innerDraw)){
                 return;
             }
+            Vec2 worldDrawOffset = worldDrawOffsets[rotation];
             Draw.draw(Layer.overlayUI, () -> {
 
                 Draw.mixcol(Pal.breakInvalid, 0.4f + Mathf.absin(Time.globalTime, 6f, 0.28f));
-                Draw.rect(region, x, y);
+                Draw.rect(region, x + worldDrawOffset.x, y + worldDrawOffset.y);
                 Draw.mixcol();
                 eachNearByValid(tile, this, Vars.player.team(), rotation, (dx, dy, bool) -> {
                     if(!bool) Drawf.selected(dx, dy, block, Color.white);

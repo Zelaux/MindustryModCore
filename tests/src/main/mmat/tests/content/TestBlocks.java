@@ -16,6 +16,14 @@ public class TestBlocks{
     public static Block multiCrafter, multiDrill, smartSorter, smartRouter;
 
     public static void load(){
+        new ExampleShapedBlockSprite("rail"){{
+            rotate=true;
+            requirements(Category.distribution, with(Items.copper, 3));
+        }};
+        new ExampleShapedBlockSprite("rail-turn"){{
+            rotate=true;
+            requirements(Category.distribution, with(Items.copper, 3));
+        }};
         /*new ItemTurret("test-turret-1"){{
             requirements(Category.turret, with(Items.copper, 100, Items.graphite, 80, Items.titanium, 50));
             ammo(
