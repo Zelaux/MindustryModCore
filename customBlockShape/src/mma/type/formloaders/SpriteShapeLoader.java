@@ -21,11 +21,9 @@ public class SpriteShapeLoader extends CustomShapeLoader<Pixmap>{
         width = type.width / chunkSize;
         height = type.height / chunkSize;
         blocks = new BitWordList(width * height, WordLength.two);
-        for(int x = 0; x < width; x++){
-            for(int y = 0; y < height; y++){
-                int chunkX = x * chunkSize;
-                int chunkY = y * chunkSize;
-                int index = x + y * width;
+        for(int chunkX = 0; chunkX < width; chunkX++){
+            for(int chunkY = 0; chunkY < height; chunkY++){
+                int index = chunkX + chunkY * width;
                 blocks.set(index, (byte)chunkProcessor.process(type, chunkX, chunkY, chunkSize).ordinal());
             }
         }
@@ -50,10 +48,12 @@ public class SpriteShapeLoader extends CustomShapeLoader<Pixmap>{
             public BlockType process(Pixmap pixmap, int chunkX, int chunkY, int size){
                 if(chunkX == anchorChunkX && chunkY == anchorChunkY) return BlockType.anchorBlock;
                 int total = size * size;
+                int worldX=chunkX*size;
+                int worldY=chunkY*size;
                 float counter = 0;
                 for(int dx = 0; dx < size; dx++){
                     for(int dy = 0; dy < size; dy++){
-                        Color color = Tmp.c1.set(pixmap.get(chunkX + dx, chunkY + dy));
+                        Color color = Tmp.c1.set(pixmap.get(worldX + dx, worldY + dy));
                         float max = Math.max(Math.max(color.r, color.g), color.b);
                         counter += max;
                     }
