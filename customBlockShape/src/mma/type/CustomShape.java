@@ -24,12 +24,12 @@ public class CustomShape{
         int nonNothingAmount = 0;
         int otherBlocksAmount = 0;
         for(int i = 0; i < blocks.initialWordsAmount; i++){
-            byte block = blocks.get(i);
-            if(block == 1){
+            BlockType block = BlockType.all[blocks.get(i)];
+            if(block.isSimpleBlock()){
                 nonNothingAmount++;
                 otherBlocksAmount++;
             }
-            if(block == -1){
+            if(block.isCenterBlock()){
                 nonNothingAmount++;
             }
         }
