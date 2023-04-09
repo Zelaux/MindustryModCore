@@ -23,7 +23,7 @@ public class SpriteShapeLoader extends CustomShapeLoader<Pixmap>{
         blocks = new BitWordList(width * height, WordLength.two);
         for(int chunkX = 0; chunkX < width; chunkX++){
             for(int chunkY = 0; chunkY < height; chunkY++){
-                int index = chunkX + chunkY * width;
+                int index = (width-1-chunkX) + (chunkY) * width;
                 blocks.set(index, (byte)chunkProcessor.process(type, chunkX, chunkY, chunkSize).ordinal());
             }
         }

@@ -29,7 +29,7 @@ public class PixmapShapeLoader extends CustomShapeLoader<Pixmap>{
         blocks = new BitWordList(width * height, WordLength.two);
         for(int x = 0; x < width; x++){
             for(int y = 0; y < height; y++){
-                int index = x + y * width;
+                int index = (width-1-x) + (y) * width;
                 int c = pixmap.get(x, y);
                 BlockType blockType;
                 if(c == voidColor){
