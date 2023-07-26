@@ -15,6 +15,10 @@ import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.nodeTypes.*;
 import com.github.javaparser.ast.stmt.*;
 import com.github.javaparser.ast.visitor.*;
+import com.github.javaparser.printer.configuration.DefaultConfigurationOption;
+import com.github.javaparser.printer.configuration.DefaultPrinterConfiguration;
+import com.github.javaparser.printer.configuration.DefaultPrinterConfiguration.ConfigOption;
+import com.github.javaparser.printer.configuration.Indentation;
 import mma.tools.parsers.*;
 
 import java.util.*;
@@ -100,9 +104,14 @@ public class AnukeCompDownloader{
             initializer.addAndGetStatement("compMap = new ObjectMap<>()");
             for(Fi file : outDirectory.list()){
                 String compName = file.nameWithoutExtension();
-                String code = Strings.format("@", file.readString()
+                CompilationUnit unit = codeConverter.javaParser.parse(file.readString()).getResult().get();
+                DefaultPrinterConfiguration configuration = new DefaultPrinterConfiguration();
+                configuration.addOption(new DefaultConfigurationOption(ConfigOption.INDENTATION,new Indentation(Indentation.IndentType.SPACES, 2)));
+//                configuration.addOption(new DefaultConfigurationOption(ConfigOption.INDENTATION,new Indentation(Indentation.IndentType.SPACES, 0)));
+                String code =unit.toString(configuration); //Strings.format("@", file.readString()
                 /*.replace("\"", "\\\"").replace("'", "\\'").replace("\\n", "\\\\n")*/
-                );
+//                );
+//                file.sibling(file.nameWithoutExtension()+"__.java").writeString(code);
                 NodeList<Expression> list = new NodeList<>();
                 for(String line : code.split("\n")){
                     list.add(StaticJavaParser.parseExpression(Jval.valueOf(line+"\n").toString(Jformat.formatted)));

@@ -31,7 +31,7 @@ import static mindustry.logic.GlobalVars.*;
 import static mindustry.logic.LAccess.*;
 
 @Component(base = true)
-abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, Itemsc, Rotc, Unitc, Weaponsc, Drawc, Boundedc, Syncc, Shieldc, Displayable, Senseable, Ranged, Minerc, Builderc {
+abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, Itemsc, Rotc, Unitc, Weaponsc, Drawc, Boundedc, Syncc, Shieldc, Displayable, Ranged, Minerc, Builderc, Senseable, Settable {
 
     @Import
     boolean hovering, dead, disarmed;
@@ -54,6 +54,9 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
 
     @Import
     WeaponMount[] mounts;
+
+    @Import
+    ItemStack stack;
 
     private UnitController controller;
 
@@ -91,7 +94,7 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
     }
 
     public void updateBoosting(boolean boost) {
-        if (!type.canBoost)
+        if (!type.canBoost || dead)
             return;
         elevation = Mathf.approachDelta(elevation, type.canBoost ? Mathf.num(boost || onSolid() || (isFlying() && !canLand())) : 0f, type.riseSpeed);
     }
@@ -236,8 +239,6 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
 
     @Override
     public double sense(LAccess sensor) {
-        CommandAI command;
-        Payloadc pay;
         switch(sensor) {
             case totalItems:
                 return stack().amount;
@@ -282,9 +283,9 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
             case speed:
                 return type.speed * 60f / tilesize;
             case controlled:
-                return !isValid() ? 0 : controller instanceof LogicAI ? ctrlProcessor : controller instanceof Player ? ctrlPlayer : (controller instanceof CommandAI && (command = (CommandAI) controller) == controller) && command.hasCommand() ? ctrlCommand : 0;
+                return !isValid() ? 0 : controller instanceof LogicAI ? ctrlProcessor : controller instanceof Player ? ctrlPlayer : controller instanceof CommandAI command && command.hasCommand() ? ctrlCommand : 0;
             case payloadCount:
-                return (((Object) this) instanceof Payloadc && (pay = (Payloadc) ((Object) this)) == ((Object) this)) ? pay.payloads().size : 0;
+                return ((Object) this) instanceof Payloadc pay ? pay.payloads().size : 0;
             case size:
                 return hitSize / tilesize;
             case color:
@@ -296,22 +297,17 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
 
     @Override
     public Object senseObject(LAccess sensor) {
-        Player p;
-        LogicAI log;
-        Payloadc pay;
-        UnitPayload p1;
-        BuildPayload p2;
         switch(sensor) {
             case type:
                 return type;
             case name:
-                return (controller instanceof Player && (p = (Player) controller) == controller) ? p.name : null;
+                return controller instanceof Player p ? p.name : null;
             case firstItem:
                 return stack().amount == 0 ? null : item();
             case controller:
-                return !isValid() ? null : (controller instanceof LogicAI && (log = (LogicAI) controller) == controller) ? log.controller : this;
+                return !isValid() ? null : controller instanceof LogicAI log ? log.controller : this;
             case payloadType:
-                return (((Object) this) instanceof Payloadc && (pay = (Payloadc) ((Object) this)) == ((Object) this)) ? (pay.payloads().isEmpty() ? null : (pay.payloads().peek() instanceof UnitPayload && (p1 = (UnitPayload) pay.payloads().peek()) == pay.payloads().peek()) ? p1.unit.type : (pay.payloads().peek() instanceof BuildPayload && (p2 = (BuildPayload) pay.payloads().peek()) == pay.payloads().peek()) ? p2.block() : null) : null;
+                return ((Object) this) instanceof Payloadc pay ? (pay.payloads().isEmpty() ? null : pay.payloads().peek() instanceof UnitPayload p1 ? p1.unit.type : pay.payloads().peek() instanceof BuildPayload p2 ? p2.block() : null) : null;
             default:
                 return noSensed;
         }
@@ -322,6 +318,71 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
         if (content == stack().item)
             return stack().amount;
         return Float.NaN;
+    }
+
+    @Override
+    public void setProp(LAccess prop, double value) {
+        switch(prop) {
+            case health:
+                health = (float) Mathf.clamp(value, 0, maxHealth);
+            case x:
+                x = World.unconv((float) value);
+            case y:
+                y = World.unconv((float) value);
+            case rotation:
+                rotation = (float) value;
+            case team:
+                {
+                    if (!net.client()) {
+                        Team team = Team.get((int) value);
+                        if (controller instanceof Player p) {
+                            p.team(team);
+                        }
+                        this.team = team;
+                    }
+                }
+            case flag:
+                flag = value;
+        }
+    }
+
+    @Override
+    public void setProp(LAccess prop, Object value) {
+        switch(prop) {
+            case team:
+                {
+                    if (value instanceof Team t && !net.client()) {
+                        if (controller instanceof Player p)
+                            p.team(t);
+                        team = t;
+                    }
+                }
+            case payloadType:
+                {
+                    // only serverside
+                    if (((Object) this) instanceof Payloadc pay && !net.client()) {
+                        if (value instanceof Block b) {
+                            Building build = b.newBuilding().create(b, team());
+                            if (pay.canPickup(build))
+                                pay.addPayload(new BuildPayload(build));
+                        } else if (value instanceof UnitType ut) {
+                            Unit unit = ut.create(team());
+                            if (pay.canPickup(unit))
+                                pay.addPayload(new UnitPayload(unit));
+                        } else if (value == null && pay.payloads().size > 0) {
+                            pay.dropLastPayload();
+                        }
+                    }
+                }
+        }
+    }
+
+    @Override
+    public void setProp(UnlockableContent content, double value) {
+        if (content instanceof Item item) {
+            stack.item = item;
+            stack.amount = Mathf.clamp((int) value, 0, type.itemCapacity);
+        }
     }
 
     @Override
@@ -349,8 +410,7 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
 
     @Override
     public void collision(Hitboxc other, float x, float y) {
-        Bullet bullet;
-        if ((other instanceof Bullet && (bullet = (Bullet) other) == other)) {
+        if (other instanceof Bullet bullet) {
             controller.hit(bullet);
         }
     }
@@ -417,8 +477,7 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
     }
 
     public CommandAI command() {
-        CommandAI ai;
-        if ((controller instanceof CommandAI && (ai = (CommandAI) controller) == controller)) {
+        if (controller instanceof CommandAI ai) {
             return ai;
         } else {
             throw new IllegalArgumentException("Unit cannot be commanded - check isCommandable() first.");
@@ -470,9 +529,8 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
     @Override
     public void afterRead() {
         afterSync();
-        AIController ai;
         // reset controller state
-        if (!((controller instanceof AIController && (ai = (AIController) controller) == controller) && ai.keepState())) {
+        if (!(controller instanceof AIController ai && ai.keepState())) {
             controller(type.createController(self()));
         }
     }
@@ -682,11 +740,8 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
     public String getControllerName() {
         if (isPlayer())
             return getPlayer().name;
-        {
-            LogicAI ai;
-            if ((controller instanceof LogicAI && (ai = (LogicAI) controller) == controller) && ai.controller != null)
-                return ai.controller.lastAccessed;
-        }
+        if (controller instanceof LogicAI ai && ai.controller != null)
+            return ai.controller.lastAccessed;
         return null;
     }
 

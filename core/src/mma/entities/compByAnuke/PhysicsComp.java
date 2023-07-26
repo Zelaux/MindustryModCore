@@ -2,7 +2,6 @@ package mma.entities.compByAnuke;
 
 import arc.math.*;
 import arc.math.geom.*;
-import arc.util.*;
 import mindustry.annotations.Annotations.*;
 import mindustry.async.PhysicsProcess.*;
 import mindustry.gen.*;

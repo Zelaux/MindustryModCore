@@ -8,6 +8,8 @@ import arc.scene.ui.layout.*;
 import arc.util.*;
 import arc.util.pooling.*;
 import mindustry.*;
+import mindustry.ai.*;
+import mindustry.ai.types.*;
 import mindustry.annotations.Annotations.*;
 import mindustry.content.*;
 import mindustry.entities.units.*;
@@ -47,6 +49,13 @@ abstract class PlayerComp implements UnitController, Entityc, Syncc, Timerc, Dra
 
     @SyncLocal
     float mouseX, mouseY;
+
+    /**
+     * command the unit had before it was controlled.
+     */
+    @Nullable
+    @NoSync
+    UnitCommand lastCommand;
 
     boolean admin;
 
@@ -116,6 +125,11 @@ abstract class PlayerComp implements UnitController, Entityc, Syncc, Timerc, Dra
     @Override
     public boolean isValidController() {
         return isAdded();
+    }
+
+    @Override
+    public boolean isLogicControllable() {
+        return false;
     }
 
     @Replace
@@ -216,9 +230,17 @@ abstract class PlayerComp implements UnitController, Entityc, Syncc, Timerc, Dra
             throw new IllegalArgumentException("Unit cannot be null. Use clearUnit() instead.");
         if (this.unit == unit)
             return;
+        // save last command this unit had
+        if (unit.controller() instanceof CommandAI ai) {
+            lastCommand = ai.command;
+        }
         if (this.unit != Nulls.unit) {
             // un-control the old unit
             this.unit.resetController();
+            // restore last command issued before it was controlled
+            if (lastCommand != null && this.unit.controller() instanceof CommandAI ai) {
+                ai.command(lastCommand);
+            }
         }
         this.unit = unit;
         if (unit != Nulls.unit) {
@@ -271,6 +293,9 @@ abstract class PlayerComp implements UnitController, Entityc, Syncc, Timerc, Dra
     @Override
     public void draw() {
         if (unit != null && unit.inFogTo(Vars.player.team()))
+            return;
+        // ??????
+        if (name == null)
             return;
         Draw.z(Layer.playerName);
         float z = Drawf.text();
@@ -326,13 +351,7 @@ abstract class PlayerComp implements UnitController, Entityc, Syncc, Timerc, Dra
     }
 
     void sendMessage(String text) {
-        if (isLocal()) {
-            if (ui != null) {
-                ui.chatfrag.addMessage(text);
-            }
-        } else {
-            Call.sendMessage(con, text, null, null);
-        }
+        sendMessage(text, null, null);
     }
 
     void sendMessage(String text, Player from) {
@@ -347,6 +366,14 @@ abstract class PlayerComp implements UnitController, Entityc, Syncc, Timerc, Dra
         } else {
             Call.sendMessage(con, text, unformatted, from);
         }
+    }
+
+    void sendUnformatted(String unformatted) {
+        sendUnformatted(null, unformatted);
+    }
+
+    void sendUnformatted(Player from, String unformatted) {
+        sendMessage(netServer.chatFormatter.format(from, unformatted), from, unformatted);
     }
 
     PlayerInfo getInfo() {

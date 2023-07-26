@@ -122,10 +122,8 @@ abstract class BulletComp implements Timedc, Damagec, Hitboxc, Teamc, Posc, Draw
     @Replace
     @Override
     public boolean collides(Hitboxc other) {
-        Teamc t;
-        Flyingc f;
         return // prevent multiple collisions
-        type.collides && ((other instanceof Teamc && (t = (Teamc) other) == other) && t.team() != team) && !((other instanceof Flyingc && (f = (Flyingc) other) == other) && !f.checkTarget(type.collidesAir, type.collidesGround)) && !(type.pierce && hasCollided(other.id()));
+        type.collides && (other instanceof Teamc t && t.team() != team) && !(other instanceof Flyingc f && !f.checkTarget(type.collidesAir, type.collidesGround)) && !(type.pierce && hasCollided(other.id()));
     }
 
     @MethodPriority(100)
@@ -139,8 +137,7 @@ abstract class BulletComp implements Timedc, Damagec, Hitboxc, Teamc, Posc, Draw
         } else {
             collided.add(other.id());
         }
-        Healthc h;
-        type.hitEntity(self(), other, (other instanceof Healthc && (h = (Healthc) other) == other) ? h.health() : 0f);
+        type.hitEntity(self(), other, other instanceof Healthc h ? h.health() : 0f);
     }
 
     @Override

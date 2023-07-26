@@ -123,9 +123,8 @@ abstract class PayloadComp implements Posc, Rotc, Hitboxc, Unitc {
 
     boolean tryDropPayload(Payload payload) {
         Tile on = tileOn();
-        UnitPayload u;
         // clear removed state of unit so it can be synced
-        if (Vars.net.client() && (payload instanceof UnitPayload && (u = (UnitPayload) payload) == payload)) {
+        if (Vars.net.client() && payload instanceof UnitPayload u) {
             Vars.netClient.clearRemovedEntity(u.unit.id);
         }
         // drop off payload on an acceptor if possible
@@ -134,11 +133,9 @@ abstract class PayloadComp implements Posc, Rotc, Hitboxc, Unitc {
             on.build.handlePayload(on.build, payload);
             return true;
         }
-        BuildPayload b;
-        UnitPayload p;
-        if ((payload instanceof BuildPayload && (b = (BuildPayload) payload) == payload)) {
+        if (payload instanceof BuildPayload b) {
             return dropBlock(b);
-        } else if ((payload instanceof UnitPayload && (p = (UnitPayload) payload) == payload)) {
+        } else if (payload instanceof UnitPayload p) {
             return dropUnit(p);
         }
         return false;

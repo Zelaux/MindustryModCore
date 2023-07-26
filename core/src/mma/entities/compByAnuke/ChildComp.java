@@ -21,11 +21,10 @@ abstract class ChildComp implements Posc, Rotc {
 
     @Override
     public void add() {
-        Rotc r;
         if (parent != null) {
             offsetX = x - parent.getX();
             offsetY = y - parent.getY();
-            if (rotWithParent && (parent instanceof Rotc && (r = (Rotc) parent) == parent)) {
+            if (rotWithParent && parent instanceof Rotc r) {
                 offsetPos = -r.rotation();
                 offsetRot = rotation - r.rotation();
             }
@@ -34,9 +33,8 @@ abstract class ChildComp implements Posc, Rotc {
 
     @Override
     public void update() {
-        Rotc r;
         if (parent != null) {
-            if (rotWithParent && (parent instanceof Rotc && (r = (Rotc) parent) == parent)) {
+            if (rotWithParent && parent instanceof Rotc r) {
                 x = parent.getX() + Angles.trnsx(r.rotation() + offsetPos, offsetX, offsetY);
                 y = parent.getY() + Angles.trnsy(r.rotation() + offsetPos, offsetX, offsetY);
                 rotation = r.rotation() + offsetRot;

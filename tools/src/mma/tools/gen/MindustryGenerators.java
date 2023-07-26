@@ -26,7 +26,7 @@ import static mma.tools.gen.MindustryImagePacker.*;
 
 public class MindustryGenerators {
 
-    static final public int logicIconSize = (int) iconMed, maxUiIcon = 128;
+    static final public int logicIconSize = 64, maxUiIcon = 128;
 
     protected static float fluid(boolean gas, double x, double y, float frame) {
         int keyframes = gas ? 4 : 3;
@@ -42,9 +42,6 @@ public class MindustryGenerators {
             // liquids
             float min = 0.84f;
             double rx = (x + frame * 32) % 32, ry = (y + frame * 32) % 32;
-            // rx = x; ry = y;
-            // (float)liquidFrame(rx, ry, 0)
-            // Mathf.lerp((float)liquidFrame(rx, ry, curFrame), (float)liquidFrame(rx, ry, nextFrame), progress);
             float interpolated = (float) liquidFrame(rx, ry, 2);
             // only two colors here
             return min + (interpolated >= 0.3f ? 1f - min : 0f);
@@ -420,7 +417,12 @@ public class MindustryGenerators {
                         }
                     }
                     region.path.delete();
-                    save(out, region.name);
+                    // 1 pixel of padding to prevent edges with linear filtering
+                    int padding = 1;
+                    Pixmap padded = new Pixmap(base.width + padding * 2, base.height + padding * 2);
+                    padded.draw(base, padding, padding);
+                    padded = padded.outline(block.outlineColor, block.outlineRadius);
+                    save(padded, region.name);
                 }
                 if (!regions[0].found()) {
                     continue;
@@ -521,7 +523,7 @@ public class MindustryGenerators {
                 container.draw(base, 3, 3, true);
                 base = container.outline(Pal.gray, 3);
             }
-            saveScaled(base, item.name + "-icon-logic", logicIconSize);
+            saveScaled(base, item.name + "-icon-logic", Math.min(logicIconSize, Math.min(base.width, base.height)));
             save(base, "../ui/" + item.getContentType().name() + "-" + item.name + "-ui");
         }
     }
@@ -749,7 +751,7 @@ public class MindustryGenerators {
                 int maxd = Math.min(Math.max(image.width, image.height), maxUiIcon);
                 Pixmap fit = new Pixmap(maxd, maxd);
                 drawScaledFit(fit, image);
-                saveScaled(fit, type.name + "-icon-logic", logicIconSize);
+                saveScaled(fit, type.name + "-icon-logic", Math.min(logicIconSize, Math.min(fit.width, fit.height)));
                 save(fit, "../ui/unit-" + type.name + "-ui");
             } catch (IllegalArgumentException e) {
                 Log.err("WARNING: Skipping unit @: @", type.name, e.getMessage());

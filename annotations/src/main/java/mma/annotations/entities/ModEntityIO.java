@@ -94,7 +94,7 @@ public class ModEntityIO {
             st("write.s($L)", revisions.peek().version);
             //write uses most recent revision
             for(RevisionField field : revisions.peek().fields){
-                io(field.type, "this." + field.name);
+                io(field.type, "this." + field.name,false);
             }
         }else{
             //read revision
@@ -112,7 +112,7 @@ public class ModEntityIO {
                 //add code for reading revision
                 for(RevisionField field : rev.fields){
                     //if the field doesn't exist, the result will be an empty string, it won't get assigned
-                    io(field.type, presentFields.contains(field.name) ? "this." + field.name + " = " : "");
+                    io(field.type, presentFields.contains(field.name) ? "this." + field.name + " = " : "",false);
                 }
             }
 
@@ -123,14 +123,17 @@ public class ModEntityIO {
         }
     }
 
-    void writeSync(MethodSpec.Builder method, boolean write, Seq<Svar> syncFields, Seq<Svar> allFields) throws Exception{
+    void writeSync(MethodSpec.Builder method, boolean write, Seq<Svar> allFields) throws Exception{
         this.method = method;
         this.write = write;
 
         if(write){
             //write uses most recent revision
             for(RevisionField field : revisions.peek().fields){
-                io(field.type, "this." + field.name);
+                Svar var = allFields.find(s -> s.name().equals(field.name));
+                if(var == null || var.has(Annotations.NoSync.class)) continue;
+
+                io(field.type, "this." + field.name, true);
             }
         }else{
             Revision rev = revisions.peek();
@@ -143,6 +146,7 @@ public class ModEntityIO {
             //add code for reading revision
             for(RevisionField field : rev.fields){
                 Svar var = allFields.find(s -> s.name().equals(field.name));
+                if(var == null || var.has(Annotations.NoSync.class)) continue;
                 boolean sf = var.has(Annotations.SyncField.class), sl = var.has(Annotations.SyncLocal.class);
 
                 if(sl) cont("if(!islocal)");
@@ -151,12 +155,12 @@ public class ModEntityIO {
                     st(field.name + lastSuf + " = this." + field.name);
                 }
 
-                io(field.type, "this." + (sf ? field.name + targetSuf : field.name) + " = ");
+                io(field.type, "this." + (sf ? field.name + targetSuf : field.name) + " = ",true);
 
                 if(sl){
                     ncont("else" );
 
-                    io(field.type, "");
+                    io(field.type, "",true);
 
                     //just assign the two values so jumping does not occur on de-possession
                     if(sf){
@@ -221,7 +225,7 @@ public class ModEntityIO {
         econt();
     }
 
-    private void io(String type, String field) throws Exception{
+    private void io(String type, String field,boolean network) throws Exception{
         type = type.replace("mindustry.gen.", "");
         type = replacements.get(type, type);
 
@@ -240,8 +244,8 @@ public class ModEntityIO {
                 }
                 st(field + "mindustry.Vars.content.getByID(mindustry.ctype.ContentType.$L, read.s())", contentType);
             }
-        }else if(serializer.writers.containsKey(type) && write){
-            st("$L(write, $L)", serializer.writers.get(type), field);
+        }else if((serializer.writers.containsKey(type) || (network && serializer.netWriters.containsKey(type))) && write){
+            st("$L(write, $L)", network ? serializer.getNetWriter(type, null) : serializer.writers.get(type), field);
         }else if(serializer.mutatorReaders.containsKey(type) && !write && !field.replace(" = ", "").contains(" ") && !field.isEmpty()){
             st("$L$L(read, $L)", field, serializer.mutatorReaders.get(type), field.replace(" = ", ""));
         }else if(serializer.readers.containsKey(type) && !write){
@@ -252,7 +256,7 @@ public class ModEntityIO {
             if(write){
                 s("i", field + ".length");
                 cont("for(int INDEX = 0; INDEX < $L.length; INDEX ++)", field);
-                io(rawType, field + "[INDEX]");
+                io(rawType, field + "[INDEX]",network);
             }else{
                 String fieldName = field.replace(" = ", "").replace("this.", "");
                 String lenf = fieldName + "_LENGTH";
@@ -261,7 +265,7 @@ public class ModEntityIO {
                     st("$Lnew $L[$L]", field, type.replace("[]", ""), lenf);
                 }
                 cont("for(int INDEX = 0; INDEX < $L; INDEX ++)", lenf);
-                io(rawType, field.replace(" = ", "[INDEX] = "));
+                io(rawType, field.replace(" = ", "[INDEX] = "),network);
             }
 
             econt();
@@ -273,7 +277,7 @@ public class ModEntityIO {
                 if(write){
                     s("i", field + ".size");
                     cont("for(int INDEX = 0; INDEX < $L.size; INDEX ++)", field);
-                    io(generic, field + ".get(INDEX)");
+                    io(generic, field + ".get(INDEX)",network);
                 }else{
                     String fieldName = field.replace(" = ", "").replace("this.", "");
                     String lenf = fieldName + "_LENGTH";
@@ -282,7 +286,7 @@ public class ModEntityIO {
                         st("$L.clear()", field.replace(" = ", ""));
                     }
                     cont("for(int INDEX = 0; INDEX < $L; INDEX ++)", lenf);
-                    io(generic, field.replace(" = ", "_ITEM = ").replace("this.", generic + " "));
+                    io(generic, field.replace(" = ", "_ITEM = ").replace("this.", generic + " "),network);
                     if(!field.isEmpty()){
                         String temp = field.replace(" = ", "_ITEM").replace("this.", "");
                         st("if($L != null) $L.add($L)", temp, field.replace(" = ", ""), temp);

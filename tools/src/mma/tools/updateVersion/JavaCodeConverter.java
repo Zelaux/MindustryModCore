@@ -103,7 +103,7 @@ public class JavaCodeConverter {
                 Seq<Statement> newStatements = new Seq<>();
                 for (Statement statement : statements) {
                     Seq<Statement> check = check(statement);
-                    if (check.size > 1 && check.first().toString().contains("LogicAI ai;")) {
+                    if (check.size > 1 && check.first().toString().contains("LogicAI ai;") && false) {
                         NodeList<Statement> nodeList = new NodeList<>();
                         for (Statement b : check) {
                             nodeList.add(b);
@@ -186,7 +186,7 @@ public class JavaCodeConverter {
     }
 
     private Seq<Statement> chechIfStmt(Seq<Statement> statements, Statement statement, final Expression condition) {
-        if (condition.toString().contains("instanceof")) {
+        if (condition.toString().contains("instanceof") && false) {
             Expression condition_ = openExpression(condition);
             if (condition_.isNameExpr() || condition_.isFieldAccessExpr()) {
                 return statements;
