@@ -75,7 +75,8 @@ jar{
         project(":core").fileTree("build/libs/core.jar").collect { it.isDirectory() ? it : zipTree(it) }
     }
     from{
-        configurations.runtimeClasspath.collect{ it.isDirectory() ? it : zipTree(it) }
+        configurations.runtimeClasspath.collect{
+            it.isDirectory() ? it : zipTree(it) }
 //        project(":core").fileTree("build/libs/core.jar").collect { it.isDirectory() ? it : zipTree(it) }
     }
 

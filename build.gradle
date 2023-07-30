@@ -6,12 +6,11 @@ buildscript{
 
 
         // v7
-//        mindustryPath = "com.github.Anuken.MindustryJitpack"
-        mindustryPath = "com.github.Anuken.Mindustry"
+        mindustryPath = "com.github.Anuken.MindustryJitpack"
+//        mindustryPath = "com.github.Anuken.Mindustry"
         mindustryVersionFull = 'v145.1'
-        mindustryVersion = mindustryVersionFull//10
+        mindustryVersion = 'v145'//10
         arcVersion = mindustryVersion
-        mindustryVersionOld = mindustryVersion
 //        arcVersion = "916c5a77"
 
 
@@ -25,6 +24,16 @@ buildscript{
         jabelVersion = "0.6.0"
 
         jparcerVersion = "3.22.1"
+        arcModule = { String name ->
+            //skip to last submodule
+            if(name.contains(':')) name = name.split(':').last()
+            return "com.github.Anuken.Arc:$name:$arcVersion"
+        }
+        mindustryModule = { String name ->
+            //skip to last submodule
+            if(name.contains(':')) name = name.split(':').last()
+            return "$mindustryPath:$name:$mindustryVersion"
+        }
     }
     repositories{
         mavenLocal()
@@ -35,7 +44,6 @@ buildscript{
     }
     dependencies{
         classpath "$mindustryPath:core:$mindustryVersion"
-        classpath "com.github.Anuken.Mindustry:tools:v135"
         classpath "com.github.Anuken.Arc:arc-core:$arcVersion"
         classpath "com.github.Anuken.Arc:packer:$arcVersion"
     }
@@ -54,21 +62,6 @@ allprojects{
     version = 'release'
     group = 'com.github.Zelaux'
     ext{
-        arcModule = { String name ->
-            //skip to last submodule
-            if(name.contains(':')) name = name.split(':').last()
-            return "com.github.Anuken.Arc:$name:$arcVersion"
-        }
-        mindustryModule = { String name ->
-            //skip to last submodule
-            if(name.contains(':')) name = name.split(':').last()
-            return "$mindustryPath:$name:$mindustryVersion"
-        }
-        mindustryOldModule = { String name ->
-            //skip to last submodule
-            if(name.contains(':')) name = name.split(':').last()
-            return "com.github.Anuken.Mindustry:$name:v135"
-        }
         writeProcessors = {
             new File(rootDir, "annotations/src/main/resources/META-INF/services/").mkdirs()
             def processorFile = new File(rootDir, "annotations/src/main/resources/META-INF/services/javax.annotation.processing.Processor")
@@ -100,7 +93,7 @@ allprojects{
     }
 
     dependencies{
-        implementation 'org.jetbrains:annotations:23.1.0'
+        compileOnly 'org.jetbrains:annotations:23.1.0'
     }
 
     tasks.withType(JavaCompile){
@@ -120,7 +113,13 @@ allprojects{
                 '--add-opens=java.base/sun.reflect.annotation=ALL-UNNAMED'
         ])
     }
-
+    jar{
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        from{
+            configurations.runtimeClasspath.collect{it.isDirectory() ? it : zipTree(it)}
+//        project(":core").fileTree("build/libs/core.jar").collect { it.isDirectory() ? it : zipTree(it) }
+        }
+    }
 /*//force arc version
     */
 }
@@ -315,7 +314,7 @@ project(":tools"){
         implementation arcModule('arc-core')
 
         implementation "com.github.javaparser:javaparser-symbol-solver-core:$jparcerVersion"
-        implementation mindustryModule("core")
+        compileOnly mindustryModule("core")
 //        implementation mindustryOldModule("tools")
 
         implementation "org.eclipse.jgit:org.eclipse.jgit:$jgitVersion"

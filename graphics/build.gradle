@@ -4,6 +4,6 @@ sourceSets.main.java.srcDirs = ["src/"]
 sourceSets.main.resources.srcDirs = ["resources/"]
 
 dependencies{
-    implementation 'commons-io:commons-io:2.5'
+//    implementation 'commons-io:commons-io:2.5'
     compileOnly arcModule('arc-core')
 }
