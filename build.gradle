@@ -6,10 +6,10 @@ buildscript{
 
 
         // v7
-        mindustryPath = "com.github.Anuken.MindustryJitpack"
+        mindustryPath = "com.github.Anuken.Mindustry"
 //        mindustryPath = "com.github.Anuken.Mindustry"
         mindustryVersionFull = 'v145.1'
-        mindustryVersion = 'v145'//10
+        mindustryVersion = 'v145.1'//10
         arcVersion = mindustryVersion
 //        arcVersion = "916c5a77"
 
@@ -41,6 +41,7 @@ buildscript{
         google()
         maven{ url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven{ url 'https://jitpack.io' }
+        maven { url 'https://raw.githubusercontent.com/Zelaux/MindustryRepo/master/repository' }
     }
     dependencies{
         classpath "$mindustryPath:core:$mindustryVersion"
@@ -90,6 +91,7 @@ allprojects{
         maven{ url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven{ url "https://oss.sonatype.org/content/repositories/releases/" }
         maven{ url 'https://jitpack.io' }
+        maven { url 'https://raw.githubusercontent.com/Zelaux/MindustryRepo/master/repository' }
     }
 
     dependencies{
