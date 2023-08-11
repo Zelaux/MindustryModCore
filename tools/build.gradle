@@ -5,7 +5,10 @@ jar{
     from(rootDir){
         include("core/mindustrySprites.zip")
     }
-
+    exclude("META-INF/*.SF")
+    exclude("META-INF/*_.*")
+    exclude("META-INF/*._*")
+    exclude("META-INF/*_._*")
 /*
     println "classpath: " + configurations.runtimeClasspath.asList()
     configurations.runtimeClasspath.asList().forEach((File f) -> {
