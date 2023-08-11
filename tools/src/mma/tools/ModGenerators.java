@@ -204,6 +204,7 @@ public class ModGenerators extends MindustryGenerators{
                 };
                 if(unitOutlines){
                     for(Weapon weapon : type.weapons){
+                        if(weapon.name.isEmpty())continue;
                         if(outlined.add(weapon.name) && has(weapon.name)){
                             save(outline.get(get(weapon.name)), weapon.name + "-outline");
                         }
@@ -233,7 +234,7 @@ public class ModGenerators extends MindustryGenerators{
                 //draw outlines
                 for(Weapon weapon : type.weapons){
                     weapon.load();
-
+                    if(weapon.name.isEmpty())continue;
                     Pixmap pixmap = weapon.flipSprite ? outline.get(get(weapon.region)).flipX() : outline.get(get(weapon.region));
                     int x = (int)(weapon.x / Draw.scl + image.width / 2f - weapon.region.width / 2f);
                     int y = (int)(-weapon.y / Draw.scl + image.height / 2f - weapon.region.height / 2f);
@@ -252,6 +253,7 @@ public class ModGenerators extends MindustryGenerators{
                 drawCenter(image, cell);
                 for(Weapon weapon : type.weapons){
                     weapon.load();
+                    if(weapon.name.isEmpty())continue;
 
                     Pixmap wepReg = weapon.top ? outline.get(get(weapon.region)) : get(weapon.region);
                     if(weapon.flipSprite){
