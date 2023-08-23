@@ -40,13 +40,13 @@ public class RecipeListValue implements StatValue {
             (table.table((bt) -> {
                 bt.left().defaults().padRight(3.0F).left();
                 if (recipe.consumeItems.length > 0) {
-                    StatValues.items(false, recipe.consumeItems).display(bt.table().get());
+                    StatValues.items(true, recipe.consumeItems).display(bt.table().get());
                     if (recipe.consumeLiquids.length > 0) bt.row();
                 }
 
                 if (recipe.consumeLiquids.length > 0) {
 //                    StatValues()
-                    new LiquidListValue(false, recipe.consumeLiquids).display(bt.table().get());
+                    new LiquidListValue(true, recipe.consumeLiquids).display(bt.table().get());
                     bt.row();
                 }
                 bt.add(Strings.format("[lightgray]@: [white]", Core.bundle.get("stat.productiontime"), recipe.produceTime));
