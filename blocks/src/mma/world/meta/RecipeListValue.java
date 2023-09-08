@@ -6,8 +6,7 @@ import arc.scene.ui.layout.Table;
 import arc.util.Strings;
 import mindustry.ctype.UnlockableContent;
 import mindustry.gen.Tex;
-import mindustry.type.ItemStack;
-import mindustry.ui.ItemImage;
+import mindustry.ui.ItemDisplay;
 import mindustry.world.meta.StatUnit;
 import mindustry.world.meta.StatValue;
 import mindustry.world.meta.StatValues;
@@ -26,15 +25,11 @@ public class RecipeListValue implements StatValue {
         table.row();
         for (Recipe recipe : recipes) {
             if (recipe.outputItem != null) {
-                table.add(new ItemImage(new ItemStack(recipe.outputItem.item,recipe.outputItem.amount))).size(24.0F).padRight(4.0F).right().top();
-//                table.image(icon(recipe.outputItem.item)).size(24.0F).padRight(4.0F).right().top();
-                table.add(" "+recipe.outputItem.item.localizedName).padRight(10.0F).left().top();
+                table.add(new ItemDisplay(recipe.outputItem.item, recipe.outputItem.amount)).padRight(5).left();
             }
             if (recipe.outputLiquid != null) {
+                table.row();
                 StatValues.liquid(recipe.outputLiquid.liquid,recipe.outputLiquid.amount,true).display(table);
-
-//                table.image(icon(recipe.outputLiquid.liquid)).size(24.0F).padRight(4.0F).right().top();
-//                table.add(recipe.outputLiquid.liquid.localizedName).padRight(10.0F).left().top();
             }
 
             (table.table((bt) -> {
@@ -45,13 +40,11 @@ public class RecipeListValue implements StatValue {
                 }
 
                 if (recipe.consumeLiquids.length > 0) {
-//                    StatValues()
                     new LiquidListValue(true, recipe.consumeLiquids).display(bt.table().get());
                     bt.row();
                 }
                 bt.add(Strings.format("[lightgray]@: [white]", Core.bundle.get("stat.productiontime"), recipe.produceTime));
                 StatValues.number(recipe.produceTime/ 60.0F, StatUnit.seconds).display(bt);
-
             }).padTop(-9.0F).left().get()).background(Tex.underline);
             table.row();
         }

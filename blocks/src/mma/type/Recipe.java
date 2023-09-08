@@ -7,7 +7,7 @@ import mindustry.type.*;
 import static mindustry.Vars.state;
 
 public class Recipe{
-    public static Recipe empty = with(null, -1);
+    public static Recipe empty = with((ItemStack) null, -1);
     public ItemStack outputItem;
     public LiquidStack outputLiquid;
     public int outputLiquidDirection = -1;
@@ -22,7 +22,12 @@ public class Recipe{
 
     }
 
-    public static Recipe with(ItemStack outputItem, ItemStack[] consumeItems, LiquidStack[] consumeLiquids, float produceTime){
+    /** Empty */
+    public static Recipe with(){
+        return new Recipe();
+    }
+    /** Item + Liquid -> Item */
+    public static Recipe with(ItemStack outputItem, ItemStack[] consumeItems, LiquidStack[] consumeLiquids, float produceTime) {
         Recipe recipe = new Recipe();
         recipe.output(outputItem, null);
         recipe.consume(consumeItems, consumeLiquids);
@@ -30,22 +35,60 @@ public class Recipe{
         recipe.check();
         return recipe;
     }
-
-    public static Recipe with(ItemStack outputItem, LiquidStack[] consumeLiquids, float produceTime){
+    /** Liquid -> Item */
+    public static Recipe with(ItemStack outputItem, LiquidStack[] consumeLiquids, float produceTime) {
         return with(outputItem, ItemStack.empty, consumeLiquids, produceTime);
     }
-
+    /** Item -> Item */
+    public static Recipe with(ItemStack outputItem, ItemStack[] consumeItems, float produceTime) {
+        return with(outputItem, consumeItems, LiquidStack.empty, produceTime);
+    }
+    /** Nothing -> Item */
     public static Recipe with(ItemStack outputItem, float produceTime){
         return with(outputItem, LiquidStack.empty, produceTime);
     }
-
-    public static Recipe with(ItemStack outputItem, ItemStack[] consumeItems, float produceTime){
-        return with(outputItem, consumeItems, LiquidStack.empty, produceTime);
+    /** Item + Liquid -> Liquid */
+    public static Recipe with(LiquidStack outputLiquid, ItemStack[] consumeItems, LiquidStack[] consumeLiquids, float produceTime) {
+        Recipe recipe = new Recipe();
+        recipe.output(null, outputLiquid);
+        recipe.consume(consumeItems, consumeLiquids);
+        recipe.produceTime = produceTime;
+        //recipe.check();
+        return recipe;
+    }
+    /** Liquid -> Liquid */
+    public static Recipe with(LiquidStack outputLiquid, LiquidStack[] consumeLiquids, float produceTime) {
+        return with(outputLiquid, ItemStack.empty, consumeLiquids, produceTime);
+    }
+    /** Item -> Liquid */
+    public static Recipe with(LiquidStack outputLiquid, ItemStack[] consumeItems, float produceTime) {
+        return with(outputLiquid, consumeItems, LiquidStack.empty, produceTime);
+    }
+    /** Nothing -> Liquid */
+    public static Recipe with(LiquidStack outputLiquid, float produceTime) {
+        return with(outputLiquid, LiquidStack.empty, produceTime);
+    }
+    /** Item + Liquid -> Item + Liquid */
+    public static Recipe with(ItemStack outputItem, LiquidStack outputLiquid, ItemStack[] consumeItems, LiquidStack[] consumeLiquids, float produceTime) {
+        Recipe recipe = new Recipe();
+        recipe.output(outputItem, outputLiquid);
+        recipe.consume(consumeItems, consumeLiquids);
+        recipe.produceTime = produceTime;
+        return recipe;
+    }
+    /** Liquid -> Item + Liquid */
+    public static Recipe with(ItemStack outputItem, LiquidStack outputLiquid, LiquidStack[] consumeLiquids, float produceTime) {
+        return with(outputItem, outputLiquid, ItemStack.empty, consumeLiquids, produceTime);
+    }
+    /** Item -> Item + Liquid */
+    public static Recipe with(ItemStack outputItem, LiquidStack outputLiquid, ItemStack[] consumeItems, float produceTime) {
+        return with(outputItem, outputLiquid, consumeItems, LiquidStack.empty, produceTime);
+    }
+    /** Nothing -> Item + Liquid */
+    public static Recipe with(ItemStack outputItem, LiquidStack outputLiquid, float produceTime) {
+        return with(outputItem, outputLiquid, ItemStack.empty, LiquidStack.empty, produceTime);
     }
 
-    public static Recipe with(){
-        return new Recipe();
-    }
 
     public UnlockableContent mainContent(){
         return outputItem == null ? outputLiquid == null ? null : outputLiquid.liquid : outputItem.item;
