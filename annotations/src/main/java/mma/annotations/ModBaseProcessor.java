@@ -179,32 +179,6 @@ public abstract class ModBaseProcessor extends BaseProcessor{
             strings.addAll(values);
             allClasses.addAll(values);
         });
-        debug:
-        {
-            Fi rootDirectory;
-            {
-                Fi rootDirectory1;
-                try{
-
-                    String path = Fi.get(filer.getResource(StandardLocation.CLASS_OUTPUT, "no", "no").toUri().toURL().toString().substring(OS.isWindows ? 6 : "file:".length()))
-                        .parent().parent().parent().parent().parent().parent().parent().toString().replace("%20", " ");
-                    Fi fi = Fi.get(path);
-
-                    String rootDirectoryPath = "../";
-                    rootDirectory1 = new Fi(fi.child(rootDirectoryPath).file().getCanonicalFile());
-                }catch(IOException e){
-                    throw new RuntimeException(e);
-                }
-                rootDirectory = rootDirectory1;
-            }
-            Jval json = Jval.newObject();
-            store.get(Scanners.TypesAnnotated.index()).forEach((key, values) -> {
-                Jval array = Jval.newArray();
-                values.forEach(array::add);
-                json.add(key, array);
-            });
-            rootDirectory.child("test.json").writeString(json.toString(Jformat.formatted));
-        }
         Modules modules = Modules.instance(context);
         for(ModuleSymbol allModule : modules.allModules()){
             collectEachChild(ModBaseProcessor::index, allModule);
