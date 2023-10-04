@@ -94,10 +94,6 @@ public class LaserRuler extends ModBlock{
 
         protected void drawSelectedTile(Tile tile, Color color){
             Drawf.select(tile.worldx(), tile.worldy(), tilesize / 2f, color);
-//            Draw.color(color);
-//            Lines.stroke(stroke);
-//            float half = tilesize / 2f;
-//            ALines.rect(tile.worldx() - half, tile.worldy() - half, tilesize, tilesize);
         }
 
         protected void drawLinePart(Tile cur, Tile next, Color color){

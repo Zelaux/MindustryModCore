@@ -61,28 +61,6 @@ public class MainClassProcessor extends ModBaseProcessor{
         int start = string.indexOf(":", index);
         int end = string.indexOf("\n", start);
         if(end == -1) end = string.length();
-//        System.out.println("end: " + end);
-//        Log.info("'@'", string.charAt(end));
-//        Log.info("'@ '__", string.charAt(end-1));
-//        Log.info("'@ '__", (int)string.charAt(end-1));
-//        13
-//        0xd
-//        Log.info("'\u000B '__", (int)string.charAt(end-1));
-//        Log.info("'@ '__", new JsonValue(string.charAt(end-1)+"").toJson(OutputType.json));
-//        System.out.println(Character.getDirectionality(string.charAt(end )));
-//        System.out.println(Character.getDirectionality(string.charAt(end - 1)));
-//        System.out.println(Character.getDirectionality(string.charAt(end - 2)));
-//        System.out.println(Character.getDirectionality(string.charAt(end - 3)));
-        /*int i=0;
-        while(Character.getDirectionality(string.charAt(end-i)==7 && start<(end-i)){
-            char c = string.charAt(end - i );
-            Log.info("char: \"@\"(@)(@)",c,(int)c,Character.getDirectionality(string.charAt(end-i-1)));
-            i++;
-        }
-        if(string.charAt(end-i - 1) == ','){
-            end=end-1-i;
-            System.out.println("end2: " + end);
-        }*/
         path.writeString(string.substring(0, start) + ": \"" + descriptor + '"' + string.substring(end));
     }
 

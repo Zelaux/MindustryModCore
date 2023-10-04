@@ -209,8 +209,6 @@ public abstract class BaseProcessor extends AbstractProcessor{
         filer = env.getFiler();
         messager = env.getMessager();
         if(getClass().getSimpleName().equals("SerializeProcessor")){
-//            System.out.println("env.getOptions()");
-//            System.out.println(env.getOptions());
         }
 
         Log.level = LogLevel.info;

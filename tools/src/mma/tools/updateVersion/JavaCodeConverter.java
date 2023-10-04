@@ -85,15 +85,6 @@ public class JavaCodeConverter {
         }
         ClassOrInterfaceDeclaration class_ = classOpt.get();
         List<MethodDeclaration> methods = class_.getMethods();
-       /* compilationUnit.accept(new ModifierVisitor<Void>(){
-            @Override
-            public Visitable visit(MethodDeclaration method, Void arg) {
-                if (!method.isAbstract()){
-
-                }
-                return super.visit(method, arg);
-            }
-        },null);*/
         for (MethodDeclaration method : methods) {
             if (method.isAbstract()) continue;
             Optional<BlockStmt> bodyOpt = method.getBody();

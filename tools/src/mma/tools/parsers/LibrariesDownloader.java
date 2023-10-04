@@ -119,10 +119,6 @@ public class LibrariesDownloader {
                 directory.delete();
                 directory.deleteDirectory();
 
-//                String url1 = "https://jitpack.io/com/github/anuken/mindustryjitpack/core/" + mindustryVersion + "/core-" + mindustryVersion + "-sources.jar";
-//                System.out.println(url1);
-//                FileUtils.copyURLToFile(new URL(url1), sourcesFi.file(), 10000, 10000);
-//                FileUtils.copyURLToFile(new URL("https://jitpack.io/com/github/anuken/mindustryjitpack/core/" + mindustryVersion + "/core-" + mindustryVersion + ".jar"), sourcesFi.sibling("sources-jar.zip").file(), 10000, 10000);
                 Log.info("Time to download: @ms", Time.elapsed());
             } else {
                 Log.info("Game version and core version are the same");
@@ -139,8 +135,6 @@ public class LibrariesDownloader {
                 directory.deleteDirectory();
                 directory.delete();
                 directory.deleteDirectory();
-//                downloadV7Mindustry(directory, "https://github.com/Anuken/MindustryJitpack.git", mindustryVersion);
-//                FileUtils.copyURLToFile(new URL("https://codeload.github.com/Anuken/Arc/zip/refs/tags/" + arcVersion), arcFi.file(), 10000, 10000);
                 Log.info("Time to download: @ms", Time.elapsed());
             } else {
                 Log.info("Game version and arc version are the same");
@@ -163,14 +157,6 @@ public class LibrariesDownloader {
             Seq<RevCommit> commits = new Seq<>();
             for (RevCommit commit : git.log().all().call()) {
                 commits.addAll(commit);
-//              System.out.print(new Date(commit.getCommitTime()).toString());
-//              System.out.print("(");
-//              System.out.print(commit.getCommitTime());
-//              System.out.print("): ");
-//              System.out.print(commit.getFullMessage());
-//              System.out.print("(");
-//              System.out.print(commit.name());
-//              System.out.println(")");
             }
 
             RevCommit startPoint = commits.find(r -> equalsHash ? r.name().equals(commitHash) : r.name().startsWith(commitHash));

@@ -75,8 +75,6 @@ public class AFill extends Fill{
             floats.clear();
             point.get(i2, radius1);
             point.get(i, radius2);
-//            Vec2 cpy = vector.trns(oneAngle * i2 + angle, radius2-width, 0.0F).cpy();
-//            Vec2 cpy2 = vector.trns(oneAngle * i + angle, radius1-width, 0.0F).cpy();
             point.get(i, radius2 * ((radius1 - width) / radius1));
             point.get(i2, radius1 - width);
             AFill.quad(floats);
