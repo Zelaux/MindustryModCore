@@ -27,14 +27,14 @@ public class StructProcess extends ModBaseProcessor{
         for(int i = 0; i < offset; i++) builder.append('0');
         for(int i = 0; i < size; i++) builder.append('1');
         for(int i = 0; i < totalSize - size - offset; i++) builder.append('0');
-        return "0b" + builder.reverse().toString() + "L";
+        return "0b" + builder.reverse() + "L";
     }
 
     static String bitString(int size, int totalSize){
         StringBuilder builder = new StringBuilder();
         for(int i = 0; i < size; i++) builder.append('1');
         for(int i = 0; i < totalSize - size; i++) builder.append('0');
-        return "0b" + builder.reverse().toString() + "L";
+        return "0b" + builder.reverse() + "L";
     }
 
     static int varSize(Svar var) throws IllegalArgumentException{
@@ -195,7 +195,7 @@ public class StructProcess extends ModBaseProcessor{
                 classBuilder.addJavadoc(doc.toString());
 
                 //add constructor final statement + add to class and build
-                constructor.addStatement("return ($T)($L)", structType, cons.toString().substring(3));
+                constructor.addStatement("return ($T)($L)", structType, cons.substring(3));
                 classBuilder.addMethod(constructor.build());
 
                 JavaFile.builder(packageName, classBuilder.build()).build().writeTo(BaseProcessor.filer);

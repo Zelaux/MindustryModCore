@@ -22,7 +22,6 @@ abstract class LocalBaseProcessor extends BaseProcessor{
     public void write(CompilationUnit unit, String className) throws IOException{
         if(className == null){
             List<ClassOrInterfaceDeclaration> classes = unit.findAll(ClassOrInterfaceDeclaration.class);
-            ;
             classes.sort(Structs.comparingBool(it -> {
                 return it.hasModifier(Keyword.PUBLIC);
             }));

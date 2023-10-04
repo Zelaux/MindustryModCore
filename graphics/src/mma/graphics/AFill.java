@@ -6,15 +6,15 @@ import arc.math.geom.*;
 import arc.struct.*;
 
 public class AFill extends Fill{
-    private static Vec2 vector = new Vec2();
-    private static Vec2 u = new Vec2();
-    private static Vec2 v = new Vec2();
-    private static Vec2 inner = new Vec2();
-    private static Vec2 outer = new Vec2();
-    private static FloatSeq floats = new FloatSeq(20);
-    private static FloatSeq floatBuilder = new FloatSeq(20);
+    private static final Vec2 vector = new Vec2();
+    private static final Vec2 u = new Vec2();
+    private static final Vec2 v = new Vec2();
+    private static final Vec2 inner = new Vec2();
+    private static final Vec2 outer = new Vec2();
+    private static final FloatSeq floats = new FloatSeq(20);
+    private static final FloatSeq floatBuilder = new FloatSeq(20);
     private static boolean building;
-    private static float circlePrecision = 0.4F;
+    private static final float circlePrecision = 0.4F;
 
     /**
      * @deprecated use pie

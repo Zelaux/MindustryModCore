@@ -230,7 +230,7 @@ public class ModEntityIO {
         type = replacements.get(type, type);
 
         if(BaseProcessor.isPrimitive(type)){
-            s(type.equals("boolean") ? "bool" : type.charAt(0) + "", field);
+            s(type.equals("boolean") ? "bool" : String.valueOf(type.charAt(0)), field);
         }else if(instanceOf(type, "mindustry.ctype.Content")){
             if(write){
                 s("s", field + ".id");

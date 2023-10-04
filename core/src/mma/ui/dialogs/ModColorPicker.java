@@ -75,7 +75,7 @@ public class ModColorPicker extends BaseDialog {
             t.button("Write hex", () -> {
                 ModUI.showTextInput("white hex color", "hex", this.current.toString().length() - (alpha ? 0 : 2), this.current.toString(), (f, s) -> {
 
-                    return Structs.contains(allowedCharacters,(s + "").toLowerCase());
+                    return Structs.contains(allowedCharacters,(String.valueOf(s)).toLowerCase());
                 }, (s -> {
                     this.current.set(Color.valueOf(s));
                 }));

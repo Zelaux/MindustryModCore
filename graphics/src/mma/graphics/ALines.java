@@ -8,7 +8,7 @@ import arc.struct.*;
 
 public class ALines extends Lines{
     static FloatSeq floats = new FloatSeq();
-    private static Vec2 vector = new Vec2();
+    private static final Vec2 vector = new Vec2();
 
     public static void crystal(float x, float y, float radius1, float radius2, float angle, int count){
         if(count == 0) return;

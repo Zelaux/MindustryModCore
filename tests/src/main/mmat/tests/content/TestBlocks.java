@@ -106,6 +106,7 @@ public class TestBlocks{
         }};
         multiCrafter = new MultiCrafter("multi-crafter"){{
             size = 2;
+            //noinspection PointlessArithmeticExpression
             recipes(
             Recipe.with()
             .produceTime(1f * Time.toSeconds)
@@ -117,12 +118,13 @@ public class TestBlocks{
         }};
         new MultiCrafter("multi-crafter-2"){{
             size = 2;
+            //noinspection PointlessArithmeticExpression
             recipes(
             Recipe.with().produceTime(1f * Time.toSeconds)
             .output(null, new LiquidStack(Liquids.cryofluid, 10))
             .outputLiquidDirection(1)//left
             .consume(ItemStack.with(Items.silicon, 10, Items.titanium, 10), null),
-
+//noinspection PointlessArithmeticExpression
             Recipe.with().produceTime(1f * Time.toSeconds)
             .output(null, new LiquidStack(Liquids.cryofluid, 20))
             .outputLiquidDirection(4 - 1)//right
@@ -132,11 +134,12 @@ public class TestBlocks{
         }};
         new MultiCrafter("multi-crafter-3"){{
             size = 2;
+            //noinspection PointlessArithmeticExpression
             recipes(
             Recipe.with().produceTime(1f * Time.toSeconds)
             .output(new ItemStack(TestItems.rawItem, 5), null)
             .consume(ItemStack.with(Items.silicon, 10, Items.titanium, 10), null),
-
+            //noinspection PointlessArithmeticExpression
             Recipe.with().produceTime(1f * Time.toSeconds)
             .output(new ItemStack(TestItems.rawItem, 5), null)
             .consume(ItemStack.with(Items.silicon, 20, Items.titanium, 20), null)

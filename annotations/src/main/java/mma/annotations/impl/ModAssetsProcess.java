@@ -114,7 +114,7 @@ public class ModAssetsProcess extends ModBaseProcessor{
 //            System.out.println("p: "+p);
             String name = p.nameWithoutExtension();
             if(names.contains(name)){
-                BaseProcessor.err("Duplicate file name: " + p.toString() + "!");
+                BaseProcessor.err("Duplicate file name: " + p + "!");
             }else{
                 names.add(name);
             }

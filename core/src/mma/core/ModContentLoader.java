@@ -24,14 +24,14 @@ import static mindustry.Vars.*;
 public class ModContentLoader extends ContentLoader{
     private static final Seq<Content> createdContent = new Seq<>();
     protected boolean loadModContent = false;
-    private ObjectMap<String, MappableContent>[] contentNameMap = new ObjectMap[ContentType.all.length];
-    private Seq<Content>[] contentMap = new Seq[ContentType.all.length];
+    private final ObjectMap<String, MappableContent>[] contentNameMap = new ObjectMap[ContentType.all.length];
+    private final Seq<Content>[] contentMap = new Seq[ContentType.all.length];
     private MappableContent[][] temporaryMapper;
     private @Nullable
     LoadedMod currentMod;
     private @Nullable
     Content lastAdded;
-    private ObjectSet<Cons<Content>> initialization = new ObjectSet<>();
+    private final ObjectSet<Cons<Content>> initialization = new ObjectSet<>();
     private boolean isInitialization = false;
 
     public ModContentLoader(){

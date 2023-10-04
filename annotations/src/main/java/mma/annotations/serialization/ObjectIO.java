@@ -70,7 +70,7 @@ public class ObjectIO{
         if(revisions.isEmpty() || !revisions.peek().equal(fields)){
             revisions.add(new Revision(nextRevision,
             fields.map(f -> new RevisionField(f.name, f.type))));
-            Log.warn("Adding new revision @ for @.\nPre = @\nNew = @\n", nextRevision, name, previous == null ? null : previous.fields.toString(", ", f -> f.name + ":" + f.type), fields.toString(", ", f -> f.name + ":" + f.type.toString()));
+            Log.warn("Adding new revision @ for @.\nPre = @\nNew = @\n", nextRevision, name, previous == null ? null : previous.fields.toString(", ", f -> f.name + ":" + f.type), fields.toString(", ", f -> f.name + ":" + f.type));
             //write revision
             directory.child(nextRevision + ".json").writeString(json.toJson(revisions.peek()));
         }
@@ -195,7 +195,7 @@ public class ObjectIO{
         type = replacements.get(type, type);
 
         if(BaseProcessor.isPrimitive(type)){
-            s(type.equals("boolean") ? "bool" : type.charAt(0) + "", field);
+            s(type.equals("boolean") ? "bool" : String.valueOf(type.charAt(0)), field);
         }else if(instanceOf(type, "mindustry.ctype.Content")){
             if(write){
                 s("s", field + ".id");
@@ -357,7 +357,7 @@ public class ObjectIO{
             for(int i = 0; i < fields.size; i++){
                 RevisionField field = fields.get(i);
                 FieldObject spec = specs.get(i);
-                if(!field.type.replace("mindustry.gen.", "").equals(spec.type.toString().replace("mindustry.gen.", ""))){
+                if(!field.type.replace("mindustry.gen.", "").equals(spec.type.replace("mindustry.gen.", ""))){
                     return false;
                 }
             }

@@ -63,7 +63,7 @@ allprojects{
             ){ file ->
                 boolean isProcessor = file.text.contains(" extends ModBaseProcessor") ||
                         (file.text.contains(" extends AbstractProcessor") && !file.text.contains("abstract class")) ||
-                        file.text.contains("@Annotations.AnnotationProcessor");
+                        file.text.contains("@Annotations.AnnotationProcessor")
                 if(file.name.endsWith(".java") && isProcessor){
                     text.append(file.path.substring(files.path.length() + 1)).append("\n")
                 }
@@ -195,7 +195,7 @@ project(":core"){
 //        compileOnly mindustryModule("tools")
         project.getParent().getSubprojects().forEach(sub -> {
 //            println "sub adding "+sub.getName()
-            String name = sub.getName();
+            String name = sub.getName()
             println "subproject: " + sub.getName()
             if(!["tools", "annotations", "localAnnotations", "plugins", "blocks", "customBlockShape", "tiledStructures", "tests", "utils", project.getName()].contains(name)){
                 println "implemented"
@@ -391,7 +391,7 @@ task mjar(){
     dependsOn "tests:jar"
     ext{
         acopy = { String intoPath ->
-            def project = project(":tests");
+            def project = project(":tests")
             delete{
                 delete "${intoPath}/${project.archivesBaseName}"
             }
@@ -404,31 +404,31 @@ task mjar(){
         }
     }
     doLast{
-        def modsDirectories = [];
-        def file = new File(rootDir, "modsDirectories.txt");
+        def modsDirectories = []
+        def file = new File(rootDir, "modsDirectories.txt")
 
         if(file.exists()){
-            BufferedReader reader = new BufferedReader(new FileReader(file));
+            BufferedReader reader = new BufferedReader(new FileReader(file))
             reader.lines().forEach(line -> modsDirectories.add(line))
-            reader.close();
+            reader.close()
         }else{
-            modsDirectories.add("classic");
+            modsDirectories.add("classic")
         }
         for(String directory : modsDirectories){
             if(directory.equals("classic")){
-                directory = getdatadir() + "mods";
+                directory = getdatadir() + "mods"
             }
 //            println "directory: "+directory
-            acopy(directory);
+            acopy(directory)
         }
-        def time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss"));
+        def time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss"))
         println "Build ended at: ${time}"
     }
 }
 
 def os(){ //Returns OS name
-    String s = System.getProperty("os.name");
-    return s == null ? "" : s;
+    String s = System.getProperty("os.name")
+    return s == null ? "" : s
 }
 
 def getdatadir(){ //Returns Mindustry data directory path
@@ -445,7 +445,7 @@ def getdatadir(){ //Returns Mindustry data directory path
             }
             return System.getProperty("user.home") + "/.local/share/Mindustry/"
         }else if(os.contains("Mac")){
-            return System.getProperty("user.home") + "/Library/Application Support/Mindustry/";
+            return System.getProperty("user.home") + "/Library/Application Support/Mindustry/"
         }
     }
     return ret

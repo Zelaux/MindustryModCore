@@ -130,7 +130,7 @@ public class MindustryImagePacker {
         }
         for (UnlockableContent c : cont) {
             if (!content2id.containsKey(c.name)) {
-                map.put(minid + "", c.name + "|" + texname(c));
+                map.put(String.valueOf(minid), c.name + "|" + texname(c));
                 minid--;
             }
         }

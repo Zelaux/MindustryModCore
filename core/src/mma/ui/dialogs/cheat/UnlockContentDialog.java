@@ -18,7 +18,7 @@ import mindustry.world.meta.BuildVisibility;
 
 public class UnlockContentDialog extends BaseDialog {
     private static int counter = 0;
-    private static float allScale = 1f;
+    private static final float allScale = 1f;
     private Table items;
     Button.ButtonStyle colorButtonStyle;
 

@@ -41,7 +41,7 @@ public class LogicStatementProcessor extends ModBaseProcessor{
                     ClassName.get(Seq.class),
                     ParameterizedTypeName.get(ClassName.get(Prov.class),
                         tname("mindustry.logic.LStatement"))), "allModStatements", Modifier.PUBLIC, Modifier.STATIC)
-            .initializer("Seq.with(" + types.toString(", ", t -> "" + t.toString() + "::new") + ")").build());
+            .initializer("Seq.with(" + types.toString(", ", t -> t.toString() + "::new") + ")").build());
         boolean beganWrite = false, beganRead = false;
         initBlock.addStatement("mindustry.gen.LogicIO.allStatements.addAll(allModStatements)");
         initBlock.addStatement("arc.struct.ObjectMap<String, arc.func.Func<String[], LStatement>> customParsers=mindustry.logic.LAssembler.customParsers");

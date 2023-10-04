@@ -759,7 +759,7 @@ public class ModEntityProcess extends ModBaseProcessor{
                 def.classID = map.getInt(name);
             }else{
                 def.classID = maxID++;
-                map.put(name, def.classID + "");
+                map.put(name, String.valueOf(def.classID));
             }
         }
 

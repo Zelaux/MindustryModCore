@@ -55,7 +55,8 @@ public class ModUI  implements Disposable, ApplicationListener {
 
     @Override
     public void dispose() {
-        if (!inited)return;
+        if (!inited){
+        }
     }
     public static void showExceptionDialog(Throwable t) {
         showExceptionDialog("", t);

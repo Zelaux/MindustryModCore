@@ -181,7 +181,6 @@ public class TiledStructuresCanvas extends WidgetGroup{
             tilemap.createTile(tiledStructure.editorX, tiledStructure.editorY, tiledStructure);
             structures.add(tiledStructure);
         }
-        ;
         stopQuery();
         updateStructures();
     }
@@ -269,7 +268,6 @@ public class TiledStructuresCanvas extends WidgetGroup{
                 selection.add(tile);
             }
         }
-        ;
 
     }
 
@@ -678,7 +676,6 @@ public class TiledStructuresCanvas extends WidgetGroup{
                 float scl = Scl.scl(1f);
                 float maxConnectorSize = unitSize / scl;
                 float minConnectorSize = unitSize / scl / 2f;
-                inputs:
                 {
                     conParent = new Connector[obj.inputConnections()];
                     if(conParent.length > 0){
@@ -745,7 +742,6 @@ public class TiledStructuresCanvas extends WidgetGroup{
                 }).growX().height(unitSize * obj.objHeight() / scl)
                     .name("center-table")
                     .get().addCaptureListener(mover = new Mover());
-                outputs:
                 {
                     conChildren = new Connector[obj.outputConnections()];
                     if(conChildren.length > 0){
@@ -756,7 +752,6 @@ public class TiledStructuresCanvas extends WidgetGroup{
                             for(int i = 0; i < conChildren.length; i++){
                                 outputButtons.add(conChildren[i] = new Connector(false, i)).growX().height(height1 / conChildren.length)
                                     .growX().size(connectorWidth, connectorHeight).name("output-connector-" + i);
-                                ;
                                 outputButtons.row();
                                 Tooltip tooltip = obj.outputConnectorTooltip(i);
                                 if(tooltip != null) conChildren[i].addListener(tooltip);

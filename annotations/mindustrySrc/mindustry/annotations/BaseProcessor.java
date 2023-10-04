@@ -93,7 +93,7 @@ public abstract class BaseProcessor extends AbstractProcessor{
             case "long":
                 return 8;
             default:
-                throw new IllegalArgumentException("Invalid primitive type: " + kind + "");
+                throw new IllegalArgumentException("Invalid primitive type: " + kind);
         }
     }
 

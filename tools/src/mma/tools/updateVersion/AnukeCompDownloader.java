@@ -123,6 +123,7 @@ public class AnukeCompDownloader{
                 )));
 //                initializer.addAndGetStatement(Strings.format("compMap.put(\"@\",@)", compName, StaticJavaParser.parseExpression(Jval.valueOf(code).toString(Jformat.formatted))));
             }
+            //noinspection UnnecessaryStringEscape
             initializer.addAndGetStatement("groupDefs=" + new StringLiteralExpr(
             Fi.get("core/src/" + packageName + "/entities/GroupDefs.java").readString()
             .replace("\"", "\\\"").replace("\'", "\\\'")
@@ -146,7 +147,7 @@ public class AnukeCompDownloader{
             @Override
             public void visit(AnnotationDeclaration n, Void arg){
 
-                mindustryAnnotations.add((String)n.getNameAsString());
+                mindustryAnnotations.add(n.getNameAsString());
             }
         }, null);
     }
@@ -204,7 +205,7 @@ public class AnukeCompDownloader{
             String string = comment.toString();
 
             String[] split = string.split("\n");
-            Range range = Range.range(other.begin.line - (int)split.length, 1, other.begin.line, split[split.length - 1].length());
+            Range range = Range.range(other.begin.line - split.length, 1, other.begin.line, split[split.length - 1].length());
             comment.setRange(range);
             parent.findCompilationUnit().get().addOrphanComment(comment);
         }else{
@@ -244,7 +245,7 @@ public class AnukeCompDownloader{
 
     protected static Seq<String> transform(String line, Seq<String> out){
         out = new Seq<>();
-        boolean debug = selectedClassName.equals("BuilderComp") && false;
+        boolean debug = false;
         if(line.contains("return switch")){
             String[] split = line.split("\n");
             StringBuilder newLine = new StringBuilder();
@@ -380,7 +381,7 @@ public class AnukeCompDownloader{
         line = line.replace("};\n" +
                             "    }", "}\n}");
         if(line.contains("\n")){
-            StringBuilder nl = new StringBuilder(), prel = new StringBuilder();
+            String prel = "";
             for(String s : line.split("\n")){
                 Seq<String> transform = transform(s, null);
                 if(transform.size > 1){
@@ -399,7 +400,7 @@ public class AnukeCompDownloader{
 
                 }
             }
-            line = prel.toString() + nl.toString();
+            line = prel + nl;
         }
 
 

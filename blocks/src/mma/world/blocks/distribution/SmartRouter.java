@@ -209,8 +209,8 @@ public class SmartRouter extends Router{
 
         }
 
+        @SuppressWarnings("RedundantIfStatement")
         private boolean acceptSide(Building other){
-
             if(left && other.x < x) return true;
             if(right && other.x > x) return true;
             if(down && other.y < y) return true;
@@ -229,7 +229,7 @@ public class SmartRouter extends Router{
         @Override
         public void write(Writes write){
             super.write(write);
-            write.str(config() + "");
+            write.str(config());
         }
 
         @Override
@@ -248,7 +248,7 @@ public class SmartRouter extends Router{
         @Override
         public void handleString(Object obj){
             try{
-                String value = obj + "";
+                String value = String.valueOf(obj);
                 if(value.contains(" ")){
                     String[] bools = value.intern().split(" ");
                     if(bools.length == 4){

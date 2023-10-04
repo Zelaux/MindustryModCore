@@ -33,7 +33,7 @@ public class SpriteShapeLoader extends CustomShapeLoader<Pixmap>{
     }
 
     public interface ChunkProcessor{
-        public BlockType process(Pixmap pixmap, int chunkX, int chunkY, int size);
+        BlockType process(Pixmap pixmap, int chunkX, int chunkY, int size);
 
         class PercentProcessor implements ChunkProcessor{
             /** [0-1] */

@@ -13,6 +13,7 @@ import arc.math.*;
  * <br>  b7 [48..56]
  * <br>  b8 [56..64]
  */
+@SuppressWarnings({"RedundantCast", "PointlessArithmeticExpression", "PointlessBitwiseExpression", "unused"})
 public final class ByteLongMapper{
   public static byte b1(long teststruct2) {
     return (byte)((teststruct2 >>> 0) & 0b0000000000000000000000000000000000000000000000000000000011111111L);

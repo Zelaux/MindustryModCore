@@ -14,7 +14,7 @@ import mindustry.ui.dialogs.BaseDialog;
 import static mindustry.Vars.mobile;
 
 public class TeamChooseDialog extends BaseDialog {
-    private Cons<Team> confirm;
+    private final Cons<Team> confirm;
 
     public TeamChooseDialog(Cons<Team> confirm) {
         super("Choose team:");

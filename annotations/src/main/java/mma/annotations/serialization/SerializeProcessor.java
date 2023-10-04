@@ -50,8 +50,6 @@ public class SerializeProcessor extends ModBaseProcessor{
     ClassSerializer resolve;
 
     private static void writeIOPackage(String writeString, String fileName) throws IOException{
-        TypeSpec.Builder builder = null;
-        Seq<String> imports = (Seq<String>)null;
         String packageName = rootPackageName + ".io";
 //        JavaFile file = JavaFile.builder(packageName, builder.build()).skipJavaLangImports(true).build();
         saveStringFile(packageName, writeString, fileName);

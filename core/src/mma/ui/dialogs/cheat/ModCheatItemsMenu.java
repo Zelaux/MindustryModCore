@@ -23,7 +23,7 @@ import java.util.Iterator;
 
 public class ModCheatItemsMenu extends BaseDialog {
     private Runnable hider;
-    private Cons<Seq<ItemStack>> confirm=(itemStacks -> {
+    private final Cons<Seq<ItemStack>> confirm=(itemStacks -> {
         itemStacks.each(itemStack -> {
             CoreBlock.CoreBuild core= Vars.player.team().core();
             core.items.set(itemStack.item,itemStack.amount);
@@ -111,7 +111,7 @@ public class ModCheatItemsMenu extends BaseDialog {
                         stack.amount = Math.min(stack.amount + this.step(stack.amount), this.capacity);
                     }).size(bsize);
                     t.button(Icon.pencil, Styles.cleari, () -> {
-                        Vars.ui.showTextInput("@configure", stack.item.localizedName, 10, stack.amount + "", true, (str) -> {
+                        Vars.ui.showTextInput("@configure", stack.item.localizedName, 10, String.valueOf(stack.amount), true, (str) -> {
                             if (Strings.canParsePositiveInt(str)) {
                                 int amount = Strings.parseInt(str);
                                 if (amount >= 0 && amount <= this.capacity) {
@@ -125,7 +125,7 @@ public class ModCheatItemsMenu extends BaseDialog {
                     }).size(bsize);
                     t.image(stack.item.uiIcon).size(24.0F).padRight(4.0F).padLeft(4.0F);
                     t.label(() -> {
-                        return stack.amount + "";
+                        return String.valueOf(stack.amount);
                     }).left().width(90.0F);
                 }).pad(2.0F).left().fillX();
                 ++i;

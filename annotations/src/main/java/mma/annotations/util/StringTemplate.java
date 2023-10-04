@@ -130,7 +130,7 @@ public class StringTemplate{
         public String replaceByVariable(@Nullable ObjectMap<String, ?> variableMap){
             if(variableMap == null) return toString;
             //noinspection unchecked,rawtypes
-            return String.valueOf(((ObjectMap)variableMap).get(name, (Object)toString));
+            return String.valueOf(((ObjectMap)variableMap).get(name, toString));
         }
     }
 }

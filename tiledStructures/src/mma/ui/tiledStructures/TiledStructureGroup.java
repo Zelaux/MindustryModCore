@@ -5,7 +5,7 @@ import arc.struct.*;
 import mma.ui.tiledStructures.TiledStructures.*;
 
 public class TiledStructureGroup{
-    private Seq<TiledStructure<?>> structures = new Seq<>();
+    private final Seq<TiledStructure<?>> structures = new Seq<>();
     private int x, y;
     private int width = 0, height = 0;
 

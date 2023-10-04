@@ -13,7 +13,7 @@ public class ManyPlanetSystems{
     private final static EventReceiver hasSolarSystemReceiver = new EventReceiver("has-many-planet-systems");
 
     public static void init(){
-        boolean has[] = {false};
+        boolean[] has = {false};
         hasSolarSystemSender.<Runnable>setParameter("callback", () -> has[0] = true);
         hasSolarSystemSender.fire(true);
         if(has[0]) return;

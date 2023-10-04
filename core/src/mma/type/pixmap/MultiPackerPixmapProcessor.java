@@ -10,7 +10,7 @@ import mindustry.graphics.*;
 import mindustry.graphics.MultiPacker.*;
 
 public class MultiPackerPixmapProcessor{
-    private static ObjectMap<MultiPacker, PixmapProcessor> map=new ObjectMap<>();
+    private static final ObjectMap<MultiPacker, PixmapProcessor> map=new ObjectMap<>();
     public static PixmapProcessor get(MultiPacker packer){
         return map.get(packer,()-> new PixmapProcessor(){
             @Override

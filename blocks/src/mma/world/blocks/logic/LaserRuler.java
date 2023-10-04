@@ -10,6 +10,7 @@ import arc.util.*;
 import arc.util.io.*;
 import mindustry.*;
 import mindustry.content.*;
+import mindustry.core.*;
 import mindustry.entities.*;
 import mindustry.game.*;
 import mindustry.gen.*;
@@ -80,12 +81,12 @@ public class LaserRuler extends ModBlock{
         public void rebuildTiles(){
             Tile target = targetTile();
             xtiles.clear();
-            Vars.world.raycast(tile.x, tile.y, target.x, tile.y, (x, y) -> {
+            World.raycast(tile.x, tile.y, target.x, tile.y, (x, y) -> {
                 xtiles.add(Vars.world.tile(x, y));
                 return false;
             });
             ytiles.clear();
-            Vars.world.raycast(target.x, tile.y, target.x, target.y, (x, y) -> {
+            World.raycast(target.x, tile.y, target.x, target.y, (x, y) -> {
                 ytiles.add(Vars.world.tile(x, y));
                 return false;
             });
@@ -154,7 +155,7 @@ public class LaserRuler extends ModBlock{
             Draw.draw(Layer.flyingUnit + 4, () -> {
                 Tile targetTile = targetTile();
                 Tmp.v1.trns(tile.angleTo(targetTile), size * tilesize);
-                ADrawf.drawText(x + Tmp.v1.x, y + Tmp.v1.y, Pal.heal, "" + dstTileToTarget());
+                ADrawf.drawText(x + Tmp.v1.x, y + Tmp.v1.y, Pal.heal, String.valueOf(dstTileToTarget()));
                 drawTiles(xtiles);
                 drawTiles(ytiles);
             });
@@ -164,7 +165,7 @@ public class LaserRuler extends ModBlock{
         protected void drawTiles(Seq<Tile> tiles){
             if(tiles.size > 2){
                 Tile tile = tiles.getFrac(0.5f);
-                ADrawf.drawText(tile.worldx(), tile.worldy(), Pal.heal, "" + (tiles.size - 2));
+                ADrawf.drawText(tile.worldx(), tile.worldy(), Pal.heal, String.valueOf(tiles.size - 2));
             }
         }
 
@@ -204,8 +205,9 @@ public class LaserRuler extends ModBlock{
         }
 
         private boolean validTarget(int pos){
-            return pos != -1 && Vars.world.tile(pos) != null &&
-                   (Vars.world.tile(pos).x == tile.x || Vars.world.tile(pos).y == tile.y || true);
+            if(pos == -1 || Vars.world.tile(pos) == null) return false;
+            //noinspection PointlessBooleanExpression
+            return Vars.world.tile(pos).x == tile.x || Vars.world.tile(pos).y == tile.y || true;
         }
 
         private float dstToTarget(){

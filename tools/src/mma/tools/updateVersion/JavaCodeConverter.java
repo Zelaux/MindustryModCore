@@ -186,7 +186,7 @@ public class JavaCodeConverter {
     }
 
     private Seq<Statement> chechIfStmt(Seq<Statement> statements, Statement statement, final Expression condition) {
-        if (condition.toString().contains("instanceof") && false) {
+        if (false) {
             Expression condition_ = openExpression(condition);
             if (condition_.isNameExpr() || condition_.isFieldAccessExpr()) {
                 return statements;

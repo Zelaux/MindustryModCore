@@ -47,17 +47,17 @@ public class MindustrySerializationGenerator{
             //make sure there's less than 2 base classes
             Seq<Stype> baseClasses = components.select(s -> s.annotation(Annotations.Component.class).base());
             if(baseClasses.size > 2){
-                processor.err("No entity may have more than 2 base classes. Base classes: " + baseClasses, type);
+                BaseProcessor.err("No entity may have more than 2 base classes. Base classes: " + baseClasses, type);
             }
 
             //get base class type name for extension
             Stype baseClassType = baseClasses.any() ? baseClasses.first() : null;
-            @Nullable TypeName baseClass = baseClasses.any() ? processor.tname(processor.packageName + "." + processor.baseName(baseClassType)) : null;
+            @Nullable TypeName baseClass = baseClasses.any() ? BaseProcessor.tname(BaseProcessor.packageName + "." + processor.baseName(baseClassType)) : null;
             //whether the main class is the base itself
             boolean typeIsBase = baseClassType != null && type.has(Annotations.Component.class) && type.annotation(Annotations.Component.class).base();
 
             if(type.isType() && (!type.name().endsWith("Def") && !type.name().endsWith("Comp"))){
-                processor.err("All entity def names must end with 'Def'/'Comp'", type.e);
+                BaseProcessor.err("All entity def names must end with 'Def'/'Comp'", type.e);
             }
 
             String name = type.isType() ?
@@ -109,7 +109,7 @@ public class MindustrySerializationGenerator{
                 Seq<Svar> fields = comp.fields().select(f -> !f.has(Annotations.Import.class));
                 for(Svar f : fields){
                     if(!usedFields.add(f.name())){
-                        processor.err("Field '" + f.name() + "' of component '" + comp.name() + "' redefines a field in entity '" + type.name() + "'");
+                        BaseProcessor.err("Field '" + f.name() + "' of component '" + comp.name() + "' redefines a field in entity '" + type.name() + "'");
                         continue;
                     }
 
@@ -148,7 +148,7 @@ public class MindustrySerializationGenerator{
 
                     //add extra sync fields
                     if(f.has(Annotations.SyncField.class) && isSync){
-                        if(!f.tname().toString().equals("float")) processor.err("All SyncFields must be of type float", f);
+                        if(!f.tname().toString().equals("float")) BaseProcessor.err("All SyncFields must be of type float", f);
 
                         syncedFields.add(f);
 
@@ -231,7 +231,7 @@ public class MindustrySerializationGenerator{
         readMethod.addModifiers(Modifier.STATIC);
 
         CodeBlock.Builder readBuilder = codeBuilder(readMethod);
-        BlockStmt blockStmt = StaticJavaParser.parseBlock("{" + readBuilder.build().toString() + "}");
+        BlockStmt blockStmt = StaticJavaParser.parseBlock("{" + readBuilder.build() + "}");
         blockStmt.addStatement(0,StaticJavaParser.parseStatement(className.simpleName()+" OBJECT_TO_READ = "+className.simpleName()+".create();"));
         for(AssignExpr assignExpr : blockStmt.findAll(AssignExpr.class)){
             Expression t = assignExpr.getTarget();
@@ -260,7 +260,7 @@ public class MindustrySerializationGenerator{
         writeMethod.addModifiers(Modifier.STATIC);
 
         CodeBlock.Builder writeBuilder = codeBuilder(writeMethod);
-        BlockStmt blockStmt = StaticJavaParser.parseBlock("{" + writeBuilder.build().toString() + "}");
+        BlockStmt blockStmt = StaticJavaParser.parseBlock("{" + writeBuilder.build() + "}");
 
         blockStmt.findAll(ThisExpr.class).forEach(it -> {
             Expression expression = (Expression)it.getParentNode().get();

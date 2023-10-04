@@ -54,11 +54,8 @@ public class ModTypeIOResolver{
             }
         }
         types.set(nTypes);
-        boolean debug = false;
-        if(processor.annotationsSettings().getBool("debug")){
-            debug = true;
-        }
-//        types.reverse();
+        boolean debug = processor.annotationsSettings().getBool("debug");
+        //        types.reverse();
         for(Stype type : types){
             if(debug){
                 processor.debugLog("use methods from @", type.fullName());

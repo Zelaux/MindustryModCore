@@ -18,7 +18,7 @@ import mma.core.ModUI;
 import static mindustry.Vars.mobile;
 
 public class UnitChooseDialog extends BaseDialog {
-    private Boolf<UnitType> check;
+    private final Boolf<UnitType> check;
 
     public UnitChooseDialog(Boolf<UnitType> check) {
         super("Choose unit:");
