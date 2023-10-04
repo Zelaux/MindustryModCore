@@ -15,12 +15,22 @@ import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.expr.*;
 import com.squareup.javapoet.*;
 import com.sun.source.tree.*;
+import com.sun.tools.javac.code.*;
+import com.sun.tools.javac.code.Symbol.*;
+import com.sun.tools.javac.comp.*;
+import com.sun.tools.javac.main.*;
+import com.sun.tools.javac.processing.*;
+import com.sun.tools.javac.util.*;
 import mindustry.annotations.*;
 import mindustry.annotations.util.*;
 import mindustry.io.*;
 import mindustry.mod.*;
 import mindustry.mod.Mods.*;
 import mma.annotations.ModAnnotations.*;
+import org.jetbrains.annotations.Nullable;
+import org.reflections.*;
+import org.reflections.scanners.*;
+import org.reflections.util.*;
 
 import javax.annotation.processing.*;
 import javax.lang.model.*;
@@ -29,8 +39,11 @@ import javax.tools.*;
 import javax.tools.Diagnostic.*;
 import java.io.*;
 import java.lang.annotation.*;
+import java.net.*;
 import java.nio.file.*;
 import java.util.*;
+import java.util.List;
+import java.util.stream.*;
 
 @SuppressWarnings("deprecation")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
@@ -40,6 +53,11 @@ public abstract class ModBaseProcessor extends BaseProcessor{
     public static String rootPackageName = null;
     static boolean markAnnotationSettingsPathElement = true;
     private static boolean createdSettingClass = false;
+
+    private static Map<String, Set<String>> hierarchy;
+
+    private static Set<String> allClasses;
+    private static Reflections classPathReflections;
     AnnotationSettings annotationSettingsAnnotation;
     Element annotationSettingsAnnotationElement;
     AnnotationPropertiesPath annotationSettingsPath;
@@ -49,13 +67,28 @@ public abstract class ModBaseProcessor extends BaseProcessor{
         enableTimer = true;
     }
 
+    @SuppressWarnings("unused")
+    public static Set<String> allClasses(){
+        computeHierarchy();
+        return Collections.unmodifiableSet(allClasses);
+    }
 
+    @SuppressWarnings("unused")
+    public static Map<String, Set<String>> hierarchy(){
+        computeHierarchy();
+        HashMap<String, Set<String>> m = new HashMap<>();
+        hierarchy.forEach((key, values) -> m.put(key, Collections.unmodifiableSet(values)));
+        return Collections.unmodifiableMap(m);
+    }
+
+    @SuppressWarnings("unused")
     public static void print(String obj, Object... args){
         String message = Strings.format(obj, args);
         System.out.println(message);
     }
 
     public static void write(TypeSpec.Builder builder, String packageName) throws Exception{
+        //noinspection RedundantCast
         write(builder, packageName, (Seq<String>)null);
     }
 
@@ -63,9 +96,142 @@ public abstract class ModBaseProcessor extends BaseProcessor{
         return getFilesFi(location, "no", "no").parent().parent();
     }
 
+    @SuppressWarnings("SameParameterValue")
     protected static Fi getFilesFi(StandardLocation location, String packageName, String className) throws IOException{
         return Fi.get(filer.getResource(location, packageName, className)
-        .toUri().toURL().toString().substring(OS.isWindows ? 6 : "file:".length()));
+            .toUri().toURL().toString().substring(OS.isWindows ? 6 : "file:".length()));
+    }
+
+    @SuppressWarnings("unused")
+    protected static List<TypeElement> collectAllTypeElement(){
+        return allClasses.stream().map(elementu::getTypeElement).collect(Collectors.toList());
+    }
+
+    private static void collectEachChild(Cons<ClassSymbol> collector, Symbol symbol){
+        List<Symbol> enclosedElements = symbol.getEnclosedElements();
+        if(enclosedElements.size() == 0 || symbol instanceof ClassSymbol){
+            if(symbol instanceof ClassSymbol){
+                collector.get((ClassSymbol)symbol);
+            }
+            /*byte[] bytes = new byte[indent];
+            Arrays.fill(bytes, (byte)' ');
+            bytes[indent-1]='-';
+            System.out.print(new String(bytes));
+            System.out.print(symbol);
+            System.out.println();*/
+            return;
+        }
+        for(Symbol element : enclosedElements){
+            collectEachChild(collector, element);
+        }
+    }
+
+    @SuppressWarnings("unused")
+    public static void warn(String message){
+        messager.printMessage(Kind.WARNING, message);
+    }
+
+    @SuppressWarnings("unused")
+    public static void warn(String message, Element elem){
+        messager.printMessage(Kind.WARNING, message, elem);
+    }
+
+    @SuppressWarnings("unused")
+    public static void note(String message){
+        messager.printMessage(Kind.NOTE, message);
+    }
+
+    @SuppressWarnings("unused")
+    public static void note(String message, Element elem){
+        messager.printMessage(Kind.NOTE, message, elem);
+    }
+
+    private static void index(ClassSymbol it){
+        Stype stype = new Stype(it);
+        if(allClasses.add(stype.fullName())){
+            try{
+                Stype superclass = stype.superclass();
+                if(superclass.e != null){
+                    hierarchy.computeIfAbsent(superclass.fullName(), ignore -> new HashSet<>()).add(stype.fullName());
+                }
+            }catch(IndexOutOfBoundsException ignored){
+                //it is interface or annotation, I guess
+            }
+        }
+    }
+
+    public static Reflections reflections(){
+        if(classPathReflections == null){
+            computeReflections();
+        }
+        return classPathReflections;
+    }
+
+    private static void computeHierarchy(){
+        if(hierarchy != null) return;
+        Reflections reflections = reflections();
+        Context context = context();
+        hierarchy = new HashMap<>();
+        allClasses = new HashSet<>();
+        Store store = reflections.getStore();
+        store.get(Scanners.SubTypes.index()).forEach((key, values) -> {
+            Set<String> strings = hierarchy.computeIfAbsent(key, ignore -> new HashSet<>());
+            strings.addAll(values);
+            allClasses.addAll(values);
+        });
+        debug:
+        {
+            Fi rootDirectory;
+            {
+                Fi rootDirectory1;
+                try{
+
+                    String path = Fi.get(filer.getResource(StandardLocation.CLASS_OUTPUT, "no", "no").toUri().toURL().toString().substring(OS.isWindows ? 6 : "file:".length()))
+                        .parent().parent().parent().parent().parent().parent().parent().toString().replace("%20", " ");
+                    Fi fi = Fi.get(path);
+
+                    String rootDirectoryPath = "../";
+                    rootDirectory1 = new Fi(fi.child(rootDirectoryPath).file().getCanonicalFile());
+                }catch(IOException e){
+                    throw new RuntimeException(e);
+                }
+                rootDirectory = rootDirectory1;
+            }
+            Jval json = Jval.newObject();
+            store.get(Scanners.TypesAnnotated.index()).forEach((key, values) -> {
+                Jval array = Jval.newArray();
+                values.forEach(array::add);
+                json.add(key, array);
+            });
+            rootDirectory.child("test.json").writeString(json.toString(Jformat.formatted));
+        }
+        Modules modules = Modules.instance(context);
+        for(ModuleSymbol allModule : modules.allModules()){
+            collectEachChild(ModBaseProcessor::index, allModule);
+        }
+    }
+
+    private static void computeReflections(){
+        if(classPathReflections != null) return;
+        Options options = Options.instance(context());
+        ConfigurationBuilder configuration = new ConfigurationBuilder();
+        configuration.addUrls(Stream.of(options.get(Option.CLASS_PATH).split(";"))
+            .map(it -> {
+                try{
+                    return new File(it).toURI().toURL();
+                }catch(MalformedURLException e){
+                    throw new RuntimeException(e);
+                }
+            })
+            .collect(Collectors.toList())
+        );
+        configuration.addScanners(Scanners.values());
+        classPathReflections = new Reflections(configuration);
+
+    }
+
+    private static Context context(){
+        return ((JavacProcessingEnvironment)processingEnvironment).getContext();
     }
 
     public ModMeta modInfo(){
@@ -73,7 +239,7 @@ public abstract class ModBaseProcessor extends BaseProcessor{
         if(meta == null){
             if(annotationSettingsAnnotation != null && !annotationSettingsAnnotation.modInfoPath().equals("\n")){
 
-                err("Cannot find mod info file("+rootDirectory.child(annotationSettingsAnnotation.modInfoPath()).file().getAbsolutePath()+")", annotationSettingsAnnotationElement);
+                err("Cannot find mod info file(" + rootDirectory.child(annotationSettingsAnnotation.modInfoPath()).file().getAbsolutePath() + ")", annotationSettingsAnnotationElement);
             }else{
                 err("Cannot find mod info file");
             }
@@ -94,10 +260,10 @@ public abstract class ModBaseProcessor extends BaseProcessor{
             return JsonIO.json.fromJson(ModMeta.class, Jval.read(file.readString()).toString(Jformat.plain));
         }
         String[] paths = {
-        "mod.json",
-        "mod.hjson",
-        "plugin.json",
-        "plugin.hjson",
+            "mod.json",
+            "mod.hjson",
+            "plugin.json",
+            "plugin.hjson",
         };
         Fi file = null;
         for(int i = 0; i < paths.length * 2; i++){
@@ -144,9 +310,8 @@ public abstract class ModBaseProcessor extends BaseProcessor{
             }catch(IOException e){
                 e.printStackTrace();
             }
-        }else{
-//            annotationPropertiesFile.writeString("");
-        }
+        }// else           annotationPropertiesFile.writeString("");
+
         Fi classPrefixTxt = rootDirectory.child("annotations/classPrefix.txt");
         if(classPrefixTxt.exists()){
             annotationProperties.put("classPrefix", classPrefixTxt.readString());
@@ -194,11 +359,13 @@ public abstract class ModBaseProcessor extends BaseProcessor{
                 JavaParser parser = new JavaParser();
 //                parser.getParserConfiguration().setC
                 Fi file = Fi.get(anyCompUnit.getSourceFile().getName());
+                //noinspection OptionalGetWithoutIsPresent
                 CompilationUnit compilationUnit = parser.parse(file.readString()).getResult().get();
                 for(AnnotationExpr expr : compilationUnit.findAll(AnnotationExpr.class)){
                     if(!expr.getNameAsString().endsWith(AnnotationSettings.class.getSimpleName())){
                         continue;
                     }
+                    //noinspection OptionalGetWithoutIsPresent
                     AnnotationExpr node = parser.parseAnnotation(annotation.toString()).getResult().get();
                     node.setName(expr.getNameAsString());
                     expr.replace(node);
@@ -254,12 +421,12 @@ public abstract class ModBaseProcessor extends BaseProcessor{
 
         declaration.addAnnotation(StaticJavaParser.parseAnnotation(annotation.toString()));
         Selement<?> element = Seq.with(env.getRootElements()).map(Selement::new).sort(Structs.comps(
-        Structs.comparingBool(Selement::isType),
-        Structs.comparingBool(it -> {
-            if(!it.isType()) return false;
-            Stype stype = it.asType();
-            return stype.superclasses().contains(it2 -> it2.fullName().equals(Mod.class.getName()));
-        }))).firstOpt();
+            Structs.comparingBool(Selement::isType),
+            Structs.comparingBool(it -> {
+                if(!it.isType()) return false;
+                Stype stype = it.asType();
+                return stype.superclasses().contains(it2 -> it2.fullName().equals(Mod.class.getName()));
+            }))).firstOpt();
         CompilationUnitTree anyCompUnit = trees.getPath(element.e).getCompilationUnit();
         Fi zeroPackage = Fi.get(anyCompUnit.getSourceFile().getName());
         if(!zeroPackage.extension().equals("java")){
@@ -268,10 +435,11 @@ public abstract class ModBaseProcessor extends BaseProcessor{
         for(int j = 0; j < anyCompUnit.getPackageName().toString().split("\\.").length + 1; j++){
             zeroPackage = zeroPackage.parent();
         }
+        //noinspection OptionalGetWithoutIsPresent
         zeroPackage
-        .child(compilationUnit.getPackageDeclaration().get().getNameAsString().replace(".", "//"))
-        .child(declaration.getNameAsString() + ".java")
-        .writeString(compilationUnit.toString());
+            .child(compilationUnit.getPackageDeclaration().get().getNameAsString().replace(".", "//"))
+            .child(declaration.getNameAsString() + ".java")
+            .writeString(compilationUnit.toString());
     }
 
     public String classPrefix(){
@@ -311,6 +479,7 @@ public abstract class ModBaseProcessor extends BaseProcessor{
         Files.delete(Paths.get(resource.getName() + ".java"));
     }
 
+    @SuppressWarnings("unused")
     public void delete(String name) throws IOException{
         delete(packageName, name);
     }
@@ -325,12 +494,13 @@ public abstract class ModBaseProcessor extends BaseProcessor{
         try{
             Stype stype = types(RootDirectoryPath.class).firstOpt();
 
-            String path = Fi.get(filer.getResource(StandardLocation.CLASS_OUTPUT, "no", "no").toUri().toURL().toString().substring(OS.isWindows ? 6 : "file:".length())).parent().parent().parent().parent().parent().parent().parent().toString().replace("%20", " ");
+            String path = Fi.get(filer.getResource(StandardLocation.CLASS_OUTPUT, "no", "no").toUri().toURL().toString().substring(OS.isWindows ? 6 : "file:".length()))
+                .parent().parent().parent().parent().parent().parent().parent().toString().replace("%20", " ");
             Fi fi = Fi.get(path);
 
             String rootDirectoryPath = stype == null ? "../" : stype.annotation(RootDirectoryPath.class).rootDirectoryPath();
             rootDirectory = new Fi(fi.child(
-            !rootDirectoryPath.equals("\n") ? rootDirectoryPath : "../"
+                !rootDirectoryPath.equals("\n") ? rootDirectoryPath : "../"
             ).file().getCanonicalFile());
 //            System.out.println("fi1: " + fi);
 //            rootDirectory = fi.parent();
@@ -343,7 +513,14 @@ public abstract class ModBaseProcessor extends BaseProcessor{
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv){
+        if(hierarchy != null && round > 0){
+            for(Element element : roundEnv.getRootElements()){
+                if(element instanceof Symbol){
+                    collectEachChild(ModBaseProcessor::index, (Symbol)element);
+                }
 
+            }
+        }
         this.env = roundEnv;
         if(annotationSettingsAnnotation == null){
             Stype selement = types(AnnotationSettings.class).firstOpt();
@@ -370,6 +547,7 @@ public abstract class ModBaseProcessor extends BaseProcessor{
 //        debugLog("annotationSettingsPath: @",annotationSettingsPath);
 //        debugLog("annotationSettingsAnnotation: @",annotationSettingsAnnotation);
 //        System.out.println("");
+        //noinspection UnnecessaryLocalVariable
         boolean process = super.process(annotations, roundEnv);
 //        process=round-2  < rounds;
 //        process=round-2  < rounds;
@@ -381,33 +559,21 @@ public abstract class ModBaseProcessor extends BaseProcessor{
         return rootDirectory;
     }
 
-    public static void warn(String message) {
-        messager.printMessage(Kind.WARNING, message);
-//        Log.err("warning " + message);
+    @Override
+    public synchronized void init(ProcessingEnvironment env){
+        super.init(env);
+//        System.out.println();
     }
 
-    public static void warn(String message, Element elem) {
-        messager.printMessage(Kind.WARNING, message, elem);
-//        Log.err("[CODEGEN ERROR] " + message + ": " + elem);
-    }
-    public static void note(String message) {
-        messager.printMessage(Kind.NOTE, message);
-//        Log.err("warning " + message);
-    }
-
-    public static void note(String message, Element elem) {
-        messager.printMessage(Kind.NOTE, message, elem);
-//        Log.err("[CODEGEN ERROR] " + message + ": " + elem);
-    }
     @Override
     public Set<String> getSupportedAnnotationTypes(){
-        javax.annotation.processing.SupportedAnnotationTypes sat = this.getClass().getAnnotation(javax.annotation.processing.SupportedAnnotationTypes.class);
+//        javax.annotation.processing.SupportedAnnotationTypes sat = this.getClass().getAnnotation(javax.annotation.processing.SupportedAnnotationTypes.class);
         SupportedAnnotationTypes sat2 = this.getClass().getAnnotation(SupportedAnnotationTypes.class);
         boolean initialized = isInitialized();
         if(sat2 != null){
             boolean stripModulePrefixes =
-            initialized &&
-            processingEnv.getSourceVersion().compareTo(SourceVersion.RELEASE_8) <= 0;
+                initialized &&
+                processingEnv.getSourceVersion().compareTo(SourceVersion.RELEASE_8) <= 0;
 
             Class<? extends Annotation>[] classes = sat2.value();
             String[] strings = new String[classes.length];
@@ -416,11 +582,12 @@ public abstract class ModBaseProcessor extends BaseProcessor{
             }
 //            System.out.println("supported->"+Arrays.toString(strings));
             return arrayToSet(strings, stripModulePrefixes,
-            "annotation type", "@SupportedAnnotationTypes");
+                "annotation type", "@SupportedAnnotationTypes");
         }
         return super.getSupportedAnnotationTypes();
     }
 
+    @SuppressWarnings("SameParameterValue")
     private Set<String> arrayToSet(String[] array,
                                    boolean stripModulePrefixes,
                                    String contentType,
@@ -442,11 +609,11 @@ public abstract class ModBaseProcessor extends BaseProcessor{
             // "foo/a.B", "bar/a.B".
             if(!added && !stripped && isInitialized()){
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING,
-                "Duplicate " + contentType +
-                " ``" + s + "'' for processor " +
-                this.getClass().getName() +
-                " in its " + annotationName +
-                "annotation.");
+                    "Duplicate " + contentType +
+                    " ``" + s + "'' for processor " +
+                    this.getClass().getName() +
+                    " in its " + annotationName +
+                    "annotation.");
             }
         }
         return Collections.unmodifiableSet(set);

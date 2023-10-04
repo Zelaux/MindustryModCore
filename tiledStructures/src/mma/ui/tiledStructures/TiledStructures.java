@@ -21,6 +21,7 @@ import java.util.*;
 
 import static mindustry.Vars.net;
 
+@SuppressWarnings("rawtypes")
 public class TiledStructures implements
     Iterable<TiledStructures.TiledStructure>,
         Eachable<TiledStructures.TiledStructure>,
@@ -123,7 +124,7 @@ public class TiledStructures implements
 
     private String structureToString(TiledStructure<?> structure){
 //        return structure.editorX + "_" + structure.editorY;
-        return all.indexOf(structure) + "";
+        return String.valueOf(all.indexOf(structure));
     }
 
     @Override

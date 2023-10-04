@@ -5,9 +5,13 @@ import arc.struct.*;
 import mindustry.annotations.*;
 import mindustry.annotations.util.*;
 import mindustry.annotations.util.TypeIOResolver.*;
+import mindustry.io.*;
 import mma.annotations.*;
+import mma.annotations.ModAnnotations.*;
+import org.reflections.scanners.*;
 
 import javax.lang.model.element.*;
+import java.util.*;
 
 public class ModTypeIOResolver{
     static Seq<Smethod> methods = new Seq<>();
@@ -17,6 +21,19 @@ public class ModTypeIOResolver{
         methods.clear();
         ClassSerializer out = new ClassSerializer(new ObjectMap<>(), new ObjectMap<>(), new ObjectMap<>(), new ObjectMap<>());
         Seq<Stype> types = processor.types(Annotations.TypeIOHandler.class);
+        if(types.isEmpty()){
+            Set<String> strings = ModBaseProcessor.reflections().get(Scanners.TypesAnnotated.of(DefaultTypeIOHandler.class));
+            for(String string : strings){
+                types.add(new Stype(ModBaseProcessor.elementu.getTypeElement(string)));
+            }
+            if(strings.isEmpty()){
+                TypeElement element = ModBaseProcessor.elementu.getTypeElement("mindustry.io.TypeIO");
+                if(element==null){
+                    throw new RuntimeException("Cannot find TypeIO handler. Mark your with @mindustry.annotations.Annotations.TypeIOHandler");
+                }
+                types.add(new Stype(element));
+            }
+        }
         Seq<Stype> nTypes = new Seq<>();
         ObjectSet<String> typesNames = new ObjectSet<>();
         Cons<Stype> addNewType = nt -> {
@@ -116,7 +133,7 @@ public class ModTypeIOResolver{
                         return false;
                     }
                 }
-            } else {
+            }else{
                 return false;
             }
             return other.name().equals(method.name()) && other.retn().toString().equals(method.retn().toString());
@@ -131,9 +148,9 @@ public class ModTypeIOResolver{
     private static String fix(String str){
 //        if (true)return str;
         return str
-        .replace("mindustry.gen.", "")
-        .replace("mma.gen.", "")
-        .replace(ModBaseProcessor.rootPackageName + ".gen.", "");
+            .replace("mindustry.gen.", "")
+            .replace("mma.gen.", "")
+            .replace(ModBaseProcessor.rootPackageName + ".gen.", "");
     }
 
 }

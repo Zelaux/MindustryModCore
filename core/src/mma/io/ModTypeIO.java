@@ -23,10 +23,12 @@ import mindustry.world.blocks.environment.Floor;
 import mindustry.world.blocks.environment.OreBlock;
 import mindustry.world.blocks.environment.StaticWall;
 import mindustry.annotations.Annotations;
+import mma.annotations.ModAnnotations.*;
 
 import static mindustry.Vars.*;
 
 @Annotations.TypeIOHandler
+@DefaultTypeIOHandler
 public class ModTypeIO extends TypeIO {
     public static Entityc readEntity(Reads read){
         return TypeIO.readEntity(read);

@@ -73,7 +73,7 @@ public class AFill extends Fill{
         donut(x, y, radius1, radius2, finion, angle);
     }
 
-    //ellipse region
+    //region ellipse
     public static void polyCircle(float x, float y, float radius){
         pie(x, y, radius, 1f, 0f);
     }
@@ -185,7 +185,7 @@ public class AFill extends Fill{
 
     }
 
-    //end region
+    //endregion
     public static void tri(FloatSeq floats){
         if(floats.size < 6) return;
         float[] items = floats.items;

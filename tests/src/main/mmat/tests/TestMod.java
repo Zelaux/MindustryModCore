@@ -1,22 +1,16 @@
 package mmat.tests;
 
 import arc.*;
-import arc.func.*;
-import arc.scene.ui.layout.*;
 import arc.struct.*;
 import arc.util.*;
 import mindustry.ctype.*;
 import mindustry.game.EventType.*;
-import mindustry.gen.*;
-import mindustry.ui.*;
-import mindustry.ui.dialogs.*;
 import mma.*;
 import mma.ui.tiledStructures.TiledStructures.*;
-import mma.ui.tiledStructures.*;
 import mmat.tests.gen.*;
 import mmat.tests.ui.*;
-import mmat.tests.ui.tiledStructures.*;
 import mmat.tests.ui.tiledStructures.TestStructures.*;
+import mmat.tests.ui.tiledStructures.*;
 
 public class TestMod extends MMAMod{
 

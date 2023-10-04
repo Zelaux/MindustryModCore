@@ -29,26 +29,29 @@ import java.lang.annotation.*;
 import java.util.*;
 
 @SupportedAnnotationTypes({
-mindustry.annotations.Annotations.EntityDef.class,
-mindustry.annotations.Annotations.EntityInterface.class,
-mindustry.annotations.Annotations.BaseComponent.class,
-mindustry.annotations.Annotations.Component.class,
-mindustry.annotations.Annotations.TypeIOHandler.class,
-mma.annotations.ModAnnotations.EntitySuperClass.class,
-mma.annotations.ModAnnotations.CreateMindustrySerialization.class,
+    mindustry.annotations.Annotations.EntityDef.class,
+    mindustry.annotations.Annotations.EntityInterface.class,
+    mindustry.annotations.Annotations.BaseComponent.class,
+    mindustry.annotations.Annotations.Component.class,
+    mindustry.annotations.Annotations.TypeIOHandler.class,
+    mma.annotations.ModAnnotations.EntitySuperClass.class,
+    mma.annotations.ModAnnotations.CreateMindustrySerialization.class,
 })
 public class ModEntityProcess extends ModBaseProcessor{
     final Seq<Stype> baseComponents = new Seq<>();
     private final Seq<Stype> allComponents = new Seq<>();
     Seq<EntityDefinition> definitions = new Seq<>();
     Seq<Stype> allInterfaces = new Seq<>();
-    Seq<Stype> anukeSuperInterfaces = new Seq<>();
+    @SuppressWarnings("rawtypes")
     Seq<Selement> allGroups = new Seq<>();
+    @SuppressWarnings("rawtypes")
     Seq<Selement> allDefs = new Seq<>();
+    @SuppressWarnings("rawtypes")
     Seq<Selement> mindustryDefs = new Seq<>();
     Seq<GroupDefinition> groupDefs = new Seq<>();
     ObjectMap<String, Stype> componentNames = new ObjectMap<>();
     ObjectMap<Stype, Seq<Stype>> componentDependencies = new ObjectMap<>();
+    @SuppressWarnings("rawtypes")
     ObjectMap<Selement, Seq<Stype>> defComponents = new ObjectMap<>();
     ObjectMap<String, String> varInitializers = new ObjectMap<>();
     ObjectMap<String, String> methodBlocks = new ObjectMap<>();
@@ -61,6 +64,7 @@ public class ModEntityProcess extends ModBaseProcessor{
     //    Seq<String> anukeComponents = new Seq<>();
     boolean hasAnukeComps = false;
     boolean secondIsFinalRound = false;
+    @SuppressWarnings("FieldCanBeLocal")
     private String compByAnukePackage;
 
     {
@@ -214,8 +218,8 @@ public class ModEntityProcess extends ModBaseProcessor{
             if(component.annotation(GenerateDefaultImplementation.class) != null){
 
                 defaultImpl = TypeSpec.interfaceBuilder(component.name().replace("Comp", "cImpl"))
-                .addSuperinterface(ClassName.bestGuess(interfaceName(component)))
-                .addModifiers(Modifier.PUBLIC)
+                    .addSuperinterface(ClassName.bestGuess(interfaceName(component)))
+                    .addModifiers(Modifier.PUBLIC)
 
                 ;
             }
@@ -224,20 +228,20 @@ public class ModEntityProcess extends ModBaseProcessor{
                 //get all statements in the method, store them
                 String stringBody = elem.tree().getBody().toString();
                 String value = stringBody
-                .replaceAll("this\\.<(.*)>self\\(\\)", "this") //fix parameterized self() calls
-                .replaceAll("self\\(\\)", "this") //fix self() calls
-                .replaceAll(" yield ", "") //fix enchanced switch
-                .replaceAll("\\/\\*missing\\*\\/", "var");
+                    .replaceAll("this\\.<(.*)>self\\(\\)", "this") //fix parameterized self() calls
+                    .replaceAll("self\\(\\)", "this") //fix self() calls
+                    .replaceAll(" yield ", "") //fix enchanced switch
+                    .replaceAll("\\/\\*missing\\*\\/", "var");
                 methodBlocks.put(elem.descString(), value //fix vars
                 );
                 if(defaultImpl != null){
                     defaultImpl.addMethod(MethodSpec.methodBuilder(elem.name())
-                    .addAnnotation(Override.class)
-                    .addModifiers(Modifier.PUBLIC, Modifier.DEFAULT)
-                    .addCode(stringBody)
-                    .addParameters(Seq.with(elem.params()).map(it -> ParameterSpec.builder(it.tname(), it.name()).build()))
-                    .returns(elem.retn())
-                    .build()
+                        .addAnnotation(Override.class)
+                        .addModifiers(Modifier.PUBLIC, Modifier.DEFAULT)
+                        .addCode(stringBody)
+                        .addParameters(Seq.with(elem.params()).map(it -> ParameterSpec.builder(it.tname(), it.name()).build()))
+                        .returns(elem.retn())
+                        .build()
                     );
                 }
             }
@@ -262,7 +266,7 @@ public class ModEntityProcess extends ModBaseProcessor{
             boolean anuke = component.fullName().contains("compByAnuke");
             if(!anuke){
                 inter = TypeSpec.interfaceBuilder(interfaceName(component))
-                .addModifiers(Modifier.PUBLIC).addAnnotation(Annotations.EntityInterface.class);
+                    .addModifiers(Modifier.PUBLIC).addAnnotation(Annotations.EntityInterface.class);
 
                 inter.addJavadoc("Interface for {@link $L}", component.fullName());
                 skipDeprecated(inter);
@@ -289,12 +293,12 @@ public class ModEntityProcess extends ModBaseProcessor{
                     signatures.add(method.e.toString());
 
                     inter.addMethod(MethodSpec.methodBuilder(method.name())
-                    .addJavadoc(method.doc() == null ? "" : method.doc())
-                    .addExceptions(method.thrownt())
-                    .addTypeVariables(method.typeVariables().map(TypeVariableName::get))
-                    .returns(method.ret().toString().equals("void") ? TypeName.VOID : method.retn())
-                    .addParameters(method.params().map(v -> ParameterSpec.builder(v.tname(), v.name())
-                    .build())).addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT).build());
+                        .addJavadoc(method.doc() == null ? "" : method.doc())
+                        .addExceptions(method.thrownt())
+                        .addTypeVariables(method.typeVariables().map(TypeVariableName::get))
+                        .returns(method.ret().toString().equals("void") ? TypeName.VOID : method.retn())
+                        .addParameters(method.params().map(v -> ParameterSpec.builder(v.tname(), v.name())
+                            .build())).addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT).build());
                 }
                 //generate interface getters and setters for all "standard" fields
                 for(Svar field : component.fields().select(e -> !e.is(Modifier.STATIC) && !e.is(Modifier.PRIVATE) && !e.has(Annotations.Import.class))){
@@ -302,19 +306,19 @@ public class ModEntityProcess extends ModBaseProcessor{
                     //getter
                     if(!signatures.contains(cname + "()")){
                         inter.addMethod(MethodSpec.methodBuilder(cname).addModifiers(Modifier.ABSTRACT, Modifier.PUBLIC)
-                        .addAnnotations(Seq.with(field.annotations()).select(a -> a.toString().contains("Null") || a.toString().contains("Deprecated")).map(AnnotationSpec::get))
-                        .addJavadoc(field.doc() == null ? "" : field.doc())
-                        .returns(field.tname()).build());
+                            .addAnnotations(Seq.with(field.annotations()).select(a -> a.toString().contains("Null") || a.toString().contains("Deprecated")).map(AnnotationSpec::get))
+                            .addJavadoc(field.doc() == null ? "" : field.doc())
+                            .returns(field.tname()).build());
                     }
 
                     //setter
                     if(!field.is(Modifier.FINAL) && !signatures.contains(cname + "(" + field.mirror().toString() + ")") &&
-                    !field.annotations().contains(f -> f.toString().equals("@mindustry.annotations.Annotations.ReadOnly"))){
+                       !field.annotations().contains(f -> f.toString().equals("@mindustry.annotations.Annotations.ReadOnly"))){
                         inter.addMethod(MethodSpec.methodBuilder(cname).addModifiers(Modifier.ABSTRACT, Modifier.PUBLIC)
-                        .addJavadoc(field.doc() == null ? "" : field.doc())
-                        .addParameter(ParameterSpec.builder(field.tname(), field.name())
-                        .addAnnotations(Seq.with(field.annotations())
-                        .select(a -> a.toString().contains("Null") || a.toString().contains("Deprecated")).map(AnnotationSpec::get)).build()).build());
+                            .addJavadoc(field.doc() == null ? "" : field.doc())
+                            .addParameter(ParameterSpec.builder(field.tname(), field.name())
+                                .addAnnotations(Seq.with(field.annotations())
+                                    .select(a -> a.toString().contains("Null") || a.toString().contains("Deprecated")).map(AnnotationSpec::get)).build()).build());
                     }
                 }
                 write(inter, Seq.with("import mindustry.gen.*;"));
@@ -420,14 +424,16 @@ public class ModEntityProcess extends ModBaseProcessor{
                     modGroup = string.startsWith(rootPackageName) && !string.equals("mma.entities.GroupDefs");
                 }
                 ClassName baseType = (rawTypes.first().toString().contains("<any?>")) ? ClassName.get(packageName, groupType) : ClassName.get(rawTypes.first().cname().packageName(), groupType);
-                groupDefs.add(new GroupDefinition(name,
-                baseType, types, an.spatial(), an.mapping(), collides, modGroup));
+                GroupDefinition groupDefinition = new GroupDefinition(name,
+                    baseType, types, an.spatial(), an.mapping(), collides, modGroup);
+                groupDefs.add(groupDefinition);
 
-                TypeSpec.Builder accessor = TypeSpec.interfaceBuilder("IndexableEntity__" + name)
-                .addModifiers(Modifier.PUBLIC)
-                ;
-                accessor.addMethod(MethodSpec.methodBuilder("setIndex__" + name).addModifiers(Modifier.ABSTRACT, Modifier.PUBLIC).addParameter(int.class, "index").returns(void.class).build());
-                write(accessor);
+                if(modGroup){
+                    TypeSpec.Builder accessor = TypeSpec.interfaceBuilder(groupDefinition.indexableEntityClass)
+                        .addModifiers(Modifier.PUBLIC);
+                    accessor.addMethod(MethodSpec.methodBuilder(groupDefinition.indexableEntityMethod).addModifiers(Modifier.ABSTRACT, Modifier.PUBLIC).addParameter(int.class, "index").returns(void.class).build());
+                    write(accessor);
+                }
 
             }catch(RuntimeException e){
                 Log.err("@", e);
@@ -470,8 +476,8 @@ public class ModEntityProcess extends ModBaseProcessor{
             }
 
             String name = type.isType() ?
-            type.name().replace("Def", "").replace("Comp", "") :
-            createName(type);
+                type.name().replace("Def", "").replace("Comp", "") :
+                createName(type);
 
             //check for type name conflicts
             if(!typeIsBase && baseClass != null && name.equals(baseName(baseClassType))){
@@ -585,13 +591,13 @@ public class ModEntityProcess extends ModBaseProcessor{
             if(!methods.containsKey("toString()")){
                 //override toString method
                 builder.addMethod(MethodSpec.methodBuilder("toString")
-                .addAnnotation(Override.class)
-                .returns(String.class)
-                .addModifiers(Modifier.PUBLIC)
-                .addStatement("return $S + $L", name + "#", "id").build());
+                    .addAnnotation(Override.class)
+                    .returns(String.class)
+                    .addModifiers(Modifier.PUBLIC)
+                    .addStatement("return $S + $L", name + "#", "id").build());
             }
             ModEntityIO io = new ModEntityIO(type.name(), builder, allFieldSpecs, serializer,
-            rootDirectory.child(annotationsSettings(AnnotationSettingsEnum.revisionsPath, "annotations/src/main/resources/revisions")).child(type.name()));
+                rootDirectory.child(annotationsSettings(AnnotationSettingsEnum.revisionsPath, "annotations/src/main/resources/revisions")).child(type.name()));
             //entities with no sync comp and no serialization gen no code
             boolean hasIO = ann.genio() && (components.contains(s -> s.name().contains("Sync")) || ann.serialize());
 
@@ -600,9 +606,11 @@ public class ModEntityProcess extends ModBaseProcessor{
             if(baseClassBuilder == null || addIndexToBase){
                 //implement indexable interfaces.
                 for(GroupDefinition def : groups){
-                    indexBuilder.addSuperinterface(tname(packageName + ".IndexableEntity__" + def.name));
-                    indexBuilder.addMethod(MethodSpec.methodBuilder("setIndex__" + def.name).addParameter(int.class, "index").addModifiers(Modifier.PUBLIC).addAnnotation(Override.class)
-                    .addCode("index__$L = index;", def.name).build());
+                    if(def.mod){
+                        indexBuilder.addSuperinterface(tname(packageName + "." + (def.indexableEntityClass)));
+                        indexBuilder.addMethod(MethodSpec.methodBuilder(def.indexableEntityMethod).addParameter(int.class, "index").addModifiers(Modifier.PUBLIC).addAnnotation(Override.class)
+                            .addCode("$L = index;", def.indexableEntityField).build());
+                    }
                 }
             }
             //add all methods from components
@@ -643,7 +651,7 @@ public class ModEntityProcess extends ModBaseProcessor{
                         Log.err("Cannot find any implementation for method " + parentName);
 
                         MethodSpec.Builder mbuilder = MethodSpec.methodBuilder(annotation.parentName())
-                        .addModifiers(base.is(Modifier.PRIVATE) ? Modifier.PRIVATE : Modifier.PUBLIC);
+                            .addModifiers(base.is(Modifier.PRIVATE) ? Modifier.PRIVATE : Modifier.PUBLIC);
                         //if(isFinal || entry.value.contains(s -> s.has(Final.class))) mbuilder.addModifiers(Modifier.FINAL);
                         if(smethods.contains(s -> s.has(Annotations.CallSuper.class)))
                             mbuilder.addAnnotation(Annotations.CallSuper.class); //add callSuper here if necessary
@@ -717,15 +725,15 @@ public class ModEntityProcess extends ModBaseProcessor{
 
             //add create() method
             builder.addMethod(MethodSpec.methodBuilder("create").addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-            .returns(tname(packageName + "." + name))
-            .addStatement(ann.pooled() ? "return Pools.obtain($L.class, " + name + "::new)" : "return new $L()", name).build());
+                .returns(tname(packageName + "." + name))
+                .addStatement(ann.pooled() ? "return Pools.obtain($L.class, " + name + "::new)" : "return new $L()", name).build());
 
             if(true/*!legacy*/){
                 TypeSpec.Builder fieldBuilder = baseClassBuilder != null ? baseClassBuilder : builder;
                 if(addIndexToBase || baseClassBuilder == null){
                     //add group index int variables
                     for(GroupDefinition def : groups){
-                        fieldBuilder.addField(FieldSpec.builder(int.class, "index__" + def.name, Modifier.PROTECTED, Modifier.TRANSIENT).initializer("-1").build());
+                        fieldBuilder.addField(FieldSpec.builder(int.class, def.indexableEntityField, Modifier.PROTECTED, Modifier.TRANSIENT).initializer("-1").build());
                     }
                 }
             }
@@ -767,7 +775,7 @@ public class ModEntityProcess extends ModBaseProcessor{
         Builder idBuilder = TypeSpec.classBuilder(classPrefix() + "EntityMapping").addModifiers(Modifier.PUBLIC);
 
         MethodSpec.Builder idStore = MethodSpec.methodBuilder("init").addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-        .returns(TypeName.get(void.class));
+            .returns(TypeName.get(void.class));
         ModMeta modMeta = modInfoNull();
         //store the mappings
         for(EntityDefinition def : definitions){
@@ -789,10 +797,10 @@ public class ModEntityProcess extends ModBaseProcessor{
             //return mapping
             def.builder.addMethod(MethodSpec.methodBuilder("classId").addAnnotation(Override.class)
 //                            .returns(int.class).addModifiers(Modifier.PUBLIC).addStatement("return " + def.classID).build());
-            .returns(int.class).addModifiers(Modifier.PUBLIC).addStatement("return " + rootPackageName + ".gen." + classPrefix() + "EntityMapping.getId(getClass())").build());
+                .returns(int.class).addModifiers(Modifier.PUBLIC).addStatement("return " + rootPackageName + ".gen." + classPrefix() + "EntityMapping.getId(getClass())").build());
         }
         MethodSpec.Builder idGet = MethodSpec.methodBuilder("getId").addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-        .returns(TypeName.get(int.class)).addParameter(TypeName.get(Class.class), "name");
+            .returns(TypeName.get(int.class)).addParameter(TypeName.get(Class.class), "name");
         idGet.addStatement("return mindustry.gen.EntityMapping.customIdMap.findKey(name.getSimpleName(),false,-1)");
 
         idBuilder.addMethod(idStore.build());
@@ -869,22 +877,22 @@ public class ModEntityProcess extends ModBaseProcessor{
 
                     if(first.name().equals("add")){
                         //remove/add from each group, assume imported
-                        mbuilder.addStatement("index__$L = $L.gen.$LGroups.$L.addIndex(this)", def.name, rootPackageName, classPrefix(),def.name);
+                        mbuilder.addStatement("$L = $L.gen.$LGroups.$L.addIndex(this)", def.indexableEntityField, rootPackageName, classPrefix(), def.name);
                     }else{
                         //remove/add from each group, assume imported
-                        mbuilder.addStatement("$L.gen.$LGroups.$L.removeIndex(this, index__$L);",rootPackageName, classPrefix(), def.name, def.name);
+                        mbuilder.addStatement("$L.gen.$LGroups.$L.removeIndex(this, $L);", rootPackageName, classPrefix(), def.name, def.indexableEntityField);
 
-                        mbuilder.addStatement("index__$L = -1", def.name);
+                        mbuilder.addStatement("$L = -1", def.indexableEntityField);
                     }
                 }else{
                     if(first.name().equals("add")){
                         //remove/add from each group, assume imported
-                        mbuilder.addStatement("index__$L = Groups.$L.addIndex(this)", def.name, def.name);
+                        mbuilder.addStatement("$L = Groups.$L.addIndex(this)", def.indexableEntityField, def.name);
                     }else{
                         //remove/add from each group, assume imported
-                        mbuilder.addStatement("Groups.$L.removeIndex(this, index__$L);", def.name, def.name);
+                        mbuilder.addStatement("Groups.$L.removeIndex(this, $L);", def.name, def.indexableEntityField);
 
-                        mbuilder.addStatement("index__$L = -1", def.name);
+                        mbuilder.addStatement("$L = -1", def.indexableEntityField);
                     }
                 }
             }
@@ -1026,11 +1034,11 @@ public class ModEntityProcess extends ModBaseProcessor{
 
             //add field...
             groupsBuilder.addField(ParameterizedTypeName.get(
-            ClassName.bestGuess("mindustry.entities.EntityGroup"), itype), group.name, Modifier.PUBLIC, Modifier.STATIC);
+                ClassName.bestGuess("mindustry.entities.EntityGroup"), itype), group.name, Modifier.PUBLIC, Modifier.STATIC);
 
 //            groupInit.addStatement("$L = new $T<>($L.class, $L, $L)", group.name, groupc, itype, group.spatial, group.mapping);
-            groupInit.addStatement("$L = new $T<>($L.class, $L, $L, (e, pos) -> { if(e instanceof $L.IndexableEntity__$L ix) ix.setIndex__$L(pos); })",
-            group.name, groupc, itype, group.spatial, group.mapping, packageName, group.name, group.name);
+            groupInit.addStatement("$L = new $T<>($L.class, $L, $L, (e, pos) -> { if(e instanceof $L.$L ix) ix.$L(pos); })",
+                group.name, groupc, itype, group.spatial, group.mapping, packageName, group.indexableEntityClass, group.indexableEntityMethod);
         }
 
         //write the groups
@@ -1049,24 +1057,24 @@ public class ModEntityProcess extends ModBaseProcessor{
 
         //method for freeing things
         MethodSpec.Builder groupFreeQueue = MethodSpec.methodBuilder("queueFree")
-        .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-        .addParameter(Poolable.class, "obj")
-        .addStatement("freeQueue.add(obj)");
+            .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+            .addParameter(Poolable.class, "obj")
+            .addStatement("freeQueue.add(obj)");
 
         groupsBuilder.addMethod(groupFreeQueue.build());
 
         //add method for resizing all necessary groups
         MethodSpec.Builder groupResize = MethodSpec.methodBuilder("resize")
-        .addParameter(TypeName.FLOAT, "x").addParameter(TypeName.FLOAT, "y").addParameter(TypeName.FLOAT, "w").addParameter(TypeName.FLOAT, "h")
-        .addModifiers(Modifier.PUBLIC, Modifier.STATIC);
+            .addParameter(TypeName.FLOAT, "x").addParameter(TypeName.FLOAT, "y").addParameter(TypeName.FLOAT, "w").addParameter(TypeName.FLOAT, "h")
+            .addModifiers(Modifier.PUBLIC, Modifier.STATIC);
 
         MethodSpec.Builder groupUpdate = MethodSpec.methodBuilder("update")
-        .addModifiers(Modifier.PUBLIC, Modifier.STATIC);
+            .addModifiers(Modifier.PUBLIC, Modifier.STATIC);
 
         //free everything pooled at the start of each updaet
         groupUpdate
-        .addStatement("for($T p : freeQueue) $T.free(p)", Poolable.class, Pools.class)
-        .addStatement("freeQueue.clear()");
+            .addStatement("for($T p : freeQueue) $T.free(p)", Poolable.class, Pools.class)
+            .addStatement("freeQueue.clear()");
 
         //method resize
         for(GroupDefinition group : groupDefs){
@@ -1121,7 +1129,7 @@ public class ModEntityProcess extends ModBaseProcessor{
                 def.builder.addSuperinterface(inter.tname());
 
                 //generate getter/setter for each method
-                String substring = def.name.substring(def.name.lastIndexOf(".") + 1);
+//                String substring = def.name.substring(def.name.lastIndexOf(".") + 1);
 
                 for(Smethod method : inter.methods()){
 //                    Log.info("method5: @--@",Seq.withArrays(def.builder.methodSpecs.stream().map(f->f.name).toArray()).toString(", "),method);
@@ -1181,7 +1189,7 @@ public class ModEntityProcess extends ModBaseProcessor{
 
                 String className = "Null" + baseName;
                 TypeSpec.Builder nullBuilder = TypeSpec.classBuilder(className)
-                .addModifiers(Modifier.FINAL);
+                    .addModifiers(Modifier.FINAL);
 
                 nullBuilder.addSuperinterface(interf.tname());
                 if(superclass != null) nullBuilder.superclass(tname(baseName(superclass)));
@@ -1252,6 +1260,7 @@ public class ModEntityProcess extends ModBaseProcessor{
     /**
      * @return interface for a component type
      */
+    @SuppressWarnings("unused")
     String interfaceName(String name){
         String suffix = "Comp";
         if(!name.endsWith(suffix)) err("All components must have names that end with 'Comp': " + name);
@@ -1362,17 +1371,15 @@ public class ModEntityProcess extends ModBaseProcessor{
         throw new IllegalArgumentException("Missing types.");
     }
 
-    private class MethodField{
-        String code;
-
-    }
-
     class GroupDefinition{
+        //region zelaux
+        public final String indexableEntityClass, indexableEntityMethod, indexableEntityField;
         final String name;
         final ClassName baseType;
         final Seq<Stype> components;
         final boolean spatial, mapping, collides, mod;
         final ObjectSet<Selement> manualInclusions = new ObjectSet<>();
+        //endregion
 
         public GroupDefinition(String name, ClassName baseType, Seq<Stype> components, boolean spatial, boolean mapping, boolean collides, boolean mod){
             this.name = name;
@@ -1382,8 +1389,18 @@ public class ModEntityProcess extends ModBaseProcessor{
             this.mapping = mapping;
             this.collides = collides;
             this.mod = mod;
+            if(mod){
+                indexableEntityClass = classPrefix() + "IndexableEntity___" + name;
+                indexableEntityMethod = "set" + classPrefix() + "Index___" + name;
+                indexableEntityField = "index" + classPrefix() + "__" + name;
+            }else{
+                indexableEntityClass = "IndexableEntity__" + name;
+                indexableEntityMethod = "setIndex__" + name;
+                indexableEntityField = "index__" + name;
+            }
         }
 
+        @SuppressWarnings("unused")
         public GroupDefinition(String name, ClassName bestType, Seq<Stype> components, boolean spatial, boolean mapping, boolean collides){
             this(name, bestType, components, spatial, mapping, collides, false);
         }
@@ -1403,13 +1420,14 @@ public class ModEntityProcess extends ModBaseProcessor{
         final Seq<Stype> components;
         final Seq<FieldSpec> fieldSpecs;
         final TypeSpec.Builder builder;
+        @SuppressWarnings("rawtypes")
         final Selement naming;
         final String name;
         final @Nullable
         TypeName extend;
         int classID;
 
-        public EntityDefinition(String name, TypeSpec.Builder builder, Selement naming, TypeName extend, Seq<Stype> components, Seq<GroupDefinition> groups, Seq<FieldSpec> fieldSpec){
+        public EntityDefinition(String name, TypeSpec.Builder builder, @SuppressWarnings("rawtypes") Selement naming, TypeName extend, Seq<Stype> components, Seq<GroupDefinition> groups, Seq<FieldSpec> fieldSpec){
             this.builder = builder;
             this.name = name;
             this.naming = naming;
@@ -1422,10 +1440,10 @@ public class ModEntityProcess extends ModBaseProcessor{
         @Override
         public String toString(){
             return "Definition{" +
-            "groups=" + groups +
-            "components=" + components +
-            ", base=" + naming +
-            '}';
+                   "groups=" + groups +
+                   "components=" + components +
+                   ", base=" + naming +
+                   '}';
         }
     }
 }

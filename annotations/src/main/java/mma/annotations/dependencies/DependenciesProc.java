@@ -18,25 +18,6 @@ import javax.lang.model.element.*;
 
 @SupportedAnnotationTypes({DependenciesAnnotation.class})
 public class DependenciesProc extends ModBaseProcessor{
-    private Fi findPath(String rawPath){
-        if(!rawPath.equals("\n")){
-            Fi child = rootDirectory.child(rawPath);
-            if(!child.exists()){
-                err("You wrote non-existent path");
-                return null;
-            }
-            return child;
-        }
-        String[] paths = {
-        "mod.json", "mod.hjson", "assets/mod.json", "assets/mod.hjson", "core/assets/mod.json", "core/assets/mod.hjson"
-        };
-        for(String path : paths){
-
-            Fi file = rootDirectory.child(path);
-            if(file.exists()) return file;
-        }
-        return null;
-    }
 
     @Override
     public void process(RoundEnvironment env) throws Exception{

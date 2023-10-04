@@ -26,14 +26,14 @@ jar{
 }
 task updateMindustryVersion(dependsOn: [":tools:jar", configurations.runtimeClasspath], type: JavaExec){
     maxHeapSize = "4048m"
-    args("-Xmx4048m", "--enable-preview", "v_${mindustryVersionFull}", "arc_${arcVersion}")
+    args("-Xmx4048m", "--enable-preview", "v_${mindustryVersion}", "arc_${arcVersion}")
     main = "mma.tools.updateVersion.MindustryVersionUpdater"
     classpath = sourceSets.main.runtimeClasspath
     workingDir = "../"
 }
 task checkJitPack(dependsOn: [classes, configurations.runtimeClasspath], type: JavaExec){
     maxHeapSize = "4048m"
-    args("-Xmx4048m", "--enable-preview", "v_${mindustryVersionFull}")
+    args("-Xmx4048m", "--enable-preview", "v_${mindustryVersion}")
     main = "mma.tools.VersionsFileUpdater"
     classpath = sourceSets.main.runtimeClasspath
     workingDir = "../"

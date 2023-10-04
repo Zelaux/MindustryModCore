@@ -56,6 +56,7 @@ public class ModAssetsProcess extends ModBaseProcessor{
 //        TypeSpec.Builder ichtype = TypeSpec.classBuilder("Iconc").addModifiers(Modifier.PUBLIC);
         MethodSpec.Builder loadStyles = MethodSpec.methodBuilder("loadStyles").addModifiers(Modifier.PUBLIC, Modifier.STATIC);
         MethodSpec.Builder load = MethodSpec.methodBuilder("load").addModifiers(Modifier.PUBLIC, Modifier.STATIC);
+        load.addStatement("$T __loadedMod__=$T.mods.getMod($S)", LoadedMod.class, Vars.class,modInfo().name);
         String assetsRawPath = annotationsSettings(AnnotationSettingsEnum.assetsRawPath, rootDirectory + "/core/assets-raw");
         if(assetsRawPath.equals("null")) assetsRawPath = getAssetsPath();
         String[] resourcesArray = {assetsRawPath + "/sprites/ui"/*, assetsRawPath + "/sprites/cui"*/};
@@ -73,7 +74,7 @@ public class ModAssetsProcess extends ModBaseProcessor{
             if(SourceVersion.isKeyword(varname)) varname += "s";
 
             type.addField(ClassName.bestGuess(dtype), varname, Modifier.STATIC, Modifier.PUBLIC);
-            load.addStatement(varname + " = (" + dtype + ")arc.Core.atlas.drawable(mma.ModVars.fullName($S))", sfilen);
+            load.addStatement(varname + " = (" + dtype + ")arc.Core.atlas.drawable(__loadedMod__.name+\"_\"+$S)", sfilen);
         };
 
 

@@ -21,12 +21,15 @@ public class ModAnnotations extends Annotations{
          * "@" -> block name
          * "@size" -> block size
          * "#" "#1" "#2" -> index number, for arrays
-         * */
+         */
         String value();
-        /** 1D Array length, if applicable.  */
+
+        /** 1D Array length, if applicable. */
         int length() default 1;
+
         /** 2D array lengths. */
         int[] lengths() default {};
+
         /** Fallback strings used to replace "@" (the block name) if the region isn't found. */
         String[] fallback() default {};
     }
@@ -83,6 +86,7 @@ public class ModAnnotations extends Annotations{
     @Retention(RetentionPolicy.SOURCE)
     public @interface GlobalReturn{
     }
+
     /**
      * Ignores implementations from selected components for current method
      */
@@ -119,6 +123,12 @@ public class ModAnnotations extends Annotations{
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.SOURCE)
     public @interface ReplaceInternalImpl{
+    }
+    //endregion
+    //region io
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface DefaultTypeIOHandler{
     }
     //endregion
 
