@@ -960,7 +960,7 @@ public class ModEntityProcess extends ModBaseProcessor{
             Smethod root = smethods.find(m -> m.has(UseOnlyImplementation.class));
             final Seq<String> interfaces = types(root.annotation(UseOnlyImplementation.class), UseOnlyImplementation::value).map(Stype::fullName);
 
-            smethods.filter(m -> m == root || interfaces.contains(interfaceName -> {
+            smethods.retainAll(m -> m == root || interfaces.contains(interfaceName -> {
                 String mirrorName = interfaceToComp(interfaceName);
                 String methodTypeName = m.up().toString().replace("mmc.entities.compByAnuke", "mindustry.gen");
                 return methodTypeName.equals(mirrorName);

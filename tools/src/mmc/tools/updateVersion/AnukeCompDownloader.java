@@ -51,7 +51,7 @@ public class AnukeCompDownloader{
 
             Fi child = sourceZip.list()[0].child("core").child("src").child("mindustry").child("entities").child("comp");
             Fi annotation = sourceZip.list()[0].child("annotations").child("src").child("main").child("java")
-            .child("mindustry").child("annotations").child("Annotations.java");
+                .child("mindustry").child("annotations").child("Annotations.java");
             loadAnnotations(annotation);
             for(Fi fi : child.list()){
                 fi.copyTo(compJava.child(fi.name()));
@@ -105,29 +105,29 @@ public class AnukeCompDownloader{
                 String compName = file.nameWithoutExtension();
                 CompilationUnit unit = codeConverter.javaParser.parse(file.readString()).getResult().get();
                 DefaultPrinterConfiguration configuration = new DefaultPrinterConfiguration();
-                configuration.addOption(new DefaultConfigurationOption(ConfigOption.INDENTATION,new Indentation(Indentation.IndentType.SPACES, 2)));
+                configuration.addOption(new DefaultConfigurationOption(ConfigOption.INDENTATION, new Indentation(Indentation.IndentType.SPACES, 2)));
 //                configuration.addOption(new DefaultConfigurationOption(ConfigOption.INDENTATION,new Indentation(Indentation.IndentType.SPACES, 0)));
-                String code =unit.toString(configuration); //Strings.format("@", file.readString()
+                String code = unit.toString(configuration); //Strings.format("@", file.readString()
                 /*.replace("\"", "\\\"").replace("'", "\\'").replace("\\n", "\\\\n")*/
 //                );
 //                file.sibling(file.nameWithoutExtension()+"__.java").writeString(code);
                 NodeList<Expression> list = new NodeList<>();
                 for(String line : code.split("\n")){
-                    list.add(StaticJavaParser.parseExpression(Jval.valueOf(line+"\n").toString(Jformat.formatted)));
+                    list.add(StaticJavaParser.parseExpression(Jval.valueOf(line + "\n").toString(Jformat.formatted)));
                 }
 
                 initializer.addAndGetStatement(Strings.format("compMap.put(\"@\",String.join(\"\",@))", compName, new ArrayCreationExpr(StaticJavaParser.parseType("String"),
-                NodeList.nodeList(new ArrayCreationLevel()),
-                new ArrayInitializerExpr(list)
+                    NodeList.nodeList(new ArrayCreationLevel()),
+                    new ArrayInitializerExpr(list)
                 )));
 //                initializer.addAndGetStatement(Strings.format("compMap.put(\"@\",@)", compName, StaticJavaParser.parseExpression(Jval.valueOf(code).toString(Jformat.formatted))));
             }
             //noinspection UnnecessaryStringEscape
             initializer.addAndGetStatement("groupDefs=" + new StringLiteralExpr(
-            Fi.get("core/src/" + packageName + "/entities/GroupDefs.java").readString()
-            .replace("\"", "\\\"").replace("\'", "\\\'")
+                Fi.get("core/src/" + packageName + "/entities/GroupDefs.java").readString()
+                    .replace("\"", "\\\"").replace("\'", "\\\'")
             ));
-            EntityGroupsUpdater.run(mindustryVersion,compData,initializer,args);
+            EntityGroupsUpdater.run(mindustryVersion, compData, initializer, args);
             compilationUnit.setPackageDeclaration(packageName + ".annotations.entities");
             compDataFile.writeString(compilationUnit.toString());
         }catch(Exception e){
@@ -227,9 +227,9 @@ public class AnukeCompDownloader{
             annotationConfig.addMember(comp);
             comp
 //            .addModifier(Modifier.Keyword.PUBLIC)
-            .setInterface(true)
-            .setName(interfaceName)
-            .getExtendedTypes().add(codeConverter.javaParser.parseClassOrInterfaceType("mindustry.gen." + interfaceName).getResult().get());
+                .setInterface(true)
+                .setName(interfaceName)
+                .getExtendedTypes().add(codeConverter.javaParser.parseClassOrInterfaceType("mindustry.gen." + interfaceName).getResult().get());
             comp.addAnnotation(annotationsClassName + ".EntitySuperClass");
         }
         dir.child("AnnotationConfigComponents.java").writeString(compilationUnit.toString());
@@ -252,8 +252,8 @@ public class AnukeCompDownloader{
             int opened = 0;
             for(String s : split){
                 String l = s
-                .replace("return switch", "switch")
-                .replace(" -> ", ":\nreturn ");
+                    .replace("return switch", "switch")
+                    .replace(" -> ", ":\nreturn ");
                 if(l.contains(":\nreturn ")){
                     lineReturn = true;
 //                    newLine.append(l, 0, l.indexOf("\nreturn")).append("\nreturn");
@@ -380,7 +380,6 @@ public class AnukeCompDownloader{
         line = line.replace("};\n" +
                             "    }", "}\n}");
         if(line.contains("\n")){
-            String prel = "";
             for(String s : line.split("\n")){
                 Seq<String> transform = transform(s, null);
                 if(transform.size > 1){
@@ -399,7 +398,7 @@ public class AnukeCompDownloader{
 
                 }
             }
-            line = prel + nl;
+            line = "";
         }
 
 

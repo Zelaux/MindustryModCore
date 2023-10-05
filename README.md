@@ -28,9 +28,9 @@ rootPackage=YOUR_PACKAGE_NAME
 
 * 3.When importing is end, go to Intelij console and type:
 
-Windows      |  MacOSX       | Linux
------------- | ------------- | -------------
-gradlew jar  | ./gradlew jar | ./gradlew jar
+| Windows     | MacOSX        | Linux         |
+|-------------|---------------|---------------|
+| gradlew jar | ./gradlew jar | ./gradlew jar |
 
 * 4.When compilation is end, your build will be in "build/libs"
 Download

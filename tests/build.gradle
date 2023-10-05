@@ -35,6 +35,7 @@ dependencies{
     implementation project(":tiledStructures")
     implementation project(":graphics")
     api arcLibModule("utils-io")
+    api arcLibModule("graphics-extendedDraw")
     implementation arcModule('arc-core')
     implementation mindustryModule('core')
     compileOnly mindustryModule('server')

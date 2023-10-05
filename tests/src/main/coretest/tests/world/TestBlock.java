@@ -4,6 +4,7 @@ import arc.*;
 import arc.graphics.g2d.*;
 import arc.math.*;
 import arc.math.geom.*;
+import arclibrary.graphics.*;
 import mindustry.annotations.Annotations.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
@@ -77,7 +78,7 @@ public class TestBlock extends ModBlock{
             super.drawSelect();
 
             setupColor();
-            AFill.donut(x, y, (size - 0.5f) * tilesize * drawValue, size * tilesize);
+            EFill.donut(x, y, (size - 0.5f) * tilesize * drawValue, size * tilesize);
             Draw.color();
         }
 

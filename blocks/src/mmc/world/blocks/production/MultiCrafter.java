@@ -581,7 +581,7 @@ public class MultiCrafter extends ModBlock{
 
         @Override
         public void buildConfiguration(Table table){
-            Seq<Recipe> recipes = Seq.with(MultiCrafter.this.recipes).filter(Recipe::unlockedNow);
+            Seq<Recipe> recipes = Seq.with(MultiCrafter.this.recipes).retainAll(Recipe::unlockedNow);
             if(recipes.any()){
                 this.buildTable(table, recipes, (Recipe it) -> it.mainContent(), () -> {
                     return currentRecipe == -1 ? null : MultiCrafter.this.recipes[currentRecipe];
