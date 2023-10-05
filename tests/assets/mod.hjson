@@ -1,4 +1,4 @@
 name: "test-core"
 displayName: "TestZelauxModCore"
 minGameVersion: "136"
-,"main": "mmat.tests.TestMod"
+,"main": "coretest.tests.TestMod"

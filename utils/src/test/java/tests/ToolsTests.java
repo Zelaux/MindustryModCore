@@ -5,7 +5,7 @@ import arc.func.*;
 import arc.math.*;
 import arc.struct.*;
 import arc.util.*;
-import mma.utils.*;
+import mmc.utils.*;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.*;
 import org.junit.jupiter.params.provider.*;
