@@ -4,7 +4,6 @@ import mmc.extentions.*;
 import org.gradle.api.*;
 import org.gradle.api.file.*;
 import org.gradle.api.model.*;
-import org.gradle.api.plugins.*;
 import org.gradle.api.provider.*;
 import org.gradle.api.tasks.*;
 import org.jetbrains.annotations.*;
@@ -17,7 +16,7 @@ public class MindustryModCoreExtension implements
     AddKaptAnnotationsExtensions,
     AddArcLibraryExtension,
     SetupAnnotationProjectExtension,
-    AddZelauxCoreExtension{
+    AddMindustryCoreExtension{
     public final Project project;
 
     private final AnnotationProperties annotationProperties;
@@ -65,9 +64,9 @@ public class MindustryModCoreExtension implements
         };
     }
 
-    static void addJarMindustry(Project project, ExtraPropertiesExtension extraProperties){
-        String jarMindustry = String.valueOf(extraProperties.getProperties().getOrDefault("mmc.tasks.jarMindustry", "jarMindustry"));
+    static void addJarMindustry(Project project){
         TaskContainer tasks = project.getTasks();
+        String jarMindustry = PropertyConfigurations.jarMindustryTaskName.get(project);
         tasks.register(jarMindustry, JarMindustryTask.class, task -> {
             task.setGroup(Objects.requireNonNull(tasks.getByName("jar").getGroup()));
             task.dependsOn(project.getTasksByName("jar", false));
@@ -81,7 +80,7 @@ public class MindustryModCoreExtension implements
     }
 
     public void jarMindustryTask(){
-        addJarMindustry(project, project.getExtensions().getExtraProperties());
+        addJarMindustry(project);
     }
 
 
