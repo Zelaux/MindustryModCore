@@ -1,9 +1,0 @@
-mmc.annotations.dependencies.DependenciesProc
-mmc.annotations.entities.ModEntityProcess
-mmc.annotations.extra.MainClassProcessor
-mmc.annotations.impl.ModAssetsProcess
-mmc.annotations.impl.StructProcess
-mmc.annotations.misc.LogicStatementProcessor
-mmc.annotations.misc.ModLoadRegionProcessor
-mmc.annotations.remote.ModRemoteProcess
-mmc.annotations.serialization.SerializeProcessor

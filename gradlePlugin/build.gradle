@@ -2,11 +2,21 @@
 
 apply plugin: 'groovy'
 apply plugin: 'java'
+apply plugin: 'java-gradle-plugin'
 sourceSets.main.groovy.srcDirs=(["../buildSrc/src/main/groovy"])
 
 repositories{
     mavenCentral()
     maven { url 'https://raw.githubusercontent.com/Zelaux/MindustryRepo/master/repository' }
+}
+gradlePlugin{
+    plugins{
+        mindustryModGradle{
+            id = 'com.github.Zelaux.MindustryModGradle'
+            displayName = 'MindustryModGradle'
+            implementationClass = 'mmc.MindustryModGradle'
+        }
+    }
 }
 dependencies{
     compileOnly gradleApi()

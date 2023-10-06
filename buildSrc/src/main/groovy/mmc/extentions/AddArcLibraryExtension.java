@@ -8,6 +8,9 @@ import static mmc.ClosureFactory.stringToStringClosure;
 import static mmc.utils.MainUtils.findVersion;
 
 public interface AddArcLibraryExtension extends AbstractExtension{
+    /**
+     * Adds zelaux repository and arcLibraryModule(moduleName) function
+     * */
     default void addArcLibrary(){
         Project project = getProject();
         ExtraPropertiesExtension extraProperties = project.getExtensions().getExtraProperties();

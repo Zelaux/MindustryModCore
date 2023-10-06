@@ -12,10 +12,15 @@ import org.jetbrains.annotations.*;
 import java.util.*;
 
 @SuppressWarnings("unchecked")
-public class MindustryModCoreExtension implements AddKaptAnnotationsExtensions, AddArcLibraryExtension{
+public class MindustryModCoreExtension implements
+    AbstractExtension,
+    AddKaptAnnotationsExtensions,
+    AddArcLibraryExtension,
+    SetupAnnotationProjectExtension,
+    AddZelauxCoreExtension{
     public final Project project;
 
-    private AnnotationProperties annotationProperties;
+    private final AnnotationProperties annotationProperties;
 
     public MindustryModCoreExtension(Project project){
         this.project = project;

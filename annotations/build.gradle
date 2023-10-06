@@ -18,6 +18,9 @@ sourceSets.main.resources.srcDirs = ["src/main/resources/"]
 //            '--add-opens=java.base/sun.reflect.annotation=ALL-UNNAMED'
 //    ]
 //}
+mindustryModCore{
+    setupAnnotationProject()
+}
 dependencies{
     compileOnly 'org.projectlombok:lombok:1.18.30'
     annotationProcessor 'org.projectlombok:lombok:1.18.30'

@@ -43,6 +43,7 @@ import java.net.*;
 import java.nio.file.*;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.*;
 import java.util.stream.*;
 
 @SuppressWarnings("deprecation")
@@ -187,6 +188,8 @@ public abstract class ModBaseProcessor extends BaseProcessor{
 
     private static void computeReflections(){
         if(classPathReflections != null) return;
+        System.out.println("Init Reflections");
+        long startNano = System.nanoTime();
         Options options = Options.instance(context());
         ConfigurationBuilder configuration = new ConfigurationBuilder();
         configuration.addUrls(Stream.of(options.get(Option.CLASS_PATH).split(";"))
@@ -200,6 +203,10 @@ public abstract class ModBaseProcessor extends BaseProcessor{
             .collect(Collectors.toList())
         );
         configuration.addScanners(Scanners.values());
+        long endNano = System.nanoTime();
+        startNano = TimeUnit.NANOSECONDS.toMillis(startNano);
+        endNano = TimeUnit.NANOSECONDS.toMillis(endNano);
+        System.out.println("Time taken to init Reflections " + (endNano - startNano) + "ms");
         classPathReflections = new Reflections(configuration);
     }
 
@@ -535,6 +542,13 @@ public abstract class ModBaseProcessor extends BaseProcessor{
     @Override
     public synchronized void init(ProcessingEnvironment env){
         super.init(env);
+        Map<String, String> options = env.getOptions();
+        for(AnnotationSettingsEnum setting : AnnotationSettingsEnum.values()){
+            if(options.containsKey(setting.name())){
+                String value = options.get(setting.name());
+                if(value != null) annotationProperties.put(setting.name(), value);
+            }
+        }
 //        System.out.println();
     }
 

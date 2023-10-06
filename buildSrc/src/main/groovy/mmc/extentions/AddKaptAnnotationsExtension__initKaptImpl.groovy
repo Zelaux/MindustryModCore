@@ -26,7 +26,7 @@ class AddKaptAnnotationsExtension__initKaptImpl{
 
         // Add annotation processor options.
         kaptExt.arguments(args -> {
-            def addFile = { String name, RegularFileProperty property ->
+            def addFile = { String name, Property<RegularFileProperty> property ->
                 if(property.isPresent()){
                     args.arg(name, property.get().asFile.toString())
                 }

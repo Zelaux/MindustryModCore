@@ -56,7 +56,7 @@ allprojects{
     version = 'release'
     group = 'com.github.Zelaux'
     ext{
-        writeProcessors = {
+        /*writeProcessors = {
             new File(rootDir, "annotations/src/main/resources/META-INF/services/").mkdirs()
             def processorFile = new File(rootDir, "annotations/src/main/resources/META-INF/services/javax.annotation.processing.Processor")
             def text = new StringBuilder()
@@ -73,7 +73,7 @@ allprojects{
             }
 
             processorFile.text = text.toString().replace(".java", "").replace("/", ".").replace("\\", ".")
-        }
+        }*/
     }
 
     apply plugin: 'maven-publish'
@@ -92,7 +92,7 @@ allprojects{
         compileOnly 'org.jetbrains:annotations:23.1.0'
     }
 
-    tasks.withType(JavaCompile){
+    /*tasks.withType(JavaCompile){
         targetCompatibility = 8
         sourceCompatibility = JavaVersion.VERSION_16
         options.encoding = "UTF-8"
@@ -109,7 +109,7 @@ allprojects{
                 '--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED',
                 '--add-opens=java.base/sun.reflect.annotation=ALL-UNNAMED'
         ])
-    }
+    }*/
     jar{
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
         from{
@@ -169,7 +169,7 @@ project(":core"){
 
     task preGen{
         outputs.upToDateWhen{ false }
-        writeProcessors()
+//        writeProcessors()
     }
 
     task sourcesJar(type: Jar, dependsOn: classes){
