@@ -52,7 +52,7 @@ classic
   - adds repository for [MindustryModCore](https://github.com/Zelaux/ArcLibrary)
   - adds method `modCoreModule(String module)`
   <h5>Example:</h5>
-    ```gradle
+```gradle
     mindustryModCore{
         addMindustryModCore()
     }  
@@ -61,12 +61,12 @@ classic
         implementation modCoreModule("utils")
         implementation modCoreModule("graphics")
     }
-    ```
+```
 - <a name="extension_addArcLibrary"></a>`addArcLibrary()`
   - adds repository for [ArcLibrary](https://github.com/Zelaux/ArcLibrary)
   - adds method `arcLibraryModule(String module)`
   <h5>Example:</h5>
-    ```gradle
+```gradle
     mindustryModCore{
         addArcLibrary()
     }  
@@ -74,7 +74,7 @@ classic
         implementation arcLibraryModule("utils-io")
         implementation arcLibraryModule("graphics-dashDraw")
     }
-    ```
+```
 - <a name="extension_setupAnnotationProject"></a>`setupAnnotationProject()`
 
     Prepare project to write AnnotationProcessors 
