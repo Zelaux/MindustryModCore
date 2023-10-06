@@ -32,7 +32,7 @@ public class VersionsFileUpdater {
         versions.child(gameVersion + ".txt").writeString(version);
         versions.child("lastVersion.txt").writeString(version);
         try {
-            new URL("https://jitpack.io/com/github/Zelaux/ZelauxModCore/" +version + "/build.log").openStream();
+            new URL("https://jitpack.io/com/github/Zelaux/MindustryModCore/" +version + "/build.log").openStream();
         } catch (ConnectException exception) {
             exception.printStackTrace();
         }
