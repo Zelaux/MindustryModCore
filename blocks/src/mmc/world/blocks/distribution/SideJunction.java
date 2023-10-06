@@ -9,6 +9,7 @@ import arc.util.Eachable;
 import arc.util.Time;
 import arc.util.io.Reads;
 import arc.util.io.Writes;
+import arclibrary.graphics.*;
 import mindustry.Vars;
 import mindustry.entities.units.BuildPlan;
 import mindustry.gen.BufferItem;
@@ -57,9 +58,9 @@ public class SideJunction extends ModBlock{
         Vec2 trns = (new Vec2()).trns(rotation, -radius, radius);
         Draw.color(Pal.accent);
         Lines.stroke(1.0F);
-        ALines.swirl(trns.x + x, trns.y + y, radius, 0.25F, 180.0F + rotation + 90.0F);
+        ELines.arc(trns.x + x, trns.y + y, radius, 0.25F, 180.0F + rotation + 90.0F);
         trns.rotate(180.0F);
-        ALines.swirl(trns.x + x, trns.y + y, radius, 0.25F, rotation + 90.0F);
+        ELines.arc(trns.x + x, trns.y + y, radius, 0.25F, rotation + 90.0F);
     }
     public class SideJunctionBuild extends Building {
         public DirectionalItemBuffer buffer;

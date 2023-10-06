@@ -19,7 +19,10 @@ apply plugin: "java"
 apply plugin: "java-library"
 apply plugin: "kotlin"
 apply plugin: "kotlin-kapt"
-
+apply plugin: mmc.MindustryModGradle
+mindustryModCore{
+    jarMindustryTask()
+}
 kapt{
     javacOptions{
         option("-source", "16")

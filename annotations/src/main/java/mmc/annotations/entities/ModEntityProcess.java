@@ -155,7 +155,6 @@ public class ModEntityProcess extends ModBaseProcessor{
            /* for(Field field : Groups.class.getDeclaredFields()){
                 field.
             }*/
-
             boolean root = rootPackageName.equals("mmc");
             if(root && !getFilesFi(StandardLocation.CLASS_OUTPUT).absolutePath().contains("tests/build")) return;
             compByAnukePackage = "mmc.entities.compByAnuke";

@@ -16,6 +16,7 @@ import arc.struct.IntSeq;
 import arc.struct.OrderedMap;
 import arc.struct.Seq;
 import arc.util.Time;
+import arclibrary.graphics.*;
 import mindustry.Vars;
 import mindustry.core.Renderer;
 import mindustry.entities.units.BuildPlan;
@@ -130,7 +131,7 @@ public class CrossItemBridge extends ItemBridge {
             float rectX = (float) (x + link.x) / 2.0F * 8.0F - w / 2.0F,
                     rectY = (float) (y + link.y) / 2.0F * 8.0F - h / 2.0F;
 //            Lines.poly(ALines.rotRect(rectX, rectY, w, h, angle).toArray(Vec2.class), 0, 0, 1f);
-            ALines.rect(rectX, rectY, w, h, angle);
+            ELines.rect(rectX, rectY, w, h, angle);
             v1.set(x, y).sub(link.x, link.y).setLength(4.0F).scl(-1.0F);
             Vec2 arrowOffset = new Vec2(v1).scl(1f).setLength(1f);
             Draw.rect("bridge-arrow", link.x * 8f - arrowOffset.x * 8f, link.y * 8f - arrowOffset.y * 8f, angle - 90f);

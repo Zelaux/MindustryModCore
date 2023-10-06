@@ -1,7 +1,6 @@
 //file:noinspection DependencyNotationArgument
 import java.time.format.DateTimeFormatter
-
-buildscript{
+/*buildscript{
     ext{
         jgitVersion = "3.5.0.201409260305-r"
 
@@ -38,18 +37,22 @@ buildscript{
         classpath arcModule("arc-core")
         classpath arcModule("packer")
     }
-}
+}*/
 
 plugins{
     id 'org.jetbrains.kotlin.jvm' version '1.6.0'
     id "org.jetbrains.kotlin.kapt" version "1.6.0"
     id "groovy"
 }
+apply plugin: mmc.MindustryModGradle
 version '1.0'
 
 allprojects{
     apply plugin: 'groovy'
-
+    apply plugin: mmc.MindustryModGradle
+    mindustryModCore{
+        addArcLibrary()
+    }
     version = 'release'
     group = 'com.github.Zelaux'
     ext{
@@ -153,9 +156,9 @@ configure(subprojects - project(":annotations") - project(":annotations:localAnn
 
 project(":core"){
     apply plugin: "java-library"
-    apply plugin: "kotlin"
-    apply plugin: "kotlin-kapt"
-
+    mindustryModCore{
+        addKaptAnnotations()
+    }
     kapt{
         javacOptions{
             option("-source", "16")
@@ -197,7 +200,7 @@ project(":core"){
 //            println "sub adding "+sub.getName()
             String name = sub.getName()
             println "subproject: " + sub.getName()
-            if(!["tools", "annotations", "localAnnotations", "plugins", "blocks", "customBlockShape", "tiledStructures", "tests", "utils", project.getName()].contains(name)){
+            if(!["tools", "annotations","gradlePlugin", "localAnnotations", "plugins", "blocks", "customBlockShape", "tiledStructures", "tests", "utils", project.getName()].contains(name)){
                 println "implemented"
                 implementation sub
             }
@@ -230,8 +233,8 @@ project(":core"){
         }
     }
     jar{
-        exclude("mma/entities/comp/**")
-        exclude("mma/entities/compByAnuke/**")
+        exclude("mmc/entities/comp/**")
+        exclude("mmc/entities/compByAnuke/**")
     }
 }
 

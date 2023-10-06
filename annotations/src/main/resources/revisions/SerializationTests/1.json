@@ -1,0 +1,1 @@
+{version:1,fields:[{name:bool,type:boolean},{name:integer,type:int},{name:map,type:"arc.struct.ObjectMap<java.lang.String, mindustry.gen.Building>"},{name:testField,type:coretest.tests.entities.SerializationTests},{name:unit,type:mindustry.gen.Unit}]}

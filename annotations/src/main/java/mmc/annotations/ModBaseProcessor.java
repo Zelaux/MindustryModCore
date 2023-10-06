@@ -201,7 +201,6 @@ public abstract class ModBaseProcessor extends BaseProcessor{
         );
         configuration.addScanners(Scanners.values());
         classPathReflections = new Reflections(configuration);
-
     }
 
     private static Context context(){
