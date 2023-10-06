@@ -13,7 +13,7 @@ repositories{
 gradlePlugin{
     plugins{
         mindustryModGradle{
-            id = 'com.github.Zelaux.MindustryModGradle'
+            id = 'com.github.Zelaux.MindustryModCore'
             displayName = 'MindustryModGradle'
             implementationClass = 'mmc.MindustryModGradle'
         }
@@ -22,7 +22,7 @@ gradlePlugin{
 publishing{
     publications{
         maven(MavenPublication){
-            artifactId = "com.github.Zelaux.MindustryModGradle.gradle.plugin"
+            artifactId = "com.github.Zelaux.MindustryModCore.gradle.plugin"
 //                name
         }
     }
