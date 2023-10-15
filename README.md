@@ -39,6 +39,6 @@ Download
 Depend via Gradle(replace MODULE_NAME with the required module name):
 ```groovy
 dependencies {
-        implementation 'com.github.Zelaux.ZelauxModCore:MODULE_NAME:-SNAPSHOT'
+        implementation 'com.github.Zelaux.ZelauxModCore:MODULE_NAME:VERSION'
 }
 ```
