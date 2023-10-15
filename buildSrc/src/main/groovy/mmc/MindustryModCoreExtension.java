@@ -1,86 +1,35 @@
 package mmc;
 
+import lombok.*;
 import mmc.extentions.*;
 import org.gradle.api.*;
-import org.gradle.api.file.*;
 import org.gradle.api.model.*;
-import org.gradle.api.provider.*;
 import org.gradle.api.tasks.*;
-import org.jetbrains.annotations.*;
 
-import java.util.*;
-
-@SuppressWarnings("unchecked")
 public class MindustryModCoreExtension implements
     AbstractExtension,
     AddKaptAnnotationsExtensions,
     AddArcLibraryExtension,
     SetupAnnotationProjectExtension,
-    AddMindustryCoreExtension{
+    AddMindustryCoreExtension,
+    SetupSpriteGenerationTask,
+    JarMindustryTaskExtension{
     public final Project project;
-
-    private final AnnotationProperties annotationProperties;
+    @Getter(onMethod_ = {@Input})
+    private final ProjectInfo projectInfo;
 
     public MindustryModCoreExtension(Project project){
         this.project = project;
         ObjectFactory objects = project.getObjects();
-        //noinspection rawtypes
-        annotationProperties = new AnnotationProperties(){
-            private final Property modInfoPath = fileProp(), asssertsPath = fileProp(), revisionsPath = fileProp(), classPrefix = strProp(), rootPackage = strProp();
-
-            private Property<String> strProp(){
-                return objects.property(String.class);
-            }
-
-            @NotNull
-            private Property<RegularFile> fileProp(){
-                return objects.fileProperty();
-            }
-
-            @Override
-            public Property<RegularFile> modInfoPath(){
-                return modInfoPath;
-            }
-
-            @Override
-            public Property<RegularFile> assetsPath(){
-                return asssertsPath;
-            }
-
-            @Override
-            public Property<RegularFile> revisionsPath(){
-                return revisionsPath;
-            }
-
-            @Override
-            public Property<String> classPrefix(){
-                return classPrefix;
-            }
-
-            @Override
-            public Property<String> rootPackage(){
-                return rootPackage;
-            }
-        };
-    }
-
-    static void addJarMindustry(Project project){
-        TaskContainer tasks = project.getTasks();
-        String jarMindustry = PropertyConfigurations.jarMindustryTaskName.get(project);
-        tasks.register(jarMindustry, JarMindustryTask.class, task -> {
-            task.setGroup(Objects.requireNonNull(tasks.getByName("jar").getGroup()));
-            task.dependsOn(project.getTasksByName("jar", false));
-        });
+        projectInfo = new ProjectInfo(objects);
     }
 
 
-    @Internal
-    public AnnotationProperties getAnnotationProperties(){
-        return annotationProperties;
-    }
-
-    public void jarMindustryTask(){
-        addJarMindustry(project);
+    @SuppressWarnings("rawtypes")
+    @Input
+    public void projectInfo(Action<ProjectInfo> closure){
+        closure.execute(projectInfo);
+//        project.configure(projectInfo,closure);
     }
 
 

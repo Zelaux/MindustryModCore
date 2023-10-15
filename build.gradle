@@ -40,12 +40,16 @@ import java.time.format.DateTimeFormatter
 }*/
 
 plugins{
-    id 'org.jetbrains.kotlin.jvm' version '1.6.0'
-    id "org.jetbrains.kotlin.kapt" version "1.6.0"
+//    id 'org.jetbrains.kotlin.jvm' version '1.6.0'
+//    id "org.jetbrains.kotlin.kapt" version "1.6.0"
     id "groovy"
 }
 apply plugin: mmc.MindustryModGradle
 version '1.0'
+
+//region main
+
+//endregion
 
 allprojects{
     apply plugin: 'groovy'
@@ -54,7 +58,7 @@ allprojects{
         addArcLibrary()
     }
     version = 'release'
-    group = 'com.github.Zelaux'
+    group = 'com.github.Zelaux.MindustryModCore'
     ext{
         /*writeProcessors = {
             new File(rootDir, "annotations/src/main/resources/META-INF/services/").mkdirs()
@@ -92,7 +96,7 @@ allprojects{
         compileOnly 'org.jetbrains:annotations:23.1.0'
     }
 
-    /*tasks.withType(JavaCompile){
+    tasks.withType(JavaCompile){
         targetCompatibility = 8
         sourceCompatibility = JavaVersion.VERSION_16
         options.encoding = "UTF-8"
@@ -109,12 +113,14 @@ allprojects{
                 '--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED',
                 '--add-opens=java.base/sun.reflect.annotation=ALL-UNNAMED'
         ])
-    }*/
+    }
     jar{
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-        from{
-            configurations.runtimeClasspath.collect{ it.isDirectory() ? it : zipTree(it) }
+        if(project.name!="mindustryModGradlePlugin"){
+            from{
+                configurations.runtimeClasspath.collect{ it.isDirectory() ? it : zipTree(it) }
 //        project(":core").fileTree("build/libs/core.jar").collect { it.isDirectory() ? it : zipTree(it) }
+            }
         }
     }
 /*//force arc version
@@ -200,7 +206,7 @@ project(":core"){
 //            println "sub adding "+sub.getName()
             String name = sub.getName()
             println "subproject: " + sub.getName()
-            if(!["tools", "annotations","gradlePlugin", "localAnnotations", "plugins", "blocks", "customBlockShape", "tiledStructures", "tests", "utils", project.getName()].contains(name)){
+            if(!["tools", "annotations","mindustryModGradlePlugin", "localAnnotations", "plugins", "blocks", "customBlockShape", "tiledStructures", "tests", "utils", project.getName()].contains(name)){
                 println "implemented"
                 implementation sub
             }
@@ -240,30 +246,6 @@ project(":core"){
 
 project(":tests"){
 
-}
-project(":tools"){
-    apply plugin: "java"
-    apply plugin: "java-library"
-    compileJava.options.fork = true
-    dependencies{
-        implementation 'commons-io:commons-io:2.5'
-        implementation("org.apache.xmlgraphics:batik-svgrasterizer:1.9")
-
-        implementation project(":core")
-        implementation project(":annotations")
-        implementation arcModule('arc-core')
-
-        implementation "com.github.javaparser:javaparser-symbol-solver-core:$jparcerVersion"
-        compileOnly mindustryModule("core")
-//        implementation mindustryOldModule("tools")
-
-        implementation "org.eclipse.jgit:org.eclipse.jgit:$jgitVersion"
-//        println "Hello tools"
-        configurations.runtimeClasspath.filter((File f) -> {
-            println "f: " + f
-            true
-        })
-    }
 }
 project(":annotations"){
     apply plugin: "java-library"
@@ -332,7 +314,7 @@ task testAll(){
 }
 configure(project.getSubprojects() - [project(":tests"), project(":annotations:localAnnotations")]){
     java{
-        if(!name.toLowerCase().contains("annotations")){
+        if(!name.toLowerCase().contains("annotations") && !name.toLowerCase().contains("gradleplugin")){
             println "doc for " + name
             withJavadocJar()
         }

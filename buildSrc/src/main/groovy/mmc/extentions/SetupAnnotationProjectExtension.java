@@ -1,34 +1,50 @@
 package mmc.extentions;
 
-import mmc.*;
 import mmc.extentions.setupAnnotations.*;
 import org.gradle.api.*;
+import org.gradle.api.plugins.*;
 import org.gradle.api.tasks.*;
-import org.gradle.api.tasks.bundling.*;
 import org.gradle.api.tasks.compile.*;
-import org.gradle.language.jvm.tasks.*;
 
 import java.io.*;
 import java.util.*;
 
 public interface SetupAnnotationProjectExtension extends AbstractExtension{
     default void setupAnnotationProject(){
-        Project project = getProject();
+        setupAnnotationProject(getProject());
+    }
+
+    default void setupAnnotationProject(Project project){
         TaskContainer tasks = project.getTasks();
 //        Jar jar = (Jar)tasks.getByName("jar");
+        project.getPlugins().apply("java-library");
         WriteAnnotationProcessorsTask processorsTask = tasks.register("writeAnnotationProcessors", WriteAnnotationProcessorsTask.class).get();
-        tasks.getByName("processResources").dependsOn(processorsTask);
-        File file = new File(getProject().getBuildDir(), "writeAnnotationProcessors");
-        ((Copy)tasks.getByName("processResources")).from(file);
+        try{
 
-        tasks.withType(JavaCompile.class,it->{
+            Task task = tasks.getByName("processResources");
+            task.dependsOn(processorsTask);
+            File file = new File(getProject().getBuildDir(), "writeAnnotationProcessors");
+            ((Copy)task).from(file);
+        }catch(UnknownTaskException e){
+            tasks.whenTaskAdded(task -> {
+                if(!task.getName().equals("processResources"))return;
+//                Task task = tasks.getByName("processResources");
+                task.dependsOn(processorsTask);
+                File file = new File(getProject().getBuildDir(), "writeAnnotationProcessors");
+                ((Copy)task).from(file);
+            });
+        }
+
+        tasks.withType(JavaCompile.class, it -> {
         });
         project.getPlugins().apply("java-library");
         project.getRepositories().mavenCentral();
         project.getDependencies().add("implementation", "com.squareup:javapoet:1.12.1");
-
-        tasks.withType(JavaCompile.class,type->{
+        tasks.withType(JavaCompile.class, type -> {
             type.setTargetCompatibility("8");
+            JavaPluginExtension pluginExtension = project.getExtensions().getByType(JavaPluginExtension.class);
+            pluginExtension.setSourceCompatibility(8);
+            pluginExtension.setTargetCompatibility(8);
             type.setSourceCompatibility("8");
             type.getOptions().setFork(true);
 
@@ -37,7 +53,7 @@ public interface SetupAnnotationProjectExtension extends AbstractExtension{
             options.setEncoding("UTF-8");
             options.getCompilerArgs().add("-Xlint:deprecation");
             ForkOptions forkOptions = options.getForkOptions();
-            String[] args={
+            String[] args = {
                 "--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
                 "--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
                 "--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED",
@@ -51,27 +67,5 @@ public interface SetupAnnotationProjectExtension extends AbstractExtension{
                 Objects.requireNonNull(forkOptions.getJvmArgs()).add(arg);
             }
         });
-        /*
-        compileKotlin{
-        sourceCompatibility = JavaVersion.VERSION_16
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-        *
-        * */
-//        jar.metaInf(copySpec -> {
-//            File file = new File(getProject().getBuildDir(), "writeAnnotationProcessors");
-//            copySpec.from(file);
-//        });
-
-
-    }
-
-    default void setupAnnotationProject(Project project){
-        if(project == getProject()){
-            setupAnnotationProject();
-            return;
-        }
-        project.getPlugins().apply(MindustryModGradle.class);
-        project.getExtensions().getByType(MindustryModCoreExtension.class).setupAnnotationProject();
     }
 }

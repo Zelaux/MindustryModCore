@@ -15,7 +15,7 @@ import javax.lang.model.type.*;
 import java.lang.annotation.*;
 
 @SupportedAnnotationTypes(
-mmc.annotations.ModAnnotations.MainClass.class
+    mmc.annotations.ModAnnotations.MainClass.class
 )
 public class MainClassProcessor extends ModBaseProcessor{
     @Override
@@ -28,8 +28,8 @@ public class MainClassProcessor extends ModBaseProcessor{
         }
         Stype mainClass = types.get(0);
         Stype innerMainClass = types(mainClass.annotation(MainClass.class), MainClass::value).get(0);
-        if (!innerMainClass.fullName().equals(Mod.class.getName())){
-            mainClass=innerMainClass;
+        if(!innerMainClass.fullName().equals(Mod.class.getName())){
+            mainClass = innerMainClass;
         }
         if(mainClass.e.getModifiers().contains(Modifier.PRIVATE)){
             err("Main class cannot be private", mainClass);
@@ -85,18 +85,29 @@ public class MainClassProcessor extends ModBaseProcessor{
         if(!rawPath.equals("\n")){
             Fi child = rootDirectory.child(rawPath);
             if(!child.exists()){
-                err("You wrote non-existent path");
+                err("You wrote non-existent path: " + child.absolutePath());
                 return null;
             }
             return child;
         }
+        String[] ext = {"hjson", "json"};
+        String[] names = {"mod", "plugin"};
         String[] paths = {
-        "mod.json", "mod.hjson", "assets/mod.json", "assets/mod.hjson", "core/assets/mod.json", "core/assets/mod.hjson"
+            "",
+            "assets",
+            "core/assets",
         };
         for(String path : paths){
 
-            Fi file = rootDirectory.child(path);
-            if(file.exists()) return file;
+            Fi folder = rootDirectory.child(path);
+            if(folder.exists()){
+                for(String name : names){
+                    for(String extension : ext){
+                        Fi file = folder.child(name + "." + extension);
+                        if(file.exists()) return file;
+                    }
+                }
+            }
         }
         return null;
     }

@@ -62,7 +62,8 @@ public class AnnotationsUpdater {
         );
 
         for (MethodDeclaration method : baseProcessor.getMethods()) {
-            if (method.getNameAsString().equals("process") && method.getType().isPrimitiveType() && method.getType().asPrimitiveType().toDescriptor().equals("Z")) {
+            PrimitiveType primitiveType = method.getType().asPrimitiveType();
+            if (method.getNameAsString().equals("process") && method.getType().isPrimitiveType() && primitiveType.toDescriptor().equals("Z")) {
 //                BlockStmt blockStmt = method.getBody().get();
                 method.accept(new ModifierVisitor<Void>(){
                     @Override

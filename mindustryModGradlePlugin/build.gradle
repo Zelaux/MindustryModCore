@@ -1,0 +1,56 @@
+apply plugin: 'groovy'
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+apply plugin: 'java-gradle-plugin'
+sourceSets.main.groovy.srcDirs = (["../buildSrc/src/main/groovy"])
+
+repositories{
+    mavenCentral()
+    maven{ url 'https://raw.githubusercontent.com/Zelaux/MindustryRepo/master/repository' }
+}
+
+gradlePlugin{
+    plugins{
+        MindustryModCore{
+            id = 'com.github.Zelaux.MindustryModCore'
+            implementationClass = 'mmc.MindustryModGradle'
+        }
+    }
+}
+publishing{
+    publications{
+        maven(MavenPublication){
+//            artifactId = "com.github.Zelaux.MindustryModCore.gradle.plugin"
+//                name
+        }
+    }
+}
+dependencies{
+    compileOnly gradleApi()
+    compileOnly localGroovy()
+    compileOnly("org.jetbrains:annotations:24.0.1")
+    implementation 'commons-io:commons-io:2.6'
+    implementation "com.github.Anuken.Arc:arc-core:v146"
+
+
+    implementation "org.jetbrains.kotlin.jvm:org.jetbrains.kotlin.jvm.gradle.plugin:1.8.21"
+    implementation "org.jetbrains.kotlin.kapt:org.jetbrains.kotlin.kapt.gradle.plugin:1.8.21"
+
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+}
+jar{
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from{
+        Configuration classpath = configurations.runtimeClasspath
+        classpath.filter(new Spec<File>(){
+
+            @Override
+            boolean isSatisfiedBy(File file){
+//                println "file: "+
+                return file.absolutePath.contains("arc-core")
+            }
+        }).collect{ it.isDirectory() ? it : zipTree(it) }
+//        project(":core").fileTree("build/libs/core.jar").collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}

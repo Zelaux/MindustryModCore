@@ -1,6 +1,7 @@
 package mmc.utils;
 
 import mmc.*;
+import org.gradle.api.*;
 import org.gradle.api.plugins.*;
 import org.jetbrains.annotations.*;
 
@@ -17,7 +18,9 @@ public class MainUtils{
     public static Object findVersion(ExtraPropertiesExtension extraProperties, String message, String... versionNames){
         Object foundVersion = null;
         for(String versionName : versionNames){
-            foundVersion = extraProperties.get(versionName);
+            if(extraProperties.has(versionName)){
+                foundVersion = extraProperties.get(versionName);
+            }
             if(foundVersion != null) break;
         }
         if(foundVersion == null){
@@ -26,4 +29,9 @@ public class MainUtils{
         return foundVersion;
     }
 
+    public static MindustryModCoreExtension getMyExtension(Project project, Project fallback){
+        MindustryModCoreExtension myExtension = project.getExtensions().findByType(MindustryModCoreExtension.class);
+        if(myExtension != null) return myExtension;
+        return fallback.getExtensions().getByType(MindustryModCoreExtension.class);
+    }
 }

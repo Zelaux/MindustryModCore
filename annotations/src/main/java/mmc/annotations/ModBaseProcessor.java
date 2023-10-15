@@ -479,9 +479,15 @@ public abstract class ModBaseProcessor extends BaseProcessor{
             Fi fi = Fi.get(path);
 
             String rootDirectoryPath = stype == null ? "../" : stype.annotation(RootDirectoryPath.class).rootDirectoryPath();
-            rootDirectory = new Fi(fi.child(
-                !rootDirectoryPath.equals("\n") ? rootDirectoryPath : "../"
-            ).file().getCanonicalFile());
+            if(stype == null && annotationProperties.containsKey("ROOT_DIRECTORY")){
+                String directory = annotationProperties.get("ROOT_DIRECTORY");
+                System.out.println("ROOT_DIRECTORY "+directory);
+                rootDirectory = Fi.get(directory);
+            }else{
+                rootDirectory = new Fi(fi.child(
+                    !rootDirectoryPath.equals("\n") ? rootDirectoryPath : "../"
+                ).file().getCanonicalFile());
+            }
 //            System.out.println("fi1: " + fi);
 //            rootDirectory = fi.parent();
 //            System.out.println("fi2: " + rootDirectory);
@@ -548,6 +554,9 @@ public abstract class ModBaseProcessor extends BaseProcessor{
                 String value = options.get(setting.name());
                 if(value != null) annotationProperties.put(setting.name(), value);
             }
+        }
+        if(options.containsKey("ROOT_DIRECTORY")){
+            annotationProperties.put("ROOT_DIRECTORY",options.get("ROOT_DIRECTORY"));
         }
 //        System.out.println();
     }

@@ -37,14 +37,14 @@ public class MindustryModGradle implements Plugin<Project>{
             //skip to last submodule
             String[] split = name.split(":");
             name = split[split.length - 1];
-            Object arcVersion = findVersion(extraProperties, "`arcVersion` or `mindustryVersion` is not specified", "arcVersion", "mindustryVersion");
+            Object arcVersion = findVersion(extraProperties, "`arcVersion` or `mindustryVersion` is not specified", "mindustryVersion", "arcVersion");
             return "com.github.Anuken.Arc:" + name + ":" + arcVersion;
         }));
         extraProperties.set("mindustryModule", stringToStringClosure(name -> {
             //skip to last submodule
             String[] split = name.split(":");
             name = split[split.length - 1];
-            Object version = findVersion(extraProperties, "`mindustryVersion` is not specified", "mindustryVersion");
+            Object version = findVersion(extraProperties, "`arcVersion` or `mindustryVersion` is not specified", "mindustryVersion", "arcVersion");
             return "com.github.Anuken.Mindustry:" + name + ":" + version;
         }));
     }

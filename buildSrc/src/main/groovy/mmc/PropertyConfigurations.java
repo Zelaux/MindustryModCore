@@ -4,6 +4,7 @@ import org.gradle.api.*;
 
 public interface PropertyConfigurations{
     PropertyConfiguration jarMindustryTaskName = prop("mmc.tasks.jarMindustry", "jarMindustry");
+    PropertyConfiguration disableKotlinTasks = prop("mmc.disableKotlinTasks", "false");
     PropertyConfiguration zelauxModCoreName = prop("mmc.functions.mindustryModCore", "modCoreModule");
 
     static PropertyConfiguration prop(String name, String defaultValue){

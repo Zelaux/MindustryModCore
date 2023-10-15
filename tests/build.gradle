@@ -1,6 +1,6 @@
 //file:noinspection DependencyNotationArgument
 
-plugins {
+plugins{
     id 'java'
     id 'maven-publish'
 }
@@ -8,8 +8,8 @@ plugins {
 version '1.0'
 //needed for android build
 
-tasks.withType(JavaCompile) {
-    if (JavaVersion.current() != JavaVersion.VERSION_1_8) {
+tasks.withType(JavaCompile){
+    if(JavaVersion.current() != JavaVersion.VERSION_1_8){
         options.compilerArgs.addAll(['--release', '8'])
     }
     sourceCompatibility = 8
@@ -22,6 +22,16 @@ apply plugin: "kotlin-kapt"
 apply plugin: mmc.MindustryModGradle
 mindustryModCore{
     jarMindustryTask()
+    addKaptAnnotations()
+    projectInfo{
+        rootDirectory = project.projectDir
+        assetsPath = "assets"
+        assetsRawPath = "assets-raw"
+        rootPackage = "coretest.tests"
+        modInfoPath = "assets/mod.hjson"
+        revisionsPath = "revisions"
+        classPrefix = "Tm"
+    }
 }
 kapt{
     javacOptions{
@@ -61,11 +71,8 @@ dependencies{
 
     annotationProcessor "com.github.Anuken:jabel:$jabelVersion"
     compileOnly project(":annotations")
+    compileOnly project(":tools")
     kapt project(":annotations")
-
-//        testImplementation "com.github.Zelaux.ZelauxModCore:core:$modCoreVersion"
-//        testImplementation "com.github.Zelaux.ZelauxModCore:plugins:$modCoreVersion"
-//        compileOnly "com.github.Zelaux.ZelauxModCore:annotations:$modCoreVersion"
 }
 
 test{
@@ -80,27 +87,28 @@ test{
 }
 
 compileJava.options.fork = true
-project.archivesBaseName="ZelauxModCoreTestMod.jar"
+project.archivesBaseName = "ZelauxModCoreTestMod.jar"
 jar{
     dependsOn(":core:jar")
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     archiveFileName = "${project.archivesBaseName}."
-    from {
-        project(":core").fileTree("build/libs/core.jar").collect { it.isDirectory() ? it : zipTree(it) }
+    from{
+        project(":core").fileTree("build/libs/core.jar").collect{ it.isDirectory() ? it : zipTree(it) }
     }
     from{
         configurations.runtimeClasspath.collect{
-            it.isDirectory() ? it : zipTree(it) }
+            it.isDirectory() ? it : zipTree(it)
+        }
 //        project(":core").fileTree("build/libs/core.jar").collect { it.isDirectory() ? it : zipTree(it) }
     }
 
-    from(rootDir) {
+    from(rootDir){
         include "mod.hjson"
         include "mod.json"
         include "icon.png"
     }
 
-    from("core/assets/") {
+    from("core/assets/"){
         include "**"
     }
 }

@@ -23,7 +23,7 @@ public interface AddMindustryCoreExtension extends AbstractExtension{
             //module path to full submodule name
             String[] split = name.split(":");
             name = split[split.length - 1];
-            Object version = findVersion(extraProperties, "`modCoreVersion` is not specified", "zelauxModCoreVersion", "modCoreVersion");
+            Object version = findVersion(extraProperties, "`modCoreVersion` or `mindustryModCoreVersion` is not specified",  "modCoreVersion","mindustryModCoreVersion");
             return "com.github.Zelaux.MindustryModCore:" + name + ":" + version;
         });
         extraProperties.set(modCoreModuleFunction, arcLibraryVersion);
