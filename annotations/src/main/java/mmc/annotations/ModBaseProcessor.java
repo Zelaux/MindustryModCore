@@ -444,7 +444,7 @@ public abstract class ModBaseProcessor extends BaseProcessor{
     protected String getPackageName(){
         packageName = (rootPackageName = annotationsSettings(AnnotationSettingsEnum.rootPackage, () -> {
             Fi[] list = rootDirectory.child("core/src").list();
-            if(list.length == 0) err("Cannot find rootPackage, please write rootPackage in annotation.properties");
+            if(list.length == 0) err("Cannot find rootPackage, please write rootPackage by using gradle plugin or @" + AnnotationSettings.class.getCanonicalName());
             return list[0].name();
         })) + ".gen";
         return packageName;
@@ -481,7 +481,7 @@ public abstract class ModBaseProcessor extends BaseProcessor{
             String rootDirectoryPath = stype == null ? "../" : stype.annotation(RootDirectoryPath.class).rootDirectoryPath();
             if(stype == null && annotationProperties.containsKey("ROOT_DIRECTORY")){
                 String directory = annotationProperties.get("ROOT_DIRECTORY");
-                System.out.println("ROOT_DIRECTORY "+directory);
+                System.out.println("ROOT_DIRECTORY " + directory);
                 rootDirectory = Fi.get(directory);
             }else{
                 rootDirectory = new Fi(fi.child(
@@ -556,7 +556,7 @@ public abstract class ModBaseProcessor extends BaseProcessor{
             }
         }
         if(options.containsKey("ROOT_DIRECTORY")){
-            annotationProperties.put("ROOT_DIRECTORY",options.get("ROOT_DIRECTORY"));
+            annotationProperties.put("ROOT_DIRECTORY", options.get("ROOT_DIRECTORY"));
         }
 //        System.out.println();
     }

@@ -1,54 +1,41 @@
 //file:noinspection DependencyNotationArgument
 import java.time.format.DateTimeFormatter
-/*buildscript{
-    ext{
-        jgitVersion = "3.5.0.201409260305-r"
 
-        jabelVersion = "0.6.0"
-
-        jparcerVersion = "3.22.1"
-        arcLibModule = { String name ->
-            //skip to last submodule
-            if(name.contains(':')) name = name.split(':').last()
-            return "com.github.Zelaux.ArcLibrary:$name:$arcLibraryVersion"
-        }
-        arcModule = { String name ->
-            //skip to last submodule
-            if(name.contains(':')) name = name.split(':').last()
-            return "com.github.Anuken.Arc:$name:$arcVersion"
-        }
-        mindustryModule = { String name ->
-            //skip to last submodule
-            if(name.contains(':')) name = name.split(':').last()
-            return "com.github.Anuken.Mindustry:$name:$mindustryVersion"
-        }
-    }
-    repositories{
-        mavenLocal()
-        mavenCentral()
-        google()
-        maven{ url "https://oss.sonatype.org/content/repositories/snapshots/" }
-        maven{ url 'https://jitpack.io' }
-        maven{ url 'https://raw.githubusercontent.com/Zelaux/MindustryRepo/master/repository' }
-        maven{ url  'https://raw.githubusercontent.com/Zelaux/Repo/master/repository' }
-    }
-    dependencies{
-        classpath mindustryModule("core")
-        classpath arcModule("arc-core")
-        classpath arcModule("packer")
-    }
-}*/
+import static mmc.utils.MainUtils.findVersion
 
 plugins{
-//    id 'org.jetbrains.kotlin.jvm' version '1.6.0'
-//    id "org.jetbrains.kotlin.kapt" version "1.6.0"
     id "groovy"
 }
 apply plugin: mmc.MindustryModGradle
 version '1.0'
 
 //region main
-
+ext{
+    versions = [:]
+    libraries = [:]
+}
+versions.arc = "v146"
+versions.arcLibrary = "v1.0.6"
+libraries.applyJunit = { ->
+    testImplementation 'junit:junit:4.13.1'
+    testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.8.2")
+}
+libraries.arc = { String module ->
+    return "com.github.Anuken.Arc:" + module.split(":").last() + ":" + versions.arc;
+};
+libraries.mindustry = { String module ->
+    return "com.github.Anuken.Mindustry:" + module.split(":").last() + ":" + versions.arc;
+};
+libraries.arcLibrary = { String module ->
+    return "com.github.Zelaux.ArcLibrary:" + module.split(":").join("-") + ":" + versions.arcLibrary;
+};
+ext.aproj = { String module ->
+    if(findProject(module) != null){
+        return project(module)
+    }else{
+        return project(":MindustryModCore:" + module)
+    }
+}
 //endregion
 
 allprojects{
@@ -59,27 +46,6 @@ allprojects{
     }
     version = 'release'
     group = 'com.github.Zelaux.MindustryModCore'
-    ext{
-        /*writeProcessors = {
-            new File(rootDir, "annotations/src/main/resources/META-INF/services/").mkdirs()
-            def processorFile = new File(rootDir, "annotations/src/main/resources/META-INF/services/javax.annotation.processing.Processor")
-            def text = new StringBuilder()
-            def files = new File(rootDir, "annotations/src/main/java")
-            files.eachFileRecurse(
-                    groovy.io.FileType.FILES
-            ){ file ->
-                boolean isProcessor = file.text.contains(" extends ModBaseProcessor") ||
-                        (file.text.contains(" extends AbstractProcessor") && !file.text.contains("abstract class")) ||
-                        file.text.contains("@Annotations.AnnotationProcessor")
-                if(file.name.endsWith(".java") && isProcessor){
-                    text.append(file.path.substring(files.path.length() + 1)).append("\n")
-                }
-            }
-
-            processorFile.text = text.toString().replace(".java", "").replace("/", ".").replace("\\", ".")
-        }*/
-    }
-
     apply plugin: 'maven-publish'
     repositories{
         mavenLocal()
@@ -89,7 +55,7 @@ allprojects{
         maven{ url "https://oss.sonatype.org/content/repositories/releases/" }
         maven{ url 'https://jitpack.io' }
         maven{ url 'https://raw.githubusercontent.com/Zelaux/MindustryRepo/master/repository' }
-        maven{ url  'https://raw.githubusercontent.com/Zelaux/Repo/master/repository' }
+        maven{ url 'https://raw.githubusercontent.com/Zelaux/Repo/master/repository' }
     }
 
     dependencies{
@@ -116,26 +82,11 @@ allprojects{
     }
     jar{
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-        if(project.name!="mindustryModGradlePlugin"){
+        if(project.name != "mindustryModGradlePlugin"){
             from{
                 configurations.runtimeClasspath.collect{ it.isDirectory() ? it : zipTree(it) }
-//        project(":core").fileTree("build/libs/core.jar").collect { it.isDirectory() ? it : zipTree(it) }
             }
         }
-    }
-/*//force arc version
-    */
-}
-//needed for android build
-ext{
-    //the build number that this mod is made for
-    //version of SDK you will be using
-    sdkVersion = '30'
-    sdkRoot = System.getenv("ANDROID_HOME")
-
-    doExec = { cmd ->
-        def proc = cmd.execute(null, new File("$buildDir/libs"))
-        proc.waitForProcessOutput(System.out, System.err)
     }
 }
 configure([project(":annotations"), project(":annotations:localAnnotations")]){
@@ -160,159 +111,21 @@ configure(subprojects - project(":annotations") - project(":annotations:localAnn
     }
 }
 
-project(":core"){
-    apply plugin: "java-library"
-    mindustryModCore{
-        addKaptAnnotations()
-    }
-    kapt{
-        javacOptions{
-            option("-source", "16")
-            option("-target", "1.8")
-        }
-    }
-    compileJava.options.fork = true
 
-    task preGen{
-        outputs.upToDateWhen{ false }
-//        writeProcessors()
-    }
-
-    task sourcesJar(type: Jar, dependsOn: classes){
-        archiveClassifier = 'sources'
-        from sourceSets.main.allSource
-    }
-
-    artifacts{
-        archives sourcesJar
-    }
-
-    dependencies{
-        compileJava.dependsOn(preGen)
-
-        compileOnly "org.lz4:lz4-java:1.7.1"
-        compileOnly arcModule("arc-core")
-        compileOnly arcModule("extensions:flabel")
-        compileOnly arcModule("extensions:freetype")
-        compileOnly arcModule("extensions:g3d")
-        compileOnly arcModule("extensions:fx")
-        compileOnly arcModule("extensions:arcnet")
-
-//        compileOnly "$mindustryPath:core:$mindustryVersion"
-        compileOnly mindustryModule("core")
-
-//        compileOnly mindustryModule("tools")
-        project.getParent().getSubprojects().forEach(sub -> {
-//            println "sub adding "+sub.getName()
-            String name = sub.getName()
-            println "subproject: " + sub.getName()
-            if(!["tools", "annotations","mindustryModGradlePlugin", "localAnnotations", "plugins", "blocks", "customBlockShape", "tiledStructures", "tests", "utils", project.getName()].contains(name)){
-                println "implemented"
-                implementation sub
-            }
-        })
-
-        annotationProcessor "com.github.Anuken:jabel:$jabelVersion"
-        compileOnly project(":annotations")
-        kapt project(":annotations")
-    }
-
-    afterEvaluate{
-        task mergedJavadoc(type: Javadoc){
-            def blacklist = [/*project(":ios"), project(":desktop"), project(":server"),*/ project(":annotations"), project(":annotations:localAnnotations")]
-            if(findProject(":android") != null){
-                blacklist += project(":android")
-            }
-
-            source rootProject.subprojects.collect{ project ->
-                if(!blacklist.contains(project) && project.hasProperty("sourceSets")){
-                    return project.sourceSets.main.allJava
-                }
-            }
-
-            classpath = files(rootProject.subprojects.collect{ project ->
-                if(!blacklist.contains(project) && project.hasProperty("sourceSets")){
-                    return project.sourceSets.main.compileClasspath
-                }
-            })
-            destinationDir = new File(buildDir, 'javadoc')
-        }
-    }
-    jar{
-        exclude("mmc/entities/comp/**")
-        exclude("mmc/entities/compByAnuke/**")
-    }
+String calculateName(Project proj){
+//    Set<Project> projects = System.getenv("JITPACK") != "true" ? rootProject.subprojects - project(":test") : rootProject.subprojects
+    if(proj.parent == rootProject) return proj.name;
+    return calculateName(proj.parent) + "-" + proj.name
 }
 
-project(":tests"){
-
-}
-project(":annotations"){
-    apply plugin: "java-library"
-    repositories{
-        maven{ url 'https://kotlinlang.org/' }
-    }
-    dependencies{
-        implementation 'commons-io:commons-io:2.5'
-        implementation 'com.squareup:javapoet:1.12.1'
-        implementation arcModule('arc-core')
-        implementation mindustryModule("core")
-        implementation "com.github.javaparser:javaparser-symbol-solver-core:$jparcerVersion"
-
-        compileOnly project(":annotations:localAnnotations")
-        annotationProcessor project(":annotations:localAnnotations")
-    }
-}
-project(":annotations:localAnnotations"){
-    apply plugin: "java-library"
-    repositories{
-        maven{ url 'https://kotlinlang.org/' }
-    }
-    dependencies{
-        implementation 'commons-io:commons-io:2.5'
-        implementation 'com.squareup:javapoet:1.12.1'
-        implementation arcModule('arc-core')
-        implementation mindustryModule("core")
-        implementation "com.github.javaparser:javaparser-symbol-solver-core:$jparcerVersion"
-    }
-}
-
-for(def subproject in allprojects){
-
-    if(subproject.name in ["annotations", "localAnnotations", "tools", "core", project.name]) continue
-    project(":${subproject.name}"){
-//        compileTestJava
-        compileTestJava.options.fork = true
-        dependencies{
-            testImplementation arcModule('arc-core')
-            testImplementation mindustryModule('core')
-            testImplementation mindustryModule('server')
-
-            testImplementation "org.junit.jupiter:junit-jupiter-params:5.7.1"
-            testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.1"
-            testImplementation arcModule("backends:backend-headless")
-            testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.7.1"
-
-            testAnnotationProcessor "com.github.Anuken:jabel:$jabelVersion"
-        }
-
-        test{
-            //fork every test so mods don't interact with each other
-            forkEvery = 1
-            useJUnitPlatform()
-//        workingDir = new File("../core/assets")
-            testLogging{
-                exceptionFormat = 'full'
-                showStandardStreams = true
-            }
-        }
-    }
-}
-
-task testAll(){
-    allprojects.forEach(p -> dependsOn(p.tasks.getByName("test")))
-}
 configure(project.getSubprojects() - [project(":tests"), project(":annotations:localAnnotations")]){
+    apply plugin: "java-library"
+
+    compileJava{
+        options.fork = true
+        options.incremental = true
+    }
+
     java{
         if(!name.toLowerCase().contains("annotations") && !name.toLowerCase().contains("gradleplugin")){
             println "doc for " + name
@@ -320,118 +133,16 @@ configure(project.getSubprojects() - [project(":tests"), project(":annotations:l
         }
         withSourcesJar()
     }
-
+    def selfProject = project
     publishing{
         publications{
+            //noinspection GroovyAssignabilityCheck
             maven(MavenPublication){
                 from components.java
+                //noinspection GroovyAssignabilityCheck
+                artifactId = calculateName(selfProject)
+//                name
             }
         }
     }
-}
-task jarAndroid{
-    dependsOn "jar"
-
-    doLast{
-        //collect dependencies needed for desugaring
-        def files = (project(":core").configurations.compileClasspath.asList() + project(":core").configurations.runtimeClasspath.asList() + [new File("$sdkRoot/platforms/android-$sdkVersion/android.jar")])
-        def dependencies = files.collect{ "--classpath $it.path" }.join(" ")
-
-        //dex and desugar files - this requires d8 in your PATH
-        doExec("d8 $dependencies --min-api 14 --output ${project.archivesBaseName}Android.jar ${project.archivesBaseName}Desktop.jar")
-    }
-}
-jar{
-    dependsOn "core:jar"
-    archiveFileName = "${project.archivesBaseName}Desktop.jar"
-    from{
-        project(":core").fileTree("build/libs/core.jar").collect{ it.isDirectory() ? it : zipTree(it) }
-    }
-
-    from(rootDir){
-        include "mod.hjson"
-        include "mod.json"
-        include "icon.png"
-    }
-
-    from("core/assets/"){
-        include "**"
-    }
-}
-task deploy(type: Jar){
-    dependsOn jarAndroid
-    dependsOn jar
-    archiveFileName = "${project.archivesBaseName}.jar"
-
-    from{ [zipTree("$buildDir/libs/${project.archivesBaseName}Desktop.jar"), zipTree("$buildDir/libs/${project.archivesBaseName}Android.jar")] }
-
-    doLast{
-        delete{ delete "$buildDir/libs/${project.archivesBaseName}Desktop.jar" }
-        delete{ delete "$buildDir/libs/${project.archivesBaseName}Android.jar" }
-    }
-}
-
-task mjar(){
-    dependsOn "core:jar"
-    dependsOn "tests:jar"
-    ext{
-        acopy = { String intoPath ->
-            def project = project(":tests")
-            delete{
-                delete "${intoPath}/${project.archivesBaseName}"
-            }
-            copy{
-                from "$buildDir/../tests/build/libs/${project.archivesBaseName}"
-                into intoPath
-            }
-            // println "$buildDir/../tests/build/libs/${project.archivesBaseName}.jar"
-            println "Moved to ${intoPath}"
-        }
-    }
-    doLast{
-        def modsDirectories = []
-        def file = new File(rootDir, "modsDirectories.txt")
-
-        if(file.exists()){
-            BufferedReader reader = new BufferedReader(new FileReader(file))
-            reader.lines().forEach(line -> modsDirectories.add(line))
-            reader.close()
-        }else{
-            modsDirectories.add("classic")
-        }
-        for(String directory : modsDirectories){
-            if(directory.equals("classic")){
-                directory = getdatadir() + "mods"
-            }
-//            println "directory: "+directory
-            acopy(directory)
-        }
-        def time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss"))
-        println "Build ended at: ${time}"
-    }
-}
-
-def os(){ //Returns OS name
-    String s = System.getProperty("os.name")
-    return s == null ? "" : s
-}
-
-def getdatadir(){ //Returns Mindustry data directory path
-    def ret = System.getenv("MINDUSTRY_DATA_DIR")
-    if(ret == null){
-        def os = os()
-        if(os.contains("Windows")){
-            return System.getenv("AppData") + "\\Mindustry\\"
-        }else if(os.contains("Linux") || os.contains("BSD")){
-            if(System.getenv("XDG_DATA_HOME") != null){
-                String dir = System.getenv("XDG_DATA_HOME")
-                if(!dir.endsWith("/")) dir += "/"
-                return dir + "Mindustry/"
-            }
-            return System.getProperty("user.home") + "/.local/share/Mindustry/"
-        }else if(os.contains("Mac")){
-            return System.getProperty("user.home") + "/Library/Application Support/Mindustry/"
-        }
-    }
-    return ret
 }

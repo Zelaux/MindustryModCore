@@ -1,0 +1,4 @@
+dependencies{
+    implementation aproj("blocks:consumers")
+    compileOnly aproj("ui:multiBar")
+}

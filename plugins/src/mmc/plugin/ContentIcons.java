@@ -9,7 +9,7 @@ import mindustry.ctype.MappableContent;
 import mindustry.gen.Iconc;
 
 import java.lang.reflect.Field;
-
+/**Text icon mapping*/
 public class ContentIcons {
     private final static ObjectMap<ContentType, ObjectMap<MappableContent, Character>> iconMap = new ObjectMap<>();
 

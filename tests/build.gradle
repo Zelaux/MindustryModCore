@@ -43,10 +43,9 @@ compileJava.options.fork = true
 
 dependencies{
     implementation project(":core")
-    implementation project(":blocks")
-    implementation project(":customBlockShape")
+    implementation project(":blocks").subprojects
     implementation project(":tiledStructures")
-    implementation project(":graphics")
+    implementation project(":graphics").subprojects
     api arcLibModule("utils-io")
     api arcLibModule("graphics-extendedDraw")
     implementation arcModule('arc-core')
@@ -55,8 +54,7 @@ dependencies{
 
 
     testImplementation project(":core")
-    testImplementation project(":blocks")
-    testImplementation project(":customBlockShape")
+    testImplementation project(":blocks").subprojects
     testImplementation project(":tiledStructures")
 
     testImplementation arcModule('arc-core')
