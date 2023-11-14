@@ -38,7 +38,7 @@ public class AnnotationProxyMaker{
 
     public static <A extends Annotation> A generateAnnotation(Compound var0, Class<A> var1){
         AnnotationProxyMaker var2 = new AnnotationProxyMaker(var0, var1);
-        return (A)var1.cast(var2.generateAnnotation());
+        return var1.cast(var2.generateAnnotation());
     }
 
     private Annotation generateAnnotation(){
@@ -88,7 +88,7 @@ public class AnnotationProxyMaker{
     }
 
     private class ValueVisitor implements Visitor{
-        private MethodSymbol meth;
+        private final MethodSymbol meth;
         private Class<?> returnClass;
         private Object value;
 

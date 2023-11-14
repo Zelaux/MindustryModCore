@@ -1,9 +1,0 @@
-mma.annotations.dependencies.DependenciesProc
-mma.annotations.entities.ModEntityProcess
-mma.annotations.extra.MainClassProcessor
-mma.annotations.impl.ModAssetsProcess
-mma.annotations.impl.StructProcess
-mma.annotations.misc.LogicStatementProcessor
-mma.annotations.misc.ModLoadRegionProcessor
-mma.annotations.remote.ModRemoteProcess
-mma.annotations.serialization.SerializeProcessor

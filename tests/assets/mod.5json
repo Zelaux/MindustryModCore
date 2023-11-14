@@ -3,5 +3,5 @@
   "displayName": "TestZelauxModCore",
   "minGameVersion": "136"
 
-,"main": "mma.tests.TestMod"
+,"main": "mmc.tests.TestMod"
 }

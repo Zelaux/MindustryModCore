@@ -3,12 +3,11 @@ package tests;
 import arc.*;
 import arc.mock.*;
 import mindustry.*;
-import mindustry.content.*;
 import mindustry.core.*;
 import mindustry.type.*;
 import mindustry.world.*;
-import mma.*;
-import mma.core.*;
+import mmc.*;
+import mmc.core.*;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

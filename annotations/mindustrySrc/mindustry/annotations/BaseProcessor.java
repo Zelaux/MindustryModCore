@@ -7,6 +7,7 @@ import arc.util.Log.*;
 import com.squareup.javapoet.*;
 import com.sun.source.util.*;
 import mindustry.annotations.util.*;
+
 import javax.annotation.processing.*;
 import javax.lang.model.*;
 import javax.lang.model.element.*;
@@ -19,7 +20,7 @@ import java.lang.annotation.*;
 import java.util.*;
 
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
-public abstract class BaseProcessor extends AbstractProcessor {
+public abstract class BaseProcessor extends AbstractProcessor{
 
     /**
      * Name of the base package to put all the generated classes.
@@ -35,6 +36,7 @@ public abstract class BaseProcessor extends AbstractProcessor {
     public static Messager messager;
 
     public static Trees trees;
+    public static ProcessingEnvironment processingEnvironment;
 
     protected int round;
 
@@ -43,27 +45,24 @@ public abstract class BaseProcessor extends AbstractProcessor {
     protected RoundEnvironment env;
 
     protected Fi rootDirectory;
+    protected boolean enableTimer;
 
-    protected String getPackageName() {
-        return "mindustry.gen";
+    public static String getMethodName(Element element){
+        return ((TypeElement)element.getEnclosingElement()).getQualifiedName().toString() + "." + element.getSimpleName();
     }
 
-    public static String getMethodName(Element element) {
-        return ((TypeElement) element.getEnclosingElement()).getQualifiedName().toString() + "." + element.getSimpleName();
-    }
-
-    public static boolean isPrimitive(String type) {
+    public static boolean isPrimitive(String type){
         return type.equals("boolean") || type.equals("byte") || type.equals("short") || type.equals("int") || type.equals("long") || type.equals("float") || type.equals("double") || type.equals("char");
     }
 
-    public static boolean instanceOf(String type, String other) {
+    public static boolean instanceOf(String type, String other){
         TypeElement a = elementu.getTypeElement(type);
         TypeElement b = elementu.getTypeElement(other);
         return a != null && b != null && typeu.isSubtype(a.asType(), b.asType());
     }
 
-    public static String getDefault(String value) {
-        switch(value) {
+    public static String getDefault(String value){
+        switch(value){
             case "float":
             case "double":
             case "int":
@@ -80,8 +79,8 @@ public abstract class BaseProcessor extends AbstractProcessor {
     }
 
     // in bytes
-    public static int typeSize(String kind) {
-        switch(kind) {
+    public static int typeSize(String kind){
+        switch(kind){
             case "boolean":
             case "byte":
                 return 1;
@@ -94,70 +93,70 @@ public abstract class BaseProcessor extends AbstractProcessor {
             case "long":
                 return 8;
             default:
-                throw new IllegalArgumentException("Invalid primitive type: " + kind + "");
+                throw new IllegalArgumentException("Invalid primitive type: " + kind);
         }
     }
 
-    public static String simpleName(String str) {
+    public static String simpleName(String str){
         return str.contains(".") ? str.substring(str.lastIndexOf('.') + 1) : str;
     }
 
-    public static TypeName tname(String pack, String simple) {
+    public static TypeName tname(String pack, String simple){
         return ClassName.get(pack, simple);
     }
 
-    public static TypeName tname(String name) {
-        if (!name.contains("."))
+    public static TypeName tname(String name){
+        if(!name.contains("."))
             return ClassName.get(packageName, name);
         String pack = name.substring(0, name.lastIndexOf("."));
         String simple = name.substring(name.lastIndexOf(".") + 1);
         return ClassName.get(pack, simple);
     }
 
-    public static TypeName tname(Class<?> c) {
+    public static TypeName tname(Class<?> c){
         return ClassName.get(c).box();
     }
 
-    public static TypeVariableName getTVN(TypeParameterElement element) {
+    public static TypeVariableName getTVN(TypeParameterElement element){
         String name = element.getSimpleName().toString();
         List<? extends TypeMirror> boundsMirrors = element.getBounds();
         List<TypeName> boundsTypeNames = new ArrayList<>();
-        for (TypeMirror typeMirror : boundsMirrors) {
+        for(TypeMirror typeMirror : boundsMirrors){
             boundsTypeNames.add(TypeName.get(typeMirror));
         }
         return TypeVariableName.get(name, boundsTypeNames.toArray(new TypeName[0]));
     }
 
-    public static void write(TypeSpec.Builder builder) throws Exception {
+    public static void write(TypeSpec.Builder builder) throws Exception{
         write(builder, null);
     }
 
-    public static void write(TypeSpec.Builder builder, Seq<String> imports) throws Exception {
+    public static void write(TypeSpec.Builder builder, Seq<String> imports) throws Exception{
         write(builder, packageName, imports);
     }
 
-    public static void write(TypeSpec.Builder builder, String packageName, Seq<String> imports) throws Exception {
+    public static void write(TypeSpec.Builder builder, String packageName, Seq<String> imports) throws Exception{
         builder.superinterfaces.sort(Structs.comparing(t -> t.toString()));
         builder.methodSpecs.sort(Structs.comparing(m -> m.toString()));
         builder.fieldSpecs.sort(Structs.comparing(f -> f.name));
         JavaFile file = JavaFile.builder(packageName, builder.build()).skipJavaLangImports(true).build();
         String writeString;
-        if (imports != null) {
+        if(imports != null){
             imports = imports.map(m -> Seq.with(m.split("\n")).sort().toString("\n"));
             imports.sort();
             String rawSource = file.toString();
             Seq<String> result = new Seq<>();
-            for (String s : rawSource.split("\n", -1)) {
+            for(String s : rawSource.split("\n", -1)){
                 result.add(s);
-                if (s.startsWith("package ")) {
+                if(s.startsWith("package ")){
                     result.add("");
-                    for (String i : imports) {
+                    for(String i : imports){
                         result.add(i);
                     }
                 }
             }
             writeString = result.toString("\n");
-        } else {
+        }else{
             writeString = file.toString();
         }
         JavaFileObject object = filer.createSourceFile(file.packageName + "." + file.typeSpec.name, file.typeSpec.originatingElements.toArray(new Element[0]));
@@ -166,70 +165,78 @@ public abstract class BaseProcessor extends AbstractProcessor {
         stream.close();
     }
 
-    public Seq<Selement> elements(Class<? extends Annotation> type) {
-        return Seq.with(env.getElementsAnnotatedWith(type)).map(Selement::new);
-    }
-
-    public Seq<Stype> types(Class<? extends Annotation> type) {
-        return Seq.with(env.getElementsAnnotatedWith(type)).select(e -> e instanceof TypeElement).map(e -> new Stype((TypeElement) e));
-    }
-
-    public Seq<Svar> fields(Class<? extends Annotation> type) {
-        return Seq.with(env.getElementsAnnotatedWith(type)).select(e -> e instanceof VariableElement).map(e -> new Svar((VariableElement) e));
-    }
-
-    public Seq<Smethod> methods(Class<? extends Annotation> type) {
-        return Seq.with(env.getElementsAnnotatedWith(type)).select(e -> e instanceof ExecutableElement).map(e -> new Smethod((ExecutableElement) e));
-    }
-
-    public static void err(String message) {
+    public static void err(String message){
         messager.printMessage(Kind.ERROR, message);
         Log.err("[CODEGEN ERROR] " + message);
     }
 
-    public static void err(String message, Element elem) {
+    public static void err(String message, Element elem){
         messager.printMessage(Kind.ERROR, message, elem);
         Log.err("[CODEGEN ERROR] " + message + ": " + elem);
     }
 
-    public static void err(String message, Selement elem) {
+    public static void err(String message, Selement elem){
         err(message, elem.e);
     }
 
+    protected String getPackageName(){
+        return "mindustry.gen";
+    }
+
+    public Seq<Selement> elements(Class<? extends Annotation> type){
+        return Seq.with(env.getElementsAnnotatedWith(type)).map(Selement::new);
+    }
+
+    public Seq<Stype> types(Class<? extends Annotation> type){
+        return Seq.with(env.getElementsAnnotatedWith(type)).select(e -> e instanceof TypeElement).map(e -> new Stype((TypeElement)e));
+    }
+
+    public Seq<Svar> fields(Class<? extends Annotation> type){
+        return Seq.with(env.getElementsAnnotatedWith(type)).select(e -> e instanceof VariableElement).map(e -> new Svar((VariableElement)e));
+    }
+
+    public Seq<Smethod> methods(Class<? extends Annotation> type){
+        return Seq.with(env.getElementsAnnotatedWith(type)).select(e -> e instanceof ExecutableElement).map(e -> new Smethod((ExecutableElement)e));
+    }
+
     @Override
-    public synchronized void init(ProcessingEnvironment env) {
+    public synchronized void init(ProcessingEnvironment env){
         super.init(env);
+        processingEnvironment = env;
         trees = Trees.instance(env);
         typeu = env.getTypeUtils();
         elementu = env.getElementUtils();
         filer = env.getFiler();
         messager = env.getMessager();
+        if(getClass().getSimpleName().equals("SerializeProcessor")){
+        }
+
         Log.level = LogLevel.info;
-        if (System.getProperty("debug") != null) {
+        if(System.getProperty("debug") != null){
             Log.level = LogLevel.debug;
         }
     }
 
     @Override
-    public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+    public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv){
         // only process 1 round
-        if (round++ >= rounds)
+        if(round++ >= rounds)
             return false;
-        if (rootDirectory == null) {
+        if(rootDirectory == null){
             rootDirectory = getRootDirectory();
             packageName = getPackageName();
         }
         this.env = roundEnv;
-        try {
-            if (enableTimer) {
+        try{
+            if(enableTimer){
                 Log.info(getClass().getSimpleName() + ".work(" + round + ")");
                 Time.mark();
             }
             process(roundEnv);
-            if (enableTimer) {
+            if(enableTimer){
                 Log.info(getClass().getSimpleName() + ".work(" + round + ").time=@ms", Time.elapsed());
             }
-        } catch (Throwable e) {
+        }catch(Throwable e){
             Log.err(e);
             throw new RuntimeException(e);
         }
@@ -237,23 +244,21 @@ public abstract class BaseProcessor extends AbstractProcessor {
     }
 
     @Override
-    public SourceVersion getSupportedSourceVersion() {
+    public SourceVersion getSupportedSourceVersion(){
         return SourceVersion.RELEASE_8;
     }
 
-    public void process(RoundEnvironment env) throws Exception {
+    public void process(RoundEnvironment env) throws Exception{
     }
 
-    public Fi getRootDirectory() {
+    public Fi getRootDirectory(){
         Fi rootDirectory;
-        try {
+        try{
             String path = Fi.get(filer.getResource(StandardLocation.CLASS_OUTPUT, "no", "no").toUri().toURL().toString().substring(OS.isWindows ? 6 : "file:".length())).parent().parent().parent().parent().parent().parent().parent().toString().replace("%20", " ");
             rootDirectory = Fi.get(path).parent();
-        } catch (IOException e) {
+        }catch(IOException e){
             throw new RuntimeException(e);
         }
         return rootDirectory;
     }
-
-    protected boolean enableTimer;
 }
