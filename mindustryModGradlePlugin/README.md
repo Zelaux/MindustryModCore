@@ -8,6 +8,8 @@
   - [addArcLibrary](#extension_addArcLibrary)
   - [setupAnnotationProject](#extension_setupAnnotationProject)
   - [addKaptAnnotations](#extension_addKaptAnnotations)
+- [repositiories](#custom-repositories)
+  - [githubRepo](#repos_githubRepo)
 
 ## <a name="usage"></a> Usage
 #### How to add plugin to your mod
@@ -130,4 +132,19 @@ classic
         kapt project(":annotations")
     }
     ```
+----
+
+## <a name="repos">Custom repositories</a> 
+- ###  <a name="repos_githubRepo"></a>
+  Added custom repository for maven repositories on github
+  <h5>Example:</h5>
+
+  ```gradle
+  repositories{
+    githubRepo("Anuken","MindustryMaven")
+    githubRepo("Zelaux","Repo")
+  }
+  ```
+
+
 ----
