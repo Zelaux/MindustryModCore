@@ -14,7 +14,9 @@ public interface SetupDefaultJarTasks extends AbstractExtension {
 
         AbstractCopyTask jar = (AbstractCopyTask) tasks.getByName("jar");
         MindustryModCoreExtension extension = target.getExtensions().getByType(MindustryModCoreExtension.class);
-        jar.exclude(extension.getProjectInto().rootPackage.get()+"/entities/comp/**");
+        jar.doFirst(it->{
+            jar.exclude(extension.getProjectInto().rootPackage.get()+"/entities/comp/**");
+        });
 
 
         tasks.register("androidJar", JarAndroidTask.class,it->{
