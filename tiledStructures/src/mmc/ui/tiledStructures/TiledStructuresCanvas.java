@@ -594,73 +594,7 @@ public class TiledStructuresCanvas extends WidgetGroup{
             return bounds * unitSize;
         }
 
-        public static class ConnectorStyle{
-            public ButtonStyle inputStyle;
-            public ButtonStyle outputStyle;
 
-            public ConnectorStyle(ButtonStyle inputStyle, ButtonStyle outputStyle){
-                this.inputStyle = inputStyle;
-                this.outputStyle = outputStyle;
-            }
-
-            public ConnectorStyle(){
-            }
-
-            public static ConnectorStyle defaultStyle(){
-                if(!Core.scene.hasStyle(ConnectorStyle.class)){
-                    Core.scene.addStyle(ConnectorStyle.class, innerDefault());
-                }
-                return Core.scene.getStyle(ConnectorStyle.class);
-            }
-
-            @NotNull
-            private static ConnectorStyle innerDefault(){
-                float drawableScale = Reflect.get(TextureAtlas.class, Core.atlas, "drawableScale");
-                Color fillColor = Tmp.c1.set(0x252525FF);
-                ButtonStyle input = new ButtonStyle(){{
-                    down = Tex.buttonSideLeftDown;
-                    up = Tex.buttonSideLeft;
-                    over = Tex.buttonSideLeftOver;
-                    AtlasRegion region = Core.atlas.find("button-side-left-over");
-                    Pixmap pixmap = Core.atlas.getPixmap(region).crop();
-
-                    pixmap.each((x, y) -> {
-                        if(pixmap.getA(x, y) > 0){
-                            pixmap.set(x, y, fillColor);
-                        }
-                    });
-
-                    int[] splits = region.splits;
-                    NinePatch patch = new NinePatch(new Texture(pixmap), splits[0], splits[1], splits[2], splits[3]);
-                    pixmap.dispose();
-                    int[] pads = region.pads;
-                    if(pads != null) patch.setPadding(pads[0], pads[1], pads[2], pads[3]);
-                    disabled = new ScaledNinePatchDrawable(patch, drawableScale);
-                }};
-                ButtonStyle output = new ButtonStyle(){{
-                    down = Tex.buttonSideRightDown;
-                    up = Tex.buttonSideRight;
-                    over = Tex.buttonSideRightOver;
-
-                    AtlasRegion region = Core.atlas.find("button-side-right-over");
-                    Pixmap pixmap = Core.atlas.getPixmap(region).crop();
-
-                    pixmap.each((x, y) -> {
-                        if(pixmap.getA(x, y) > 0){
-                            pixmap.set(x, y, fillColor);
-                        }
-                    });
-
-                    int[] splits = region.splits;
-                    NinePatch patch = new NinePatch(new Texture(pixmap), splits[0], splits[1], splits[2], splits[3]);
-                    pixmap.dispose();
-                    int[] pads = region.pads;
-                    if(pads != null) patch.setPadding(pads[0], pads[1], pads[2], pads[3]);
-                    disabled = new ScaledNinePatchDrawable(patch, drawableScale);
-                }};
-                return new ConnectorStyle(input, output);
-            }
-        }
 
         public class StructureTile extends Table{
             public final TiledStructure<?> obj;
