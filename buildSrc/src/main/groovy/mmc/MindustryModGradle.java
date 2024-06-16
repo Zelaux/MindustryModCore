@@ -11,10 +11,7 @@ import static mmc.ClosureFactory.stringToStringClosure;
 import static mmc.utils.MainUtils.findVersion;
 
 public class MindustryModGradle implements Plugin<Project> {
-    public static MavenArtifactRepository githubRepo(String user, String name) {
-        String it = "method for documentation";
-        return githubRepo(null, user, name);
-    }
+
 
     public static MavenArtifactRepository githubRepo(RepositoryHandler handler, String user, String repo) {
         return handler.maven(it1 -> {
