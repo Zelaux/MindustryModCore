@@ -1,0 +1,25 @@
+
+
+apply plugin: 'groovy'
+apply plugin: 'java'
+
+
+repositories{
+    mavenCentral()
+    maven { url 'https://raw.githubusercontent.com/Zelaux/MindustryRepo/master/repository' }
+}
+println "root: "+getRootDir()
+dependencies{
+    compileOnly gradleApi()
+    compileOnly localGroovy()
+    compileOnly("org.jetbrains:annotations:24.0.1")
+    implementation 'commons-io:commons-io:2.6'
+    implementation "com.github.Anuken.Arc:arc-core:v146"
+
+
+    implementation "org.jetbrains.kotlin.jvm:org.jetbrains.kotlin.jvm.gradle.plugin:1.8.21"
+    implementation "org.jetbrains.kotlin.kapt:org.jetbrains.kotlin.kapt.gradle.plugin:1.8.21"
+
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+}

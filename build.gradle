@@ -1,0 +1,150 @@
+//file:noinspection DependencyNotationArgument
+import java.time.format.DateTimeFormatter
+
+import static mmc.utils.MainUtils.findVersion
+
+plugins{
+    id "groovy"
+}
+apply plugin: mmc.MindustryModGradle
+version '1.0'
+
+//region main
+ext{
+    versions = [:]
+    libraries = [:]
+}
+versions.arc = "v146"
+versions.arcLibrary = "v1.0.6"
+libraries.applyJunit = { ->
+    testImplementation 'junit:junit:4.13.1'
+    testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.8.2")
+}
+libraries.arc = { String module ->
+    return "com.github.Anuken.Arc:" + module.split(":").last() + ":" + versions.arc;
+};
+libraries.mindustry = { String module ->
+    return "com.github.Anuken.Mindustry:" + module.split(":").last() + ":" + versions.arc;
+};
+libraries.arcLibrary = { String module ->
+    return "com.github.Zelaux.ArcLibrary:" + module.split(":").join("-") + ":" + versions.arcLibrary;
+};
+ext.aproj = { String module ->
+    if(findProject(module) != null){
+        return project(module)
+    }else{
+        return project(":MindustryModCore:" + module)
+    }
+}
+//endregion
+
+allprojects{
+    apply plugin: 'groovy'
+    apply plugin: mmc.MindustryModGradle
+    mindustryModCore{
+        addArcLibrary()
+    }
+    version = 'release'
+    group = 'com.github.Zelaux.MindustryModCore'
+    apply plugin: 'maven-publish'
+    repositories{
+        mavenLocal()
+        google()
+        mavenCentral()
+        maven{ url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven{ url "https://oss.sonatype.org/content/repositories/releases/" }
+//        maven{ url 'https://jitpack.io' }
+//        maven{ url 'https://raw.githubusercontent.com/Zelaux/MindustryRepo/master/repository' }
+//        maven{ url 'https://raw.githubusercontent.com/Zelaux/Repo/master/repository' }
+        githubRepo("Zelaux","MindustryRepo")
+        githubRepo("Zelaux","Repo")
+    }
+
+    dependencies{
+        compileOnly 'org.jetbrains:annotations:23.1.0'
+    }
+
+    tasks.withType(JavaCompile){
+        targetCompatibility = 8
+        sourceCompatibility = JavaVersion.VERSION_16
+        options.encoding = "UTF-8"
+        options.compilerArgs += ["-Xlint:deprecation"]
+
+        options.forkOptions.jvmArgs.addAll([
+                '--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED',
+                '--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED',
+                '--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED',
+                '--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED',
+                '--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED',
+                '--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED',
+                '--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED',
+                '--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED',
+                '--add-opens=java.base/sun.reflect.annotation=ALL-UNNAMED'
+        ])
+    }
+    jar{
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        if(project.name != "mindustryModGradlePlugin"){
+            from{
+                configurations.runtimeClasspath.collect{ it.isDirectory() ? it : zipTree(it) }
+            }
+        }
+    }
+}
+configure([project(":annotations"), project(":annotations:localAnnotations")]){
+    tasks.withType(JavaCompile){
+        targetCompatibility = 8
+        sourceCompatibility = 8
+        options.fork = true
+    }
+}
+
+//compile with java 8 compatibility for everything except the annotation project
+configure(subprojects - project(":annotations") - project(":annotations:localAnnotations")){
+    tasks.withType(JavaCompile){
+        options.compilerArgs.addAll(['--release', '8'])
+    }
+
+    tasks.withType(Javadoc){
+        options{
+            addStringOption('Xdoclint:none', '-quiet')
+            addStringOption('-release', '16')
+        }
+    }
+}
+
+
+String calculateName(Project proj){
+//    Set<Project> projects = System.getenv("JITPACK") != "true" ? rootProject.subprojects - project(":test") : rootProject.subprojects
+    if(proj.parent == rootProject) return proj.name;
+    return calculateName(proj.parent) + "-" + proj.name
+}
+
+configure(project.getSubprojects() - [project(":tests"), project(":annotations:localAnnotations")]){
+    apply plugin: "java-library"
+
+    compileJava{
+        options.fork = true
+        options.incremental = true
+    }
+
+    java{
+        if(!name.toLowerCase().contains("annotations") && !name.toLowerCase().contains("gradleplugin")){
+            println "doc for " + name
+            withJavadocJar()
+        }
+        withSourcesJar()
+    }
+    def selfProject = project
+    publishing{
+        publications{
+            //noinspection GroovyAssignabilityCheck
+            maven(MavenPublication){
+                from components.java
+                //noinspection GroovyAssignabilityCheck
+                artifactId = calculateName(selfProject)
+//                repo
+            }
+        }
+    }
+}

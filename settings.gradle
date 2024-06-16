@@ -1,0 +1,45 @@
+if(JavaVersion.current().ordinal() < JavaVersion.VERSION_16.ordinal()){
+    throw new Exception("!!! YOU MUST USE JAVA 16 OR ABOVE TO COMPILE AND RUN GasLibrary !!! Read the README. Your version: ${System.properties["java.version"]}")
+}
+
+include "mindustryModGradlePlugin"
+
+include "annotations"
+include "annotations:localAnnotations"
+
+include "core"
+
+include "tools"
+
+include "tests"
+
+include "plugins"
+
+include "utils:techTree"
+include "utils:geomentry"
+include "utils:strings"
+include "utils:struct"
+include "utils:planet"
+include "utils:math"
+
+include "ui:multiBar"
+include "ui:dialogs"
+include "ui:cheat-dialogs"
+
+include "tiledStructures"
+
+include "graphics:drawText"
+
+
+include "blocks:consumers"
+include "blocks:draw"
+include "blocks:diagonalBridges"
+include "blocks:laserRuller"
+include "blocks:multiCrafter"
+include "blocks:multiRotorDrill"
+include "blocks:smartDistrubution"
+include "blocks:customShapes"
+
+
+rootProject.name="MindustryModCore-v2"
+

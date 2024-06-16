@@ -1,0 +1,67 @@
+sourceSets.main.java.srcDirs = ["src/", "$buildDir/generated/sources/annotationProcessor/java/main"]
+sourceSets.main.resources.srcDirs = ["resources/"]
+
+apply plugin: "java-library"
+mindustryModCore{
+    addKaptAnnotations()
+}
+kapt{
+    javacOptions{
+        option("-source", "16")
+        option("-target", "1.8")
+    }
+}
+compileJava.options.fork = true
+
+task preGen{
+    outputs.upToDateWhen{ false }
+//        writeProcessors()
+}
+
+artifacts{
+    archives sourcesJar
+}
+
+dependencies{
+    compileJava.dependsOn(preGen)
+
+    compileOnly "org.lz4:lz4-java:1.7.1"
+    compileOnly libraries.arc("arc-core")
+    compileOnly libraries.arc("extensions:flabel")
+    compileOnly libraries.arc("extensions:freetype")
+    compileOnly libraries.arc("extensions:g3d")
+    compileOnly libraries.arc("extensions:fx")
+    compileOnly libraries.arc("extensions:arcnet")
+
+    compileOnly libraries.mindustry("core")
+
+    annotationProcessor "com.github.Anuken:jabel:$jabelVersion"
+    compileOnly project(":annotations")
+    kapt project(":annotations")
+}
+
+afterEvaluate{
+    task mergedJavadoc(type: Javadoc){
+        def blacklist = [/*project(":ios"), project(":desktop"), project(":server"),*/ project(":annotations"), project(":annotations:localAnnotations")]
+        if(findProject(":android") != null){
+            blacklist += project(":android")
+        }
+
+        source rootProject.subprojects.collect{ project ->
+            if(!blacklist.contains(project) && project.hasProperty("sourceSets")){
+                return project.sourceSets.main.allJava
+            }
+        }
+
+        classpath = files(rootProject.subprojects.collect{ project ->
+            if(!blacklist.contains(project) && project.hasProperty("sourceSets")){
+                return project.sourceSets.main.compileClasspath
+            }
+        })
+        destinationDir = new File(buildDir, 'javadoc')
+    }
+}
+jar{
+    exclude("mmc/entities/comp/**")
+    exclude("mmc/entities/compByAnuke/**")
+}

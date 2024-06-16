@@ -1,0 +1,10 @@
+subprojects{
+    apply plugin: "java-library"
+
+    sourceSets.main.java.srcDirs = ["src/"]
+    sourceSets.main.resources.srcDirs = ["resources/"]
+    dependencies{
+        compileOnly mindustryModule('core')
+        compileOnly arcModule('arc-core')
+    }
+}
