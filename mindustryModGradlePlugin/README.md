@@ -87,6 +87,7 @@ classic
   - adds repository for [MindustryModCore](https://github.com/Zelaux/ArcLibrary)
   - adds method `modCoreModule(String module)`
   <h5>Example:</h5>
+  
     ```gradle
         mindustryModCore{
             addMindustryModCore()
@@ -101,6 +102,7 @@ classic
   - adds repository for [ArcLibrary](https://github.com/Zelaux/ArcLibrary)
   - adds method `arcLibraryModule(String module)`
   <h5>Example:</h5>
+  
     ```gradle
         mindustryModCore{
             addArcLibrary()
@@ -117,6 +119,7 @@ classic
 - ### <a name="extension_addKaptAnnotations"></a>`addKaptAnnotations()`
   Prepare project to use kapt annotation processors
     <h5>Example</h5>
+    
     ```gradle
     mindustryModCore{
         addMindustryModCore()
