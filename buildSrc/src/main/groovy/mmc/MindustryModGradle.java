@@ -20,7 +20,6 @@ public class MindustryModGradle implements Plugin<Project> {
         return handler.maven(it1 -> {
             String url = "https://raw.githubusercontent.com/" + user + "/" + repo + "/master/repository";
             it1.setUrl(url);
-            System.out.println(url);
         });
     }
 
