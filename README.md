@@ -1,5 +1,4 @@
-ZelauxModCore([last version](versions/lastVersion.txt))
-[![](https://jitpack.io/v/Zelaux/ZelauxModCore.svg)](https://jitpack.io/#Zelaux/ZelauxModCore)
+ZelauxModCore
 ========
 `ZelauxModCore` is the core of Mindustry's Java mod for easy modding.
 ### Modules
@@ -38,6 +37,9 @@ Download
 
 Depend via Gradle(replace MODULE_NAME with the required module name):
 ```groovy
+repositories {
+        maven{ url  'https://raw.githubusercontent.com/Zelaux/Repo/master/repository' }
+}
 dependencies {
         implementation 'com.github.Zelaux.ZelauxModCore:MODULE_NAME:VERSION'
 }
