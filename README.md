@@ -3,14 +3,14 @@
 ---
 `MindusryModCore` is the core of Mindustry's Java mod for easy modding.
 ### Modules
+- [gradle plugin](mindustryModGradlePlugin)
 - [annotations](annotations)
 - [blocks](blocks)
 - [core](core)
 - [customBlockShape](customBlockShape)
 - [graphics](graphics)
-- [gradle plugin](mindustryModGradlePlugin)
 - [plugins](plugins)
-- [tiledStructured](tiledStructured)
+- [tiledStructures](tiledStructures)
 - [tools](tools)
 - [utils](utils)
 ### Mods that uses MindustryModCore
