@@ -63,6 +63,8 @@ public class MultiCrafter extends ModBlock{
     public float extraStorageItem = 1;
     public int[] itemsCapacities = {};
     public float[] liquidsCapacities = {};
+    /** Display % on liquid bar. */
+    public boolean percent = true;
 
     public MultiCrafter(String name){
         super(name);
@@ -268,10 +270,12 @@ public class MultiCrafter extends ModBlock{
                         }));
                     }
                     return new MultiBar(() -> {
-                        String text = Core.bundle.get("bar.liquids");
-                        if(build.liquids == null)
-                            return text;
-                        return text + " " + Mathf.round((build.countNowLiquid() / build.countRequiredLiquid() * 100f), 0.1f) + "%";
+                        String text = build.liquids().current().localizedName;
+                        if(percent){
+                            if(build.liquids == null)
+                                return text;
+                            return text + " " + Mathf.round((build.countNowLiquid() / build.countRequiredLiquid() * 100f), 0.1f) + "%";
+                        }else return text;
                     }, barParts);
                 });
             }
@@ -298,11 +302,11 @@ public class MultiCrafter extends ModBlock{
                     }
                 }
             }
-
+            //this duplicates bar...
             //nothing was added, so it's safe to add a dynamic liquid bar (probably?)
-            if(!added){
-                addLiquidBar(build -> build.liquids.current());
-            }
+            //if(!added){
+            //    addLiquidBar(build -> build.liquids.current());
+            //}
         }
     }
 

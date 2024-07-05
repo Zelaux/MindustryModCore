@@ -1,69 +1,54 @@
 package mmc.world.meta;
 
-import arc.Core;
-import arc.graphics.g2d.TextureRegion;
-import arc.scene.ui.layout.Table;
-import arc.util.Strings;
-import mindustry.ctype.UnlockableContent;
-import mindustry.gen.Tex;
-import mindustry.type.ItemStack;
-import mindustry.ui.ItemImage;
-import mindustry.world.meta.StatUnit;
-import mindustry.world.meta.StatValue;
-import mindustry.world.meta.StatValues;
-import mmc.type.Recipe;
-import mmc.world.meta.values.LiquidListValue;
+import arc.*;
+import arc.graphics.*;
+import arc.scene.style.*;
+import arc.scene.ui.Button.*;
+import arc.scene.ui.layout.*;
+import mindustry.graphics.*;
+import mindustry.type.*;
+import mindustry.ui.*;
+import mindustry.world.meta.*;
+import mmc.type.*;
 
-public class RecipeListValue implements StatValue {
+public class RecipeListValue implements StatValue{
     private final Recipe[] recipes;
-
-    public RecipeListValue(Recipe... recipes) {
+    private final Drawable style = Core.scene.getStyle(ButtonStyle.class).up;
+    public RecipeListValue(Recipe... recipes){
         this.recipes = recipes;
     }
 
     @Override
-    public void display(Table table) {
+    public void display(Table table){
         table.row();
-        for (Recipe recipe : recipes) {
-            if (recipe.outputItem != null) {
-                table.add(new ItemImage(new ItemStack(recipe.outputItem.item,recipe.outputItem.amount))).size(24.0F).padRight(4.0F).right().top();
-//                table.image(icon(recipe.outputItem.item)).size(24.0F).padRight(4.0F).right().top();
-                table.add(" "+recipe.outputItem.item.localizedName).padRight(10.0F).left().top();
-            }
-            if (recipe.outputLiquid != null) {
-                StatValues.liquid(recipe.outputLiquid.liquid,recipe.outputLiquid.amount,true).display(table);
-
-//                table.image(icon(recipe.outputLiquid.liquid)).size(24.0F).padRight(4.0F).right().top();
-//                table.add(recipe.outputLiquid.liquid.localizedName).padRight(10.0F).left().top();
-            }
-
-            (table.table((bt) -> {
-                bt.left().defaults().padRight(3.0F).left();
-                if (recipe.consumeItems.length > 0) {
-                    StatValues.items(true, recipe.consumeItems).display(bt.table().get());
-                    if (recipe.consumeLiquids.length > 0) bt.row();
+        for(Recipe recipe : recipes){
+            table.table(style, tab -> {
+                if(recipe.consumeItems.length > 0 || recipe.consumeLiquids.length > 0) tab.add(Stat.input.localized()).color(Pal.accent).expandX().left().row();
+                if(recipe.consumeItems.length > 0){
+                    tab.table(row -> {
+                        for(ItemStack itemIn : recipe.consumeItems){
+                            row.add(new ItemDisplay(itemIn.item, itemIn.amount, true)).left();
+                            if(recipe.consumeItems.length > 1) row.row();
+                        }
+                    }).left().row();
                 }
-
-                if (recipe.consumeLiquids.length > 0) {
-//                    StatValues()
-                    new LiquidListValue(true, recipe.consumeLiquids).display(bt.table().get());
-                    bt.row();
+                if(recipe.consumeLiquids.length > 0){
+                    tab.table(row -> {
+                        for(LiquidStack liquidIn : recipe.consumeLiquids){
+                            row.add(new LiquidDisplay(liquidIn.liquid, liquidIn.amount, false)).left();
+                            if(recipe.consumeLiquids.length > 1) row.row();
+                        }
+                    }).left().row();
                 }
-                bt.add(Strings.format("[lightgray]@: [white]", Core.bundle.get("stat.productiontime"), recipe.produceTime));
-                StatValues.number(recipe.produceTime/ 60.0F, StatUnit.seconds).display(bt);
-
-            }).padTop(-9.0F).left().get()).background(Tex.underline);
-            table.row();
+                if(recipe.outputItem != null || recipe.outputLiquid != null) tab.add(Stat.output.localized()).color(Pal.accent).expandX().left().row();
+                if(recipe.outputItem != null) tab.table(row -> row.add(new ItemDisplay(recipe.outputItem.item, recipe.outputItem.amount, true))).left().row();
+                if(recipe.outputLiquid != null) tab.table(row -> row.add(new LiquidDisplay(recipe.outputLiquid.liquid, recipe.outputLiquid.amount, false))).left().row();
+                tab.table(row -> {
+                    row.add(Stat.productionTime.localized()).padRight(4f).color(Color.lightGray);
+                    StatValues.number(recipe.produceTime / 60f, StatUnit.seconds).display(row);
+                }).left().row();
+            }).color(Color.lightGray).left().growX();
+            table.add().size(18f).row();
         }
-
-    }
-
-    void sep(Table table, String text) {
-        table.row();
-        table.add(text);
-    }
-
-    <T extends UnlockableContent> TextureRegion icon(T t) {
-        return t.uiIcon;
     }
 }
