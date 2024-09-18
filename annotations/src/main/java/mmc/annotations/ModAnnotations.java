@@ -137,6 +137,10 @@ public class ModAnnotations extends Annotations{
      */
     @Retention(RetentionPolicy.SOURCE)
     public @interface ModAssetsAnnotation{
+        /**
+         * Separator detween 'modId-spritName'
+         * */
+        String separator() default "-";
     }
 
     /**
