@@ -137,6 +137,7 @@ public class ModAnnotations extends Annotations{
      */
     @Retention(RetentionPolicy.SOURCE)
     public @interface ModAssetsAnnotation{
+        String separator() default "-";
     }
 
     /**
