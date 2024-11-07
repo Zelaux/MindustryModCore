@@ -67,7 +67,7 @@ public class LogicStatementProcessor extends ModBaseProcessor{
             int index = 0;
 
             for(Svar field : fields){
-                if(field.isAny(Modifier.TRANSIENT, Modifier.STATIC)) continue;
+                if(field.isAny(Modifier.TRANSIENT, Modifier.STATIC, Modifier.PRIVATE, Modifier.PROTECTED)) continue;
 
                 writer.addStatement("out.append(\" \")");
                 writer.addStatement("out.append((($T)obj).$L$L)", c.mirror(), field.name(),
