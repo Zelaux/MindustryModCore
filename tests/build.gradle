@@ -67,10 +67,22 @@ dependencies{
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.7.1"
 
 
+    def kaptAnno=[
+            project(":annotations:assets"),
+            project(":annotations:dependencies"),
+            project(":annotations:entity"),
+            project(":annotations:load"),
+            project(":annotations:logic"),
+            project(":annotations:main-class"),
+            project(":annotations:remote"),
+            project(":annotations:serialize"),
+            project(":annotations:struct"),
+    ]
     annotationProcessor "com.github.Anuken:jabel:$jabelVersion"
-    compileOnly project(":annotations")
-    compileOnly project(":tools")
-    kapt project(":annotations")
+    for(final def __it__ in kaptAnno){
+        compileOnly __it__
+        kapt __it__
+    }
 }
 
 test{

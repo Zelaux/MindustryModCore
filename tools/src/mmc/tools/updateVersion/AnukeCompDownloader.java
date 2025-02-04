@@ -95,7 +95,7 @@ public class AnukeCompDownloader{
 
             CompilationUnit compilationUnit = new CompilationUnit();
             ClassOrInterfaceDeclaration compData = compilationUnit.addClass("CompData", new Keyword[0]);
-            Fi compDataFile = Fi.get("annotations/src/main/java/" + packageName + "/annotations/entities/CompData.java");
+            Fi compDataFile = Fi.get("annotations/entity/src/main/java/" + packageName + "/annotations/entities/CompData.java");
             compilationUnit.addImport(ObjectMap.class);
             compData.addField("ObjectMap<String,String>", "compMap", Keyword.STATIC, Keyword.FINAL);
             compData.addField("String", "groupDefs", Keyword.STATIC, Keyword.FINAL);
@@ -216,7 +216,7 @@ public class AnukeCompDownloader{
 
         CompilationUnit compilationUnit = new CompilationUnit();
         compilationUnit.setPackageDeclaration(packageName + ".entities.compByAnuke");
-        compilationUnit.addImport(packageName + ".annotations." + annotationsClassName, false, false);
+        compilationUnit.addImport(packageName + ".annotations." + annotationsClassName, false, true);
 //        compilationUnit.addImport("mindustry.gen", false, true);
         ClassOrInterfaceDeclaration annotationConfig = compilationUnit.addClass("AnnotationConfigComponents");
 
@@ -230,7 +230,7 @@ public class AnukeCompDownloader{
                 .setInterface(true)
                 .setName(interfaceName)
                 .getExtendedTypes().add(codeConverter.javaParser.parseClassOrInterfaceType("mindustry.gen." + interfaceName).getResult().get());
-            comp.addAnnotation(annotationsClassName + ".EntitySuperClass");
+            comp.addAnnotation("EntitySuperClass");
         }
         dir.child("AnnotationConfigComponents.java").writeString(compilationUnit.toString());
     }

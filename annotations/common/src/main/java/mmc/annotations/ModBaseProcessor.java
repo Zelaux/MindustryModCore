@@ -27,6 +27,7 @@ import mindustry.io.*;
 import mindustry.mod.*;
 import mindustry.mod.Mods.*;
 import mmc.annotations.ModAnnotations.*;
+import mmc.local.annotations.LocalAnnotations.*;
 import org.jetbrains.annotations.Nullable;
 import org.reflections.*;
 import org.reflections.scanners.*;
@@ -48,7 +49,6 @@ import java.util.stream.*;
 
 @SuppressWarnings("deprecation")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
-
 public abstract class ModBaseProcessor extends BaseProcessor {
     static final StringMap annotationProperties = new StringMap();
     public static String rootPackageName = null;

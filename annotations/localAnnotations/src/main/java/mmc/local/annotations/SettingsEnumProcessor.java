@@ -21,13 +21,10 @@ public class SettingsEnumProcessor extends LocalBaseProcessor{
 
     @Override
     public void process(RoundEnvironment env) throws Exception{
-        Stype stype = new Stype((TypeElement)Seq.with(env.getRootElements()).find(it -> it.toString().equals("mmc.annotations.ModAnnotations")));
+        Stype stype = new Stype((TypeElement)Seq.with(env.getRootElements()).find(it -> it.toString().equals("mmc.annotations.ModAnnotations.AnnotationSettings")));
         CompilationUnit compilationUnit = StaticJavaParser.parse(trees.getPath(stype.e).getCompilationUnit().toString());
 
-        ClassOrInterfaceDeclaration modAnnotations = compilationUnit.getClassByName("ModAnnotations").get();
-        AnnotationDeclaration annotationSettings =
-        Seq.with(modAnnotations.findAll(AnnotationDeclaration.class, TreeTraversal.DIRECT_CHILDREN))
-        .find(it -> it.getNameAsString().equals("AnnotationSettings"));
+        AnnotationDeclaration annotationSettings = compilationUnit.getAnnotationDeclarationByName("AnnotationSettings").get();
 //        System.out.println(Seq.with(modAnnotations.getMembers()).toString("\n",it->it.getClass()+"_"+it.toString()));
 //        System.out.println(annotationSettings);
 

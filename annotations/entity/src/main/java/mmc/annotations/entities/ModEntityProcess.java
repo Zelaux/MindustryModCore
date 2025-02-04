@@ -74,7 +74,7 @@ public class ModEntityProcess extends ModBaseProcessor{
     @Override
     public void process(RoundEnvironment env) throws Exception{
         updateRounds();
-        for(Stype type : types(ModAnnotations.EntitySuperClass.class)){
+        for(Stype type : types(EntitySuperClass.class)){
             if(!hasAnukeComps){
 //                err();
                 note("Local mindustry components.");
@@ -1004,7 +1004,7 @@ public class ModEntityProcess extends ModBaseProcessor{
             //wrap scope to prevent variable leakage
             if(writeBlock){
                 //replace return; with block break
-                if(!elem.has(ModAnnotations.GlobalReturn.class)){
+                if(!elem.has(GlobalReturn.class)){
                     str = str.replace("return;", "break " + blockName + ";");
                 }
                 mbuilder.addCode(blockName + ": {\n");

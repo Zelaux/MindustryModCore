@@ -36,8 +36,14 @@ dependencies{
     compileOnly libraries.mindustry("core")
 
     annotationProcessor "com.github.Anuken:jabel:$jabelVersion"
-    compileOnly project(":annotations")
-    kapt project(":annotations")
+    def kaptAnno=[
+            project(":annotations:mindustry"),
+            project(":annotations:entity")
+    ]
+    for(final def __it__ in kaptAnno ) {
+        compileOnly __it__
+        kapt __it__
+    }
 }
 
 afterEvaluate{

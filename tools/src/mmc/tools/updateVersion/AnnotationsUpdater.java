@@ -21,7 +21,7 @@ public class AnnotationsUpdater {
 
     public static void run(String mindustryVersion, String... args) {
         Fi root = LibrariesDownloader.coreZipRoot();
-        dir = Fi.get("annotations/mindustrySrc/mindustry/annotations");
+        dir = Fi.get("annotations/mindustry/src/main/java/mindustry/annotations");
         for (String part : "annotations/src/main/java/mindustry/annotations".split("/")) {
             root = root.child(part);
         }

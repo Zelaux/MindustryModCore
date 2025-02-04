@@ -91,16 +91,9 @@ allprojects{
         }
     }
 }
-configure([project(":annotations"), project(":annotations:localAnnotations")]){
-    tasks.withType(JavaCompile){
-        targetCompatibility = 8
-        sourceCompatibility = 8
-        options.fork = true
-    }
-}
 
 //compile with java 8 compatibility for everything except the annotation project
-configure(subprojects - project(":annotations") - project(":annotations:localAnnotations")){
+configure(subprojects - project(":annotations").subprojects - project(":annotations:localAnnotations")){
     tasks.withType(JavaCompile){
         options.compilerArgs.addAll(['--release', '8'])
     }
@@ -119,7 +112,6 @@ String calculateName(Project proj){
     if(proj.parent == rootProject) return proj.name;
     return calculateName(proj.parent) + "-" + proj.name
 }
-
 configure(project.getSubprojects() - [project(":tests"), project(":annotations:localAnnotations")]){
     apply plugin: "java-library"
 
@@ -129,7 +121,7 @@ configure(project.getSubprojects() - [project(":tests"), project(":annotations:l
     }
 
     java{
-        if(!name.toLowerCase().contains("annotations") && !name.toLowerCase().contains("gradleplugin")){
+        if( !project.path.toLowerCase().contains("annotations") && !name.toLowerCase().contains("gradleplugin")){
             println "doc for " + name
             withJavadocJar()
         }
