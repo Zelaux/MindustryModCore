@@ -48,12 +48,12 @@ configure(subprojects - aproj(":annotations:mindustry")- aproj(":annotations:loc
         compileOnly "org.jetbrains:annotations:24.0.1"
 
 
-        api aproj(":annotations:mindustry")
-        api 'commons-io:commons-io:2.5'
-        api 'com.squareup:javapoet:1.12.1'
-        api arcModule('arc-core')
-        api mindustryModule("core")
-        api "com.github.javaparser:javaparser-symbol-solver-core:$jparcerVersion"
+        implementation aproj(":annotations:mindustry")
+        implementation 'commons-io:commons-io:2.5'
+        implementation 'com.squareup:javapoet:1.12.1'
+        implementation arcModule('arc-core')
+        implementation mindustryModule("core")
+        implementation "com.github.javaparser:javaparser-symbol-solver-core:$jparcerVersion"
     }
 }
 
@@ -61,7 +61,7 @@ configure(subprojects - aproj(":annotations:mindustry")- aproj(":annotations:loc
 configure(otherProject){
     dependencies{
 
-        api aproj(":annotations:common")
+        implementation aproj(":annotations:common")
         implementation 'com.squareup:javapoet:1.12.1'
         implementation arcModule('arc-core')
         implementation mindustryModule("core")
