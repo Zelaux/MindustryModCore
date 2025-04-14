@@ -4,6 +4,7 @@ import arc.math.*;
 import arc.util.*;
 import mindustry.annotations.Annotations.*;
 import mindustry.gen.*;
+import static mindustry.logic.LAccess.*;
 
 @Component
 abstract class TimedComp implements Entityc, Scaled {

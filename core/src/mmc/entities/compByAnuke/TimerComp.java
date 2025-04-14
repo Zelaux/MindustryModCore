@@ -2,6 +2,7 @@ package mmc.entities.compByAnuke;
 
 import arc.util.*;
 import mindustry.annotations.Annotations.*;
+import static mindustry.logic.LAccess.*;
 
 @Component
 abstract class TimerComp {

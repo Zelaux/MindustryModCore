@@ -14,9 +14,9 @@
    This is done so that Gradle can find this plugin, and to enforce usage of Java 17+ for compiling.
 2. Go to `/gradle.properties` and add these lines:
    ```properties
-   mindustryVersion = v146
+   mindustryVersion = v147
    #same as mindustryVersion
-   arcVersion = v146
+   arcVersion = v147
    #latest release of Zelaux/MindustryModCore repository.
    modCoreVersion = v2.0.0
 

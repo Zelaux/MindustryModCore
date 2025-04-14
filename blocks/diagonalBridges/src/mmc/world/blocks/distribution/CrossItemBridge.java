@@ -31,7 +31,6 @@ import mindustry.world.Tile;
 import mindustry.world.blocks.distribution.ItemBridge;
 import mindustry.world.meta.Stat;
 import mindustry.world.meta.StatUnit;
-import mmc.gen.*;
 
 import static arc.util.Tmp.v1;
 import static arc.util.Tmp.v2;
@@ -40,7 +39,7 @@ import static mindustry.Vars.*;
 public class CrossItemBridge extends ItemBridge {
     public Prov<Seq<Block>> connectBlocksGetter = () -> new Seq<>();
     Seq<Block> connectibleBlocks = new Seq<>();
-    public Boolf<Building> connectFilter = (building) -> connectibleBlocks.contains(building.block());
+    public Boolf<Building> connectFilter = (building) -> connectibleBlocks.contains(building.block);
     byte maxConnections = 10;
 
     public CrossItemBridge(String name) {
@@ -318,7 +317,7 @@ public class CrossItemBridge extends ItemBridge {
                     inc.add(pos);
                 }
 
-                warmup = Mathf.approachDelta(warmup, efficiency(), 1f / 30f);
+                warmup = Mathf.approachDelta(warmup, efficiency, 1f / 30f);
                 updateTransport(other.build);
             }
 
@@ -445,7 +444,7 @@ public class CrossItemBridge extends ItemBridge {
             if (orderedMap.containsKey(this)) orderedMap.remove(this);
             orderedMap.each((other, linked) -> {
 //                if (!linkValid(tile, other.tile)) return;
-                Drawf.select(other.x, other.y, (float) (other.block().size * 8) / 2.0F + 2.0F + (linked ? 0.0F : Mathf.absin(Time.time, 4.0F, 1.0F)), linked ? Pal.place : Pal.breakInvalid);
+                Drawf.select(other.x, other.y, (float) (other.block.size * 8) / 2.0F + 2.0F + (linked ? 0.0F : Mathf.absin(Time.time, 4.0F, 1.0F)), linked ? Pal.place : Pal.breakInvalid);
             });
 
         }

@@ -4,6 +4,7 @@ import arc.math.*;
 import mindustry.annotations.Annotations.*;
 import mindustry.gen.*;
 import mindustry.type.*;
+import static mindustry.logic.LAccess.*;
 
 @Component
 abstract class ItemsComp implements Posc {

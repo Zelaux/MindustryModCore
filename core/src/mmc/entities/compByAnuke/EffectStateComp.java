@@ -4,6 +4,7 @@ import arc.graphics.*;
 import mindustry.annotations.Annotations.*;
 import mindustry.entities.*;
 import mindustry.gen.*;
+import static mindustry.logic.LAccess.*;
 
 @mmc.annotations.ModAnnotations.MindustryEntityDef(value = { EffectStatec.class, Childc.class }, pooled = true, serialize = false)
 @Component(base = true)

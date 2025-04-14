@@ -4,8 +4,6 @@ import arc.util.*;
 import mindustry.ctype.*;
 import mindustry.type.*;
 
-import static mindustry.Vars.state;
-
 public class Recipe{
     public static Recipe empty = with(null, -1);
     public ItemStack outputItem;
@@ -83,7 +81,7 @@ public class Recipe{
     public boolean unlockedNow(){
         for(ItemStack stack : consumeItems){
             Item item = stack.item;
-            if(state.rules.hiddenBuildItems.contains(item) || item.isHidden() || !item.unlockedNow()){
+            if(/*state.rules.hiddenBuildItems.contains(item) ||*/ item.isHidden() || !item.unlockedNow()){
                 return false;
             }
         }

@@ -5,6 +5,7 @@ import arc.math.geom.*;
 import mindustry.annotations.Annotations.*;
 import mindustry.async.PhysicsProcess.*;
 import mindustry.gen.*;
+import static mindustry.logic.LAccess.*;
 
 /**
  * Affected by physics.
@@ -12,7 +13,7 @@ import mindustry.gen.*;
  * Has mass.
  */
 @Component
-abstract class PhysicsComp implements Velc, Hitboxc, Flyingc {
+abstract class PhysicsComp implements Velc, Hitboxc {
 
     @Import
     float hitSize, x, y;

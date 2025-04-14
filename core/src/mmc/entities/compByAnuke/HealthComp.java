@@ -3,6 +3,7 @@ package mmc.entities.compByAnuke;
 import arc.util.*;
 import mindustry.annotations.Annotations.*;
 import mindustry.gen.*;
+import static mindustry.logic.LAccess.*;
 
 @Component
 abstract class HealthComp implements Entityc, Posc {
@@ -67,6 +68,8 @@ abstract class HealthComp implements Entityc, Posc {
     }
 
     void damage(float amount) {
+        if (Float.isNaN(health))
+            health = 0f;
         health -= amount;
         hitTime = 1f;
         if (health <= 0 && !dead) {
@@ -92,6 +95,8 @@ abstract class HealthComp implements Entityc, Posc {
 
     void clampHealth() {
         health = Math.min(health, maxHealth);
+        if (Float.isNaN(health))
+            health = 0f;
     }
 
     /**

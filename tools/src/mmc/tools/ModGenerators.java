@@ -145,10 +145,6 @@ public class ModGenerators extends MindustryGenerators{
             }
 
             save(image, "../editor/" + block.name + "-icon-editor");
-
-            if(block.buildVisibility != BuildVisibility.hidden){
-                saveScaled(image, block.name + "-icon-logic", logicIconSize);
-            }
             saveScaled(image, "../ui/block-" + block.name + "-ui", Math.min(image.width, maxUiIcon));
 
             /*boolean hasEmpty = false;
@@ -310,8 +306,6 @@ public class ModGenerators extends MindustryGenerators{
                 int maxd = Math.min(Math.max(image.width, image.height), maxUiIcon);
                 Pixmap fit = new Pixmap(maxd, maxd);
                 drawScaledFit(fit, image);
-
-                saveScaled(fit, type.name + "-icon-logic", logicIconSize);
                 save(fit, "../ui/" + type.name + "-ui");
             }catch(Exception e){
                 Log.err("WARNING: Skipping unit " + type.name + ": @", e);

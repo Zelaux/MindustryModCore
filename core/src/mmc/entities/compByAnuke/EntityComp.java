@@ -5,6 +5,7 @@ import mindustry.annotations.Annotations.*;
 import mindustry.entities.*;
 import mindustry.gen.*;
 import static mindustry.Vars.*;
+import static mindustry.logic.LAccess.*;
 
 @Component
 @BaseComponent
@@ -37,10 +38,6 @@ abstract class EntityComp {
         return ((Object) this) instanceof Unitc u && u.isPlayer() && !isLocal();
     }
 
-    boolean isNull() {
-        return false;
-    }
-
     /**
      * Replaced with `this` after code generation.
      */
@@ -66,6 +63,13 @@ abstract class EntityComp {
     void write(Writes write) {
     }
 
+    void beforeWrite() {
+    }
+
     void afterRead() {
+    }
+
+    // called after all entities have been read (useful for ID resolution)
+    void afterReadAll() {
     }
 }

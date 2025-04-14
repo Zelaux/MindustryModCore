@@ -6,6 +6,7 @@ import mindustry.annotations.Annotations.*;
 import mindustry.entities.units.*;
 import mindustry.gen.*;
 import mindustry.type.*;
+import static mindustry.logic.LAccess.*;
 
 @Component
 abstract class WeaponsComp implements Teamc, Posc, Rotc, Velc, Statusc {

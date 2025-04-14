@@ -121,7 +121,7 @@ public class MultiCrafter extends Block{
         stats.add(Stat.size, "@x@", size, size);
         stats.add(Stat.health, (float)health, StatUnit.none);
         if(canBeBuilt()){
-            stats.add(Stat.buildTime, buildCost / 60.0F, StatUnit.seconds);
+            stats.add(Stat.buildTime, buildTime / 60.0F, StatUnit.seconds);
             stats.add(Stat.buildCost, StatValues.items(false, requirements));
         }
 

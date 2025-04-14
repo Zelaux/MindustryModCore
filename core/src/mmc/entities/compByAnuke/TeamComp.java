@@ -6,6 +6,7 @@ import mindustry.game.*;
 import mindustry.gen.*;
 import mindustry.world.blocks.storage.CoreBlock.*;
 import static mindustry.Vars.*;
+import static mindustry.logic.LAccess.*;
 
 @Component
 abstract class TeamComp implements Posc {

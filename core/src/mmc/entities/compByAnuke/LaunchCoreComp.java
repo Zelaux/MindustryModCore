@@ -8,6 +8,7 @@ import mindustry.content.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.world.*;
+import static mindustry.logic.LAccess.*;
 
 @mmc.annotations.ModAnnotations.MindustryEntityDef(value = LaunchCorec.class, serialize = false)
 @Component

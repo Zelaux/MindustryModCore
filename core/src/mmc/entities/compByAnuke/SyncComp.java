@@ -5,6 +5,7 @@ import mindustry.*;
 import mindustry.annotations.Annotations.*;
 import mindustry.gen.*;
 import java.nio.*;
+import static mindustry.logic.LAccess.*;
 
 @Component
 abstract class SyncComp implements Entityc {

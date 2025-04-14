@@ -9,9 +9,10 @@ import mindustry.gen.*;
 import mindustry.type.*;
 import mindustry.world.blocks.environment.*;
 import static mindustry.Vars.*;
+import static mindustry.logic.LAccess.*;
 
 @Component
-abstract class MechComp implements Posc, Flyingc, Hitboxc, Unitc, Mechc, ElevationMovec {
+abstract class MechComp implements Posc, Hitboxc, Unitc, Mechc, ElevationMovec {
 
     @Import
     float x, y, hitSize;
@@ -68,7 +69,7 @@ abstract class MechComp implements Posc, Flyingc, Hitboxc, Unitc, Mechc, Elevati
                 }
             }
         }
-        return canDrown() ? floorOn() : null;
+        return floorOn();
     }
 
     public float walkExtend(boolean scaled) {

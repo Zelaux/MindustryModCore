@@ -7,6 +7,7 @@ import mindustry.annotations.Annotations.*;
 import mindustry.entities.EntityCollisions.*;
 import mindustry.gen.*;
 import static mindustry.Vars.*;
+import static mindustry.logic.LAccess.*;
 
 @Component
 abstract class VelComp implements Posc {
@@ -42,6 +43,10 @@ abstract class VelComp implements Posc {
     @Nullable
     SolidPred solidity() {
         return null;
+    }
+
+    boolean ignoreSolids() {
+        return false;
     }
 
     /**

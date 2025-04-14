@@ -8,12 +8,13 @@ import mindustry.entities.*;
 import mindustry.game.*;
 import mindustry.gen.*;
 import mindustry.type.*;
+import static mindustry.logic.LAccess.*;
 
 @Component
 abstract class ShieldComp implements Healthc, Posc {
 
     @Import
-    float health, hitTime, x, y, healthMultiplier;
+    float health, hitTime, x, y, healthMultiplier, armorOverride;
 
     @Import
     boolean dead;
@@ -43,7 +44,7 @@ abstract class ShieldComp implements Healthc, Posc {
     @Override
     public void damage(float amount) {
         // apply armor and scaling effects
-        rawDamage(Damage.applyArmor(amount, armor) / healthMultiplier / Vars.state.rules.unitHealth(team));
+        rawDamage(Damage.applyArmor(amount, armorOverride >= 0f ? armorOverride : armor) / healthMultiplier / Vars.state.rules.unitHealth(team));
     }
 
     @Replace
@@ -58,6 +59,8 @@ abstract class ShieldComp implements Healthc, Posc {
 
     protected void rawDamage(float amount) {
         boolean hadShields = shield > 0.0001f;
+        if (Float.isNaN(health))
+            health = 0f;
         if (hadShields) {
             shieldAlpha = 1f;
         }
@@ -71,7 +74,7 @@ abstract class ShieldComp implements Healthc, Posc {
                 kill();
             }
             if (hadShields && shield <= 0.0001f) {
-                Fx.unitShieldBreak.at(x, y, 0, team.color, this);
+                Fx.unitShieldBreak.at(x, y, 0, type.shieldColor(self()), this);
             }
         }
     }

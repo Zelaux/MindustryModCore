@@ -14,7 +14,7 @@ ext{
     versions = [:]
     libraries = [:]
 }
-versions.arc = "v146"
+versions.arc = "v147"
 versions.arcLibrary = "v1.0.6"
 libraries.applyJunit = { ->
     testImplementation 'junit:junit:4.13.1'

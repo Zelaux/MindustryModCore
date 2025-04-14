@@ -30,7 +30,7 @@ dependencies{
     compileOnly localGroovy()
     compileOnly("org.jetbrains:annotations:24.0.1")
     implementation 'commons-io:commons-io:2.6'
-    implementation "com.github.Anuken.Arc:arc-core:v146"
+    implementation "com.github.Anuken.Arc:arc-core:v147"
 
 
     implementation "org.jetbrains.kotlin.jvm:org.jetbrains.kotlin.jvm.gradle.plugin:1.8.21"

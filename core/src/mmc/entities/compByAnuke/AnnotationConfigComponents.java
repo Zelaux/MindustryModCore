@@ -9,10 +9,6 @@ public class AnnotationConfigComponents {
     }
 
     @EntitySuperClass()
-    interface Boundedc extends mindustry.gen.Boundedc {
-    }
-
-    @EntitySuperClass()
     interface Builderc extends mindustry.gen.Builderc {
     }
 
@@ -62,10 +58,6 @@ public class AnnotationConfigComponents {
 
     @EntitySuperClass()
     interface Firec extends mindustry.gen.Firec {
-    }
-
-    @EntitySuperClass()
-    interface Flyingc extends mindustry.gen.Flyingc {
     }
 
     @EntitySuperClass()
@@ -129,6 +121,10 @@ public class AnnotationConfigComponents {
     }
 
     @EntitySuperClass()
+    interface Segmentc extends mindustry.gen.Segmentc {
+    }
+
+    @EntitySuperClass()
     interface Shieldc extends mindustry.gen.Shieldc {
     }
 
@@ -165,6 +161,10 @@ public class AnnotationConfigComponents {
     }
 
     @EntitySuperClass()
+    interface UnderwaterMovec extends mindustry.gen.UnderwaterMovec {
+    }
+
+    @EntitySuperClass()
     interface Unitc extends mindustry.gen.Unitc {
     }
 
@@ -174,6 +174,10 @@ public class AnnotationConfigComponents {
 
     @EntitySuperClass()
     interface Velc extends mindustry.gen.Velc {
+    }
+
+    @EntitySuperClass()
+    interface WaterCrawlc extends mindustry.gen.WaterCrawlc {
     }
 
     @EntitySuperClass()

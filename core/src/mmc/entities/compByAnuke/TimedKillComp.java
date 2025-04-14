@@ -4,6 +4,7 @@ import arc.math.*;
 import arc.util.*;
 import mindustry.annotations.Annotations.*;
 import mindustry.gen.*;
+import static mindustry.logic.LAccess.*;
 
 // basically just TimedComp but kills instead of removing.
 @Component

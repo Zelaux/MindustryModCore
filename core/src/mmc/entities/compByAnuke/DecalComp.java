@@ -6,6 +6,7 @@ import arc.math.*;
 import mindustry.annotations.Annotations.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
+import static mindustry.logic.LAccess.*;
 
 @mmc.annotations.ModAnnotations.MindustryEntityDef(value = { Decalc.class }, pooled = true, serialize = false)
 @Component(base = true)

@@ -14,6 +14,7 @@ import mindustry.type.*;
 import mindustry.world.*;
 import static mindustry.Vars.*;
 import static mindustry.entities.Puddles.*;
+import static mindustry.logic.LAccess.*;
 
 @mmc.annotations.ModAnnotations.MindustryEntityDef(value = { Puddlec.class }, pooled = true)
 @Component(base = true)
@@ -24,7 +25,7 @@ abstract class PuddleComp implements Posc, Puddlec, Drawc, Syncc {
     private static Puddle paramPuddle;
 
     private static Cons<Unit> unitCons = unit -> {
-        if (unit.isGrounded() && !unit.hovering) {
+        if (unit.isGrounded() && !unit.type.hovering) {
             unit.hitbox(rect2);
             if (rect.overlaps(rect2)) {
                 unit.apply(paramPuddle.liquid.effect, 60 * 2);
@@ -65,6 +66,7 @@ abstract class PuddleComp implements Posc, Puddlec, Drawc, Syncc {
         float addSpeed = accepting > 0 ? 3f : 0f;
         amount -= Time.delta * (1f - liquid.viscosity) / (5f + addSpeed);
         amount += accepting;
+        amount = Math.min(amount, maxLiquid);
         accepting = 0f;
         if (amount >= maxLiquid / 1.5f) {
             float deposited = Math.min((amount - maxLiquid / 1.5f) / 4f, 0.3f * Time.delta);
@@ -101,6 +103,9 @@ abstract class PuddleComp implements Posc, Puddlec, Drawc, Syncc {
                 Fires.create(tile);
             }
             updateTime = 40f;
+            if (tile.build != null) {
+                tile.build.puddleOn(self());
+            }
         }
         if (!headless && liquid.particleEffect != Fx.none) {
             if ((effectTime += Time.delta) >= liquid.particleSpacing) {

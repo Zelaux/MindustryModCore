@@ -14,7 +14,7 @@ public class LiquidListValue implements StatValue {
 
     public void display(Table table) {
         for (LiquidStack stack : stacks) {
-            table.add(new LiquidDisplay(stack.liquid, stack.amount, false)).padRight(5.0F);
+            table.add(StatValues.displayLiquid(stack.liquid, stack.amount, false)).padRight(5.0F);
         }
 
     }

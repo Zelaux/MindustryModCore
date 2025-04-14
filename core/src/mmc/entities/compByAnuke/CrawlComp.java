@@ -1,10 +1,8 @@
 package mmc.entities.compByAnuke;
 
 import arc.math.*;
-import arc.math.geom.*;
 import arc.util.*;
 import mindustry.*;
-import mindustry.ai.*;
 import mindustry.annotations.Annotations.*;
 import mindustry.content.*;
 import mindustry.entities.*;
@@ -15,6 +13,7 @@ import mindustry.type.*;
 import mindustry.world.*;
 import mindustry.world.blocks.environment.*;
 import static mindustry.Vars.*;
+import static mindustry.logic.LAccess.*;
 
 @Component
 abstract class CrawlComp implements Posc, Rotc, Hitboxc, Unitc {
@@ -28,9 +27,6 @@ abstract class CrawlComp implements Posc, Rotc, Hitboxc, Unitc {
     @Import
     Team team;
 
-    @Import
-    Vec2 vel;
-
     transient Floor lastDeepFloor;
 
     transient float lastCrawlSlowdown = 1f;
@@ -40,13 +36,7 @@ abstract class CrawlComp implements Posc, Rotc, Hitboxc, Unitc {
     @Replace
     @Override
     public SolidPred solidity() {
-        return EntityCollisions::legsSolid;
-    }
-
-    @Override
-    @Replace
-    public int pathType() {
-        return Pathfinder.costLegs;
+        return ignoreSolids() ? null : EntityCollisions::legsSolid;
     }
 
     @Override
@@ -72,7 +62,7 @@ abstract class CrawlComp implements Posc, Rotc, Hitboxc, Unitc {
     @Override
     public void update() {
         if (moving()) {
-            segmentRot = Angles.moveToward(segmentRot, rotation, type.segmentRotSpeed);
+            segmentRot = Angles.moveToward(segmentRot, rotation, type.segmentRotSpeed * Time.delta);
             int radius = (int) Math.max(0, hitSize / tilesize * 2f);
             int count = 0, solids = 0, deeps = 0;
             lastDeepFloor = null;
@@ -107,9 +97,9 @@ abstract class CrawlComp implements Posc, Rotc, Hitboxc, Unitc {
             if ((float) deeps / count < 0.75f) {
                 lastDeepFloor = null;
             }
-            lastCrawlSlowdown = Mathf.lerp(1f, type.crawlSlowdown, Mathf.clamp((float) solids / count / type.crawlSlowdownFrac));
+            lastCrawlSlowdown = Mathf.lerpDelta(1f, type.crawlSlowdown, Mathf.clamp((float) solids / count / type.crawlSlowdownFrac));
         }
         segmentRot = Angles.clampRange(segmentRot, rotation, type.segmentMaxRot);
-        crawlTime += vel.len();
+        crawlTime += deltaLen();
     }
 }

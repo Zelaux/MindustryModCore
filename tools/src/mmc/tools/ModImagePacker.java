@@ -10,7 +10,6 @@ import mindustry.mod.*;
 import mindustry.mod.Mods.*;
 import mmc.*;
 import mmc.core.*;
-import mmc.gen.*;
 import mmc.tools.gen.*;
 import mmc.type.pixmap.*;
 
@@ -146,7 +145,7 @@ public class ModImagePacker extends MindustryImagePacker{
     @Override
     protected void preCreatingContent(){
         super.preCreatingContent();
-        ModEntityMapping.init();
+//        ModEntityMapping.init();
     }
 
     @Override

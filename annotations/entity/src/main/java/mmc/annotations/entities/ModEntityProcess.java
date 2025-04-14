@@ -291,43 +291,45 @@ public class ModEntityProcess extends ModBaseProcessor{
                     inter.addSuperinterface(ClassName.get(packageName, interfaceName(type)));
                 }
 
-                ObjectSet<String> signatures = new ObjectSet<>();
+                if(component.annotation(Component.class).genInterface()){
+                    ObjectSet<String> signatures = new ObjectSet<>();
 
-                //add utility methods to interface
-                for(Smethod method : component.methods()){
-                    //skip private methods, those are for internal use.
-                    if(method.isAny(Modifier.PRIVATE, Modifier.STATIC)) continue;
+                    //add utility methods to interface
+                    for(Smethod method : component.methods()){
+                        //skip private methods, those are for internal use.
+                        if(method.isAny(Modifier.PRIVATE, Modifier.STATIC)) continue;
 
-                    //keep track of signatures used to prevent dupes
-                    signatures.add(method.e.toString());
+                        //keep track of signatures used to prevent dupes
+                        signatures.add(method.e.toString());
 
-                    inter.addMethod(MethodSpec.methodBuilder(method.name())
-                        .addJavadoc(method.doc() == null ? "" : method.doc())
-                        .addExceptions(method.thrownt())
-                        .addTypeVariables(method.typeVariables().map(TypeVariableName::get))
-                        .returns(method.ret().toString().equals("void") ? TypeName.VOID : method.retn())
-                        .addParameters(method.params().map(v -> ParameterSpec.builder(v.tname(), v.name())
-                            .build())).addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT).build());
-                }
-                //generate interface getters and setters for all "standard" fields
-                for(Svar field : component.fields().select(e -> !e.is(Modifier.STATIC) && !e.is(Modifier.PRIVATE) && !e.has(Annotations.Import.class))){
-                    String cname = field.name();
-                    //getter
-                    if(!signatures.contains(cname + "()")){
-                        inter.addMethod(MethodSpec.methodBuilder(cname).addModifiers(Modifier.ABSTRACT, Modifier.PUBLIC)
-                            .addAnnotations(Seq.with(field.annotations()).select(a -> a.toString().contains("Null") || a.toString().contains("Deprecated")).map(AnnotationSpec::get))
-                            .addJavadoc(field.doc() == null ? "" : field.doc())
-                            .returns(field.tname()).build());
+                        inter.addMethod(MethodSpec.methodBuilder(method.name())
+                                                  .addJavadoc(method.doc() == null ? "" : method.doc())
+                                                  .addExceptions(method.thrownt())
+                                                  .addTypeVariables(method.typeVariables().map(TypeVariableName::get))
+                                                  .returns(method.ret().toString().equals("void") ? TypeName.VOID : method.retn())
+                                                  .addParameters(method.params().map(v -> ParameterSpec.builder(v.tname(), v.name())
+                                                                                                       .build())).addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT).build());
                     }
+                    //generate interface getters and setters for all "standard" fields
+                    for(Svar field : component.fields().select(e -> !e.is(Modifier.STATIC) && !e.is(Modifier.PRIVATE) && !e.has(Annotations.Import.class))){
+                        String cname = field.name();
+                        //getter
+                        if(!signatures.contains(cname + "()")){
+                            inter.addMethod(MethodSpec.methodBuilder(cname).addModifiers(Modifier.ABSTRACT, Modifier.PUBLIC)
+                                                      .addAnnotations(Seq.with(field.annotations()).select(a -> a.toString().contains("Null") || a.toString().contains("Deprecated")).map(AnnotationSpec::get))
+                                                      .addJavadoc(field.doc() == null ? "" : field.doc())
+                                                      .returns(field.tname()).build());
+                        }
 
-                    //setter
-                    if(!field.is(Modifier.FINAL) && !signatures.contains(cname + "(" + field.mirror().toString() + ")") &&
-                       !field.annotations().contains(f -> f.toString().equals("@mindustry.annotations.Annotations.ReadOnly"))){
-                        inter.addMethod(MethodSpec.methodBuilder(cname).addModifiers(Modifier.ABSTRACT, Modifier.PUBLIC)
-                            .addJavadoc(field.doc() == null ? "" : field.doc())
-                            .addParameter(ParameterSpec.builder(field.tname(), field.name())
-                                .addAnnotations(Seq.with(field.annotations())
-                                    .select(a -> a.toString().contains("Null") || a.toString().contains("Deprecated")).map(AnnotationSpec::get)).build()).build());
+                        //setter
+                        if(!field.is(Modifier.FINAL) && !signatures.contains(cname + "(" + field.mirror().toString() + ")") &&
+                           !field.annotations().contains(f -> f.toString().equals("@mindustry.annotations.Annotations.ReadOnly"))){
+                            inter.addMethod(MethodSpec.methodBuilder(cname).addModifiers(Modifier.ABSTRACT, Modifier.PUBLIC)
+                                                      .addJavadoc(field.doc() == null ? "" : field.doc())
+                                                      .addParameter(ParameterSpec.builder(field.tname(), field.name())
+                                                                                 .addAnnotations(Seq.with(field.annotations())
+                                                                                                    .select(a -> a.toString().contains("Null") || a.toString().contains("Deprecated")).map(AnnotationSpec::get)).build()).build());
+                        }
                     }
                 }
                 generatedAny = true;
@@ -627,15 +629,36 @@ public class ModEntityProcess extends ModBaseProcessor{
             for(ObjectMap.Entry<String, Seq<Smethod>> entry : methods){
                 Seq<Smethod> smethods = entry.value.copy();
                 String methodFullName = entry.key;
-                if(smethods.contains(m -> m.has(Annotations.Replace.class))){
-                    //check replacements
-                    if(smethods.count(m -> m.has(Annotations.Replace.class)) > 1){
-                        err("Type " + type + " has multiple components replacing method " + methodFullName + ".");
+
+
+                if(smethods.size > 1 && (smethods.contains(m -> m.has(Replace.class)) || smethods.count(m -> !m.isAny(Modifier.NATIVE, Modifier.ABSTRACT) && !m.isVoid()) > 1)){
+                    //remove clutter
+                    smethods.removeAll(s -> s.is(Modifier.ABSTRACT));
+
+                    Comparator<Smethod> comp = Structs.comps(
+                        Structs.comps(
+                            //highest priority first
+                            Structs.comparingFloat(m -> m.has(MethodPriority.class) ? m.annotation(MethodPriority.class).value() : 0f),
+                            //replacement means priority
+                            Structs.comparingBool(m -> m.has(Replace.class))
+                        ),
+
+                        //otherwise, the 'highest' subclass (most dependencies)
+                        Structs.comparingInt(m -> getDependencies(m.type()).size)
+                    );
+
+                    Smethod best = smethods.max(comp);
+
+                    if(smethods.contains(s -> best != s && comp.compare(s, best) == 0)){
+                        err("Type " + type + " has multiple components implementing method " + smethods.first() + " in an ambiguous way. Use MethodPriority to designate which one should be used. Implementations: " +
+                            smethods.map(s -> s.descString()));
                     }
-                    Smethod base = smethods.find(m -> m.has(Annotations.Replace.class));
+
                     smethods.clear();
-                    smethods.add(base);
+                    smethods.add(best);
                 }
+
+
                 if(smethods.contains(m -> m.has(SuperMethod.class))){
                     //check replacements
                     if(smethods.size > 1){
@@ -851,6 +874,7 @@ public class ModEntityProcess extends ModBaseProcessor{
         //if(isFinal || entry.value.contains(s -> s.has(Final.class))) mbuilder.addModifiers(Modifier.FINAL);
         if(smethods.contains(s -> s.has(Annotations.CallSuper.class)))
             mbuilder.addAnnotation(Annotations.CallSuper.class); //add callSuper here if necessary
+        if(first.has(Nullable.class)) mbuilder.addAnnotation(Nullable.class);
         if(first.is(Modifier.STATIC)){
 //            System.out.println("Static: " + first.descString());
 //            System.out.println(methodBlocks.keys().toSeq());
@@ -1168,86 +1192,6 @@ public class ModEntityProcess extends ModBaseProcessor{
             }
 
             write(def.builder, imports.toSeq());
-        }
-
-        if(false){
-            //store nulls
-            TypeSpec.Builder nullsBuilder = TypeSpec.classBuilder(classPrefix() + "Nulls").addModifiers(Modifier.PUBLIC).addModifiers(Modifier.FINAL);
-            ObjectSet<String> nullList = ObjectSet.with("unit", "blockUnit");
-            //create mock types of all components
-            for(Stype interf : allInterfaces){
-                //indirect interfaces to implement methods for
-                Seq<Stype> dependencies = interf.allInterfaces().add(interf);
-                Seq<Smethod> methods = dependencies.flatMap(Stype::methods);
-                methods.sortComparing(Object::toString);
-
-                //optionally add superclass
-                Stype superclass = dependencies.map(this::interfaceToComp).find(s -> s != null && s.annotation(Annotations.Component.class).base());
-                //use the base type when the interface being emulated has a base
-                TypeName type = superclass != null && interfaceToComp(interf).annotation(Annotations.Component.class).base() ? tname(baseName(superclass)) : interf.tname();
-
-                //used method signatures
-                ObjectSet<String> signatures = new ObjectSet<>();
-
-                //create null builder
-                String baseName = interf.name().substring(0, interf.name().length() - 1);
-
-                //prevent Nulls bloat
-                if(!nullList.contains(Strings.camelize(baseName))){
-                    continue;
-                }
-
-                String className = "Null" + baseName;
-                TypeSpec.Builder nullBuilder = TypeSpec.classBuilder(className)
-                    .addModifiers(Modifier.FINAL);
-
-                nullBuilder.addSuperinterface(interf.tname());
-                if(superclass != null) nullBuilder.superclass(tname(baseName(superclass)));
-
-                for(Smethod method : methods){
-                    String signature = method.toString();
-                    if(!signatures.add(signature)) continue;
-
-                    Stype compType = interfaceToComp(method.type());
-                    MethodSpec.Builder builder = MethodSpec.overriding(method.e).addModifiers(Modifier.PUBLIC, Modifier.FINAL);
-                    int index = 0;
-                    for(ParameterSpec spec : builder.parameters){
-                        Reflect.set(spec, "name", "arg" + index++);
-                    }
-                    builder.addAnnotation(Annotations.OverrideCallSuper.class); //just in case
-
-                    if(!method.isVoid()){
-                        String methodName = method.name();
-                        switch(methodName){
-                            case "isNull":
-                                builder.addStatement("return true");
-                                break;
-                            case "id":
-                                builder.addStatement("return -1");
-                                break;
-                            case "toString":
-                                builder.addStatement("return $S", className);
-                                break;
-                            default:
-                                Svar variable = compType == null || method.params().size > 0 ? null : compType.fields().find(v -> v.name().equals(methodName));
-                                String desc = variable == null ? null : variable.descString();
-                                if(variable == null || !varInitializers.containsKey(desc)){
-                                    builder.addStatement("return " + getDefault(method.ret().toString()));
-                                }else{
-                                    String init = varInitializers.get(desc);
-                                    builder.addStatement("return " + (init.equals("{}") ? "new " + variable.mirror().toString() : "") + init);
-                                }
-                        }
-                    }
-                    nullBuilder.addMethod(builder.build());
-                }
-
-                nullsBuilder.addField(FieldSpec.builder(type, Strings.camelize(baseName)).initializer("new " + className + "()").addModifiers(Modifier.FINAL, Modifier.STATIC, Modifier.PUBLIC).build());
-
-                write(nullBuilder);
-            }
-
-            write(nullsBuilder);
         }
     }
 

@@ -24,6 +24,7 @@ import mindustry.ui.*;
 import mindustry.world.blocks.storage.*;
 import mindustry.world.blocks.storage.CoreBlock.*;
 import static mindustry.Vars.*;
+import static mindustry.logic.LAccess.*;
 
 @mmc.annotations.ModAnnotations.MindustryEntityDef(value = { Playerc.class }, serialize = false)
 @Component(base = true)
@@ -35,7 +36,8 @@ abstract class PlayerComp implements UnitController, Entityc, Syncc, Timerc, Dra
     float x, y;
 
     @ReadOnly
-    Unit unit = Nulls.unit;
+    @Nullable
+    Unit unit;
 
     @Nullable
     transient NetConnection con;
@@ -70,7 +72,10 @@ abstract class PlayerComp implements UnitController, Entityc, Syncc, Timerc, Dra
 
     transient float textFadeTime;
 
-    transient private Unit lastReadUnit = Nulls.unit;
+    transient Ratekeeper itemDepositRate = new Ratekeeper();
+
+    @Nullable
+    transient private Unit lastReadUnit;
 
     transient private int wrongReadUnits;
 
@@ -78,7 +83,7 @@ abstract class PlayerComp implements UnitController, Entityc, Syncc, Timerc, Dra
     transient Unit justSwitchFrom, justSwitchTo;
 
     public boolean isBuilder() {
-        return unit.canBuild();
+        return unit != null && unit.canBuild();
     }
 
     @Nullable
@@ -102,7 +107,7 @@ abstract class PlayerComp implements UnitController, Entityc, Syncc, Timerc, Dra
     public TextureRegion icon() {
         // display default icon for dead players
         if (dead())
-            return core() == null ? UnitTypes.alpha.fullIcon : ((CoreBlock) bestCore().block).unitType.fullIcon;
+            return core() == null ? UnitTypes.alpha.uiIcon : ((CoreBlock) bestCore().block).unitType.uiIcon;
         return unit.icon();
     }
 
@@ -117,7 +122,7 @@ abstract class PlayerComp implements UnitController, Entityc, Syncc, Timerc, Dra
         x = y = 0f;
         if (!dead()) {
             unit.resetController();
-            unit = Nulls.unit;
+            unit = null;
         }
     }
 
@@ -133,7 +138,7 @@ abstract class PlayerComp implements UnitController, Entityc, Syncc, Timerc, Dra
 
     @Replace
     public float clipSize() {
-        return unit.isNull() ? 20 : unit.type.hitSize * 2f;
+        return unit == null ? 20 : unit.type.hitSize * 2f;
     }
 
     @Override
@@ -158,16 +163,18 @@ abstract class PlayerComp implements UnitController, Entityc, Syncc, Timerc, Dra
         unit = lastReadUnit;
         unit(set);
         lastReadUnit = unit;
-        unit.aim(mouseX, mouseY);
-        // this is only necessary when the thing being controlled isn't synced
-        unit.controlWeapons(shooting, shooting);
-        // extra precaution, necessary for non-synced things
-        unit.controller(this);
+        if (unit != null) {
+            unit.aim(mouseX, mouseY);
+            // this is only necessary when the thing being controlled isn't synced
+            unit.controlWeapons(shooting, shooting);
+            // extra precaution, necessary for non-synced things
+            unit.controller(this);
+        }
     }
 
     @Override
     public void update() {
-        if (!unit.isValid()) {
+        if (unit != null && !unit.isValid()) {
             clearUnit();
         }
         CoreBuild core;
@@ -202,38 +209,41 @@ abstract class PlayerComp implements UnitController, Entityc, Syncc, Timerc, Dra
     @Override
     public void remove() {
         // clear unit upon removal
-        if (!unit.isNull()) {
+        if (unit != null) {
             clearUnit();
         }
+        lastReadUnit = null;
+        justSwitchTo = justSwitchFrom = null;
     }
 
     public void team(Team team) {
         this.team = team;
-        unit.team(team);
+        if (unit != null) {
+            unit.team(team);
+        }
     }
 
     public void clearUnit() {
-        unit(Nulls.unit);
+        unit(null);
     }
 
+    @Nullable
     public Unit unit() {
         return unit;
     }
 
-    public void unit(Unit unit) {
+    public void unit(@Nullable Unit unit) {
         // refuse to switch when the unit was just transitioned from
         if (isLocal() && unit == justSwitchFrom && justSwitchFrom != null && justSwitchTo != null) {
             return;
         }
-        if (unit == null)
-            throw new IllegalArgumentException("Unit cannot be null. Use clearUnit() instead.");
         if (this.unit == unit)
             return;
         // save last command this unit had
-        if (unit.controller() instanceof CommandAI ai) {
+        if (unit != null && unit.controller() instanceof CommandAI ai) {
             lastCommand = ai.command;
         }
-        if (this.unit != Nulls.unit) {
+        if (this.unit != null) {
             // un-control the old unit
             this.unit.resetController();
             // restore last command issued before it was controlled
@@ -242,7 +252,7 @@ abstract class PlayerComp implements UnitController, Entityc, Syncc, Timerc, Dra
             }
         }
         this.unit = unit;
-        if (unit != Nulls.unit) {
+        if (unit != null) {
             unit.team(team);
             unit.controller(this);
             // this player just became remote, snap the interpolation so it doesn't go wild
@@ -258,7 +268,7 @@ abstract class PlayerComp implements UnitController, Entityc, Syncc, Timerc, Dra
     }
 
     boolean dead() {
-        return unit.isNull() || !unit.isValid();
+        return unit == null || !unit.isValid();
     }
 
     String ip() {
@@ -291,10 +301,7 @@ abstract class PlayerComp implements UnitController, Entityc, Syncc, Timerc, Dra
 
     @Override
     public void draw() {
-        if (unit != null && unit.inFogTo(Vars.player.team()))
-            return;
-        // ??????
-        if (name == null)
+        if (unit == null || name == null || unit.inFogTo(Vars.player.team()))
             return;
         Draw.z(Layer.playerName);
         float z = Drawf.text();

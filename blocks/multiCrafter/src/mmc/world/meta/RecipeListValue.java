@@ -1,17 +1,13 @@
 package mmc.world.meta;
 
-import arc.Core;
-import arc.graphics.g2d.TextureRegion;
-import arc.scene.ui.layout.Table;
-import arc.util.Strings;
-import mindustry.ctype.UnlockableContent;
-import mindustry.gen.Tex;
-import mindustry.type.ItemStack;
-import mindustry.ui.ItemImage;
-import mindustry.world.meta.StatUnit;
-import mindustry.world.meta.StatValue;
-import mindustry.world.meta.StatValues;
-import mmc.type.Recipe;
+import arc.*;
+import arc.graphics.g2d.*;
+import arc.scene.ui.layout.*;
+import arc.util.*;
+import mindustry.ctype.*;
+import mindustry.gen.*;
+import mindustry.world.meta.*;
+import mmc.type.*;
 import mmc.world.meta.values.*;
 
 public class RecipeListValue implements StatValue{
@@ -26,7 +22,7 @@ public class RecipeListValue implements StatValue{
         table.row();
         for(Recipe recipe : recipes){
             if(recipe.outputItem != null){
-                table.add(new ItemImage(new ItemStack(recipe.outputItem.item, recipe.outputItem.amount))).size(24.0F).padRight(4.0F).right().top();
+                table.add(StatValues.displayItem(recipe.outputItem.item, recipe.outputItem.amount)).size(24.0F).padRight(4.0F).right().top();
 //                table.image(icon(recipe.outputItem.item)).size(24.0F).padRight(4.0F).right().top();
                 table.add(" " + recipe.outputItem.item.localizedName).padRight(10.0F).left().top();
             }

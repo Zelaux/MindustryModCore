@@ -13,8 +13,10 @@ import arc.util.Log.*;
 import arc.util.io.*;
 import mindustry.*;
 import mindustry.content.*;
+import mindustry.core.*;
 import mindustry.ctype.*;
 import mindustry.logic.*;
+import mindustry.type.*;
 import mindustry.world.blocks.*;
 import java.io.*;
 
@@ -122,14 +124,14 @@ public class MindustryImagePacker {
         ObjectMap<String, String> content2id = new ObjectMap<>();
         map.each((key, val) -> content2id.put(val.split("\\|")[0], key));
         Seq<UnlockableContent> cont = Seq.withArrays(Vars.content.blocks(), Vars.content.items(), Vars.content.liquids(), Vars.content.units(), Vars.content.statusEffects());
-        cont.removeAll(u -> u instanceof ConstructBlock || u == Blocks.air);
+        cont.removeAll(u -> u instanceof ConstructBlock || u == Blocks.air || (u instanceof UnitType t && t.internal));
         int minid = 0xF8FF;
         for (String key : map.keys()) {
             minid = Math.min(Integer.parseInt(key) - 1, minid);
         }
         for (UnlockableContent c : cont) {
             if (!content2id.containsKey(c.name)) {
-                map.put(String.valueOf(minid), c.name + "|" + texname(c));
+                map.put(minid + "", c.name + "|" + texname(c));
                 minid--;
             }
         }
@@ -144,7 +146,7 @@ public class MindustryImagePacker {
         // format: ([content type (byte)] [content count (short)] (repeat [name (string)])) until EOF
         Fi logicidfile = Fi.get("../../../assets/logicids.dat");
         Seq<UnlockableContent> lookupCont = new Seq<>();
-        for (ContentType t : GlobalVars.lookableContent) {
+        for (ContentType t : GlobalVars.writableLookableContent) {
             lookupCont.addAll(Vars.content.<UnlockableContent>getBy(t).select(UnlockableContent::logicVisible));
         }
         ObjectIntMap<UnlockableContent>[] registered = new ObjectIntMap[ContentType.all.length];
@@ -155,7 +157,7 @@ public class MindustryImagePacker {
         }
         if (logicidfile.exists()) {
             try (DataInputStream in = new DataInputStream(logicidfile.readByteStream())) {
-                for (ContentType ctype : GlobalVars.lookableContent) {
+                for (ContentType ctype : GlobalVars.writableLookableContent) {
                     short amount = in.readShort();
                     for (int i = 0; i < amount; i++) {
                         String name = in.readUTF();
@@ -187,7 +189,7 @@ public class MindustryImagePacker {
         }
         // write the resulting IDs
         try (DataOutputStream out = new DataOutputStream(logicidfile.write(false, 2048))) {
-            for (ContentType t : GlobalVars.lookableContent) {
+            for (ContentType t : GlobalVars.writableLookableContent) {
                 Seq<UnlockableContent> all = idToContent[t.ordinal()].values().toArray().sort(u -> registered[t.ordinal()].get(u));
                 out.writeShort(all.size);
                 for (UnlockableContent u : all) {

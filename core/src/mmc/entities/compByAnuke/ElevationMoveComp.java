@@ -4,9 +4,10 @@ import mindustry.annotations.Annotations.*;
 import mindustry.entities.*;
 import mindustry.entities.EntityCollisions.*;
 import mindustry.gen.*;
+import static mindustry.logic.LAccess.*;
 
 @Component
-abstract class ElevationMoveComp implements Velc, Posc, Flyingc, Hitboxc {
+abstract class ElevationMoveComp implements Velc, Posc, Hitboxc, Unitc {
 
     @Import
     float x, y;
@@ -14,6 +15,6 @@ abstract class ElevationMoveComp implements Velc, Posc, Flyingc, Hitboxc {
     @Replace
     @Override
     public SolidPred solidity() {
-        return isFlying() ? null : EntityCollisions::solid;
+        return isFlying() || ignoreSolids() ? null : EntityCollisions::solid;
     }
 }

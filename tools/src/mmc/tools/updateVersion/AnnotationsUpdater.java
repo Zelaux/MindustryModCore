@@ -9,9 +9,7 @@ import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.stmt.*;
-import com.github.javaparser.ast.type.ClassOrInterfaceType;
-import com.github.javaparser.ast.type.PrimitiveType;
-import com.github.javaparser.ast.type.VoidType;
+import com.github.javaparser.ast.type.*;
 import com.github.javaparser.ast.visitor.*;
 import mmc.tools.parsers.LibrariesDownloader;
 
@@ -62,8 +60,9 @@ public class AnnotationsUpdater {
         );
 
         for (MethodDeclaration method : baseProcessor.getMethods()) {
-            PrimitiveType primitiveType = method.getType().asPrimitiveType();
-            if (method.getNameAsString().equals("process") && method.getType().isPrimitiveType() && primitiveType.toDescriptor().equals("Z")) {
+
+            Type type = method.getType();
+            if (method.getNameAsString().equals("process") && method.getType().isPrimitiveType() && type.toDescriptor().equals("Z")) {
 //                BlockStmt blockStmt = method.getBody().get();
                 method.accept(new ModifierVisitor<Void>(){
                     @Override

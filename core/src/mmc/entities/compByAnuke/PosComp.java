@@ -9,6 +9,7 @@ import mindustry.gen.*;
 import mindustry.world.*;
 import mindustry.world.blocks.environment.*;
 import static mindustry.Vars.*;
+import static mindustry.logic.LAccess.*;
 
 @Component
 abstract class PosComp implements Position {

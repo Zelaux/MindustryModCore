@@ -9,6 +9,7 @@ import mindustry.annotations.Annotations.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.ui.*;
+import static mindustry.logic.LAccess.*;
 
 /**
  * Component/entity for labels in world space. Useful for servers. Does not save in files - create only on world load.

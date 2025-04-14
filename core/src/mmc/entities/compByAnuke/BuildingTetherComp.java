@@ -5,6 +5,7 @@ import mindustry.annotations.Annotations.*;
 import mindustry.game.*;
 import mindustry.gen.*;
 import mindustry.type.*;
+import static mindustry.logic.LAccess.*;
 
 /**
  * A unit that depends on a building's existence; if that building is removed, it despawns.

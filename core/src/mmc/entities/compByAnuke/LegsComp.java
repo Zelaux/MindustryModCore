@@ -4,7 +4,6 @@ import arc.math.*;
 import arc.math.geom.*;
 import arc.util.*;
 import mindustry.*;
-import mindustry.ai.*;
 import mindustry.annotations.Annotations.*;
 import mindustry.content.*;
 import mindustry.entities.*;
@@ -13,11 +12,13 @@ import mindustry.game.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.type.*;
+import mindustry.world.blocks.*;
 import mindustry.world.blocks.environment.*;
 import static mindustry.Vars.*;
+import static mindustry.logic.LAccess.*;
 
 @Component
-abstract class LegsComp implements Posc, Rotc, Hitboxc, Flyingc, Unitc {
+abstract class LegsComp implements Posc, Rotc, Hitboxc, Unitc {
 
     private static final Vec2 straightVec = new Vec2();
 
@@ -29,6 +30,9 @@ abstract class LegsComp implements Posc, Rotc, Hitboxc, Flyingc, Unitc {
 
     @Import
     Team team;
+
+    @Import
+    boolean disarmed;
 
     transient Leg[] legs = {};
 
@@ -45,13 +49,7 @@ abstract class LegsComp implements Posc, Rotc, Hitboxc, Flyingc, Unitc {
     @Replace
     @Override
     public SolidPred solidity() {
-        return type.allowLegStep ? EntityCollisions::legsSolid : EntityCollisions::solid;
-    }
-
-    @Override
-    @Replace
-    public int pathType() {
-        return type.allowLegStep ? Pathfinder.costLegs : Pathfinder.costGround;
+        return ignoreSolids() ? null : type.allowLegStep ? EntityCollisions::legsSolid : EntityCollisions::solid;
     }
 
     @Override
@@ -107,6 +105,7 @@ abstract class LegsComp implements Posc, Rotc, Hitboxc, Flyingc, Unitc {
             l.base.trns(dstRot, legLength).add(baseOffset);
             legs[i] = l;
         }
+        totalLength = Mathf.random(100f);
     }
 
     @Override
@@ -175,8 +174,12 @@ abstract class LegsComp implements Posc, Rotc, Hitboxc, Flyingc, Unitc {
                             Effect.shake(type.stepShake, type.stepShake, l.base);
                         }
                     }
-                    if (type.legSplashDamage > 0) {
+                    if (type.legSplashDamage > 0 && !disarmed) {
                         Damage.damage(team, l.base.x, l.base.y, type.legSplashRange, type.legSplashDamage * state.rules.unitDamage(team), false, true);
+                        var tile = Vars.world.tileWorld(l.base.x, l.base.y);
+                        if (tile != null && tile.block().unitMoveBreakable) {
+                            ConstructBlock.deconstructFinish(tile, tile.block(), self());
+                        }
                     }
                 }
                 l.group = group;

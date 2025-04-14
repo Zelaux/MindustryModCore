@@ -49,17 +49,19 @@ dependencies{
     })
 }
 
-task updateMindustryVersion(dependsOn: [":tools:jar", configurations.runtimeClasspath], type: JavaExec){
+task updateMindustryVersion(dependsOn: [":tools:jar", configurations.runtimeClasspath, configurations.compileClasspath], type: JavaExec){
     maxHeapSize = "4048m"
     args("-Xmx4048m", "--enable-preview", "v_${mindustryVersion}", "arc_${arcVersion}")
     main = "mmc.tools.updateVersion.MindustryVersionUpdater"
-    classpath = sourceSets.main.runtimeClasspath
+//    println(sourceSets.main.compileClasspath.resolve())
+//    println(sourceSets.main.runtimeClasspath.getClass())
+    classpath = sourceSets.main.compileClasspath+ sourceSets.main.runtimeClasspath
     workingDir = "../"
 }
-task checkJitPack(dependsOn: [classes, configurations.runtimeClasspath], type: JavaExec){
+task checkJitPack(dependsOn: [classes, configurations.runtimeClasspath, configurations.compileClasspath], type: JavaExec){
     maxHeapSize = "4048m"
     args("-Xmx4048m", "--enable-preview", "v_${mindustryVersion}")
     main = "mmc.tools.VersionsFileUpdater"
-    classpath = sourceSets.main.runtimeClasspath
+    classpath = sourceSets.main.compileClasspath+ sourceSets.main.runtimeClasspath
     workingDir = "../"
 }

@@ -177,7 +177,7 @@ public class SmartRouter extends Router{
             this.items.add(item, 1);
             this.lastItem = item;
             this.time = 0.0F;
-            this.lastInput = source.tile();
+            this.lastInput = source.tile;
         }
 
         public int removeStack(Item item, int amount){

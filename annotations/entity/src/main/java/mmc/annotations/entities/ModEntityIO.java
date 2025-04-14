@@ -1,26 +1,20 @@
 package mmc.annotations.entities;
 
-import arc.files.Fi;
-import arc.math.Mathf;
-import arc.struct.ObjectSet;
-import arc.struct.Seq;
-import arc.struct.StringMap;
-import arc.util.Log;
-import arc.util.Time;
-import arc.util.serialization.Json;
-import com.squareup.javapoet.FieldSpec;
-import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.TypeSpec;
-import mindustry.annotations.BaseProcessor;
-import mindustry.annotations.util.Svar;
-import mindustry.annotations.util.TypeIOResolver.ClassSerializer;
-import mindustry.annotations.Annotations;
+import arc.files.*;
+import arc.math.*;
+import arc.struct.*;
+import arc.util.*;
+import arc.util.serialization.*;
+import com.squareup.javapoet.*;
+import mindustry.annotations.*;
+import mindustry.annotations.util.*;
+import mindustry.annotations.util.TypeIOResolver.*;
 
-import javax.lang.model.element.Modifier;
+import javax.lang.model.element.*;
 
 import static mindustry.annotations.BaseProcessor.instanceOf;
 
-public class ModEntityIO {
+public class ModEntityIO{
     final static Json json = new Json();
     //suffixes for sync fields
     final static String targetSuf = "_TARGET_", lastSuf = "_LAST_";
@@ -59,9 +53,9 @@ public class ModEntityIO {
 
         //resolve preferred field order based on fields that fit
         Seq<FieldSpec> fields = typeFields.select(spec ->
-                !spec.hasModifier(Modifier.TRANSIENT) &&
-                        !spec.hasModifier(Modifier.STATIC) &&
-                        !spec.hasModifier(Modifier.FINAL)/* &&
+                                                      !spec.hasModifier(Modifier.TRANSIENT) &&
+                                                      !spec.hasModifier(Modifier.STATIC) &&
+                                                      !spec.hasModifier(Modifier.FINAL)/* &&
             (spec.type.isPrimitive() || serializer.has(spec.type.toString()))*/);
 
         //sort to keep order
@@ -75,7 +69,7 @@ public class ModEntityIO {
         //add new revision if it doesn't match or there are no revisions
         if(revisions.isEmpty() || !revisions.peek().equal(fields)){
             revisions.add(new Revision(nextRevision,
-                    fields.map(f -> new RevisionField(f.name, f.type.toString()))));
+                                       fields.map(f -> new RevisionField(f.name, f.type.toString()))));
             Log.warn("Adding new revision @ for @.\nPre = @\nNew = @\n", nextRevision, name, previous == null ? null : previous.fields.toString(", ", f -> f.name + ":" + f.type), fields.toString(", ", f -> f.name + ":" + f.type.toString()));
             //write revision
             directory.child(nextRevision + ".json").writeString(json.toJson(revisions.peek()));
@@ -94,7 +88,7 @@ public class ModEntityIO {
             st("write.s($L)", revisions.peek().version);
             //write uses most recent revision
             for(RevisionField field : revisions.peek().fields){
-                io(field.type, "this." + field.name,false);
+                io(field.type, "this." + field.name, false);
             }
         }else{
             //read revision
@@ -112,7 +106,7 @@ public class ModEntityIO {
                 //add code for reading revision
                 for(RevisionField field : rev.fields){
                     //if the field doesn't exist, the result will be an empty string, it won't get assigned
-                    io(field.type, presentFields.contains(field.name) ? "this." + field.name + " = " : "",false);
+                    io(field.type, presentFields.contains(field.name) ? "this." + field.name + " = " : "", false);
                 }
             }
 
@@ -155,12 +149,12 @@ public class ModEntityIO {
                     st(field.name + lastSuf + " = this." + field.name);
                 }
 
-                io(field.type, "this." + (sf ? field.name + targetSuf : field.name) + " = ",true);
+                io(field.type, "this." + (sf ? field.name + targetSuf : field.name) + " = ", true);
 
                 if(sl){
-                    ncont("else" );
+                    ncont("else");
 
-                    io(field.type, "",true);
+                    io(field.type, "", true);
 
                     //just assign the two values so jumping does not occur on de-possession
                     if(sf){
@@ -225,22 +219,22 @@ public class ModEntityIO {
         econt();
     }
 
-    private void io(String type, String field,boolean network) throws Exception{
+    private void io(String type, String field, boolean network) throws Exception{
         type = type.replace("mindustry.gen.", "");
         type = replacements.get(type, type);
 
         if(BaseProcessor.isPrimitive(type)){
             s(type.equals("boolean") ? "bool" : String.valueOf(type.charAt(0)), field);
-        }else if(instanceOf(type, "mindustry.ctype.Content")){
+        }else if(instanceOf(type, "mindustry.ctype.Content") && !type.equals("mindustry.ai.UnitStance") && !type.equals("mindustry.ai.UnitCommand")){
             if(write){
                 s("s", field + ".id");
             }else{
                 String simpleName = BaseProcessor.simpleName(type);
-                String contentType =  simpleName.toLowerCase().replace("type", "");
-                if (simpleName.contains("Unit")) {
+                String contentType = simpleName.toLowerCase().replace("type", "");
+                if(simpleName.contains("Unit")){
                     contentType = "unit";
-                } else if (contentType.equals("gas")){
-                    contentType="typeid_UNUSED";
+                }else if(contentType.equals("gas")){
+                    contentType = "typeid_UNUSED";
                 }
                 st(field + "mindustry.Vars.content.getByID(mindustry.ctype.ContentType.$L, read.s())", contentType);
             }
@@ -256,7 +250,7 @@ public class ModEntityIO {
             if(write){
                 s("i", field + ".length");
                 cont("for(int INDEX = 0; INDEX < $L.length; INDEX ++)", field);
-                io(rawType, field + "[INDEX]",network);
+                io(rawType, field + "[INDEX]", network);
             }else{
                 String fieldName = field.replace(" = ", "").replace("this.", "");
                 String lenf = fieldName + "_LENGTH";
@@ -265,7 +259,7 @@ public class ModEntityIO {
                     st("$Lnew $L[$L]", field, type.replace("[]", ""), lenf);
                 }
                 cont("for(int INDEX = 0; INDEX < $L; INDEX ++)", lenf);
-                io(rawType, field.replace(" = ", "[INDEX] = "),network);
+                io(rawType, field.replace(" = ", "[INDEX] = "), network);
             }
 
             econt();
@@ -277,7 +271,7 @@ public class ModEntityIO {
                 if(write){
                     s("i", field + ".size");
                     cont("for(int INDEX = 0; INDEX < $L.size; INDEX ++)", field);
-                    io(generic, field + ".get(INDEX)",network);
+                    io(generic, field + ".get(INDEX)", network);
                 }else{
                     String fieldName = field.replace(" = ", "").replace("this.", "");
                     String lenf = fieldName + "_LENGTH";
@@ -286,7 +280,7 @@ public class ModEntityIO {
                         st("$L.clear()", field.replace(" = ", ""));
                     }
                     cont("for(int INDEX = 0; INDEX < $L; INDEX ++)", lenf);
-                    io(generic, field.replace(" = ", "_ITEM = ").replace("this.", generic + " "),network);
+                    io(generic, field.replace(" = ", "_ITEM = ").replace("this.", generic + " "), network);
                     if(!field.isEmpty()){
                         String temp = field.replace(" = ", "_ITEM").replace("this.", "");
                         st("if($L != null) $L.add($L)", temp, field.replace(" = ", ""), temp);
@@ -336,7 +330,8 @@ public class ModEntityIO {
             this.fields = fields;
         }
 
-        Revision(){}
+        Revision(){
+        }
 
         /** @return whether these two revisions are compatible */
         boolean equal(Seq<FieldSpec> specs){
@@ -361,6 +356,7 @@ public class ModEntityIO {
             this.type = type;
         }
 
-        RevisionField(){}
+        RevisionField(){
+        }
     }
 }

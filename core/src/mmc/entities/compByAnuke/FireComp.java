@@ -15,6 +15,7 @@ import mindustry.graphics.*;
 import mindustry.world.*;
 import mindustry.world.meta.*;
 import static mindustry.Vars.*;
+import static mindustry.logic.LAccess.*;
 
 @mmc.annotations.ModAnnotations.MindustryEntityDef(value = { Firec.class }, pooled = true)
 @Component(base = true)

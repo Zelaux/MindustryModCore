@@ -11,6 +11,7 @@ import arc.struct.*;
 import arc.util.*;
 import arc.util.noise.*;
 import mindustry.ctype.*;
+import mindustry.entities.part.*;
 import mindustry.game.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
@@ -19,15 +20,13 @@ import mindustry.world.*;
 import mindustry.world.blocks.*;
 import mindustry.world.blocks.environment.*;
 import mindustry.world.blocks.legacy.*;
-import mindustry.world.meta.*;
 import java.util.concurrent.*;
 import static mindustry.Vars.*;
 import static mmc.tools.gen.MindustryImagePacker.*;
 
-@SuppressWarnings("PatternVariableCanBeUsed")
 public class MindustryGenerators {
 
-    static final public int logicIconSize = 64, maxUiIcon = 128;
+    static final public int maxUiIcon = 128;
 
     protected static float fluid(boolean gas, double x, double y, float frame) {
         int keyframes = gas ? 4 : 3;
@@ -443,12 +442,9 @@ public class MindustryGenerators {
                     }
                 }
                 if (!(regions.length == 1 && regions[0] == Core.atlas.find(block.name) && shardTeamTop == null)) {
-                    save(image, block.name + "-full");
+                    save(image, "" + block.name + "-full");
                 }
                 save(image, "../editor/" + block.name + "-icon-editor");
-                if (block.buildVisibility != BuildVisibility.hidden) {
-                    saveScaled(image, block.name + "-icon-logic", Math.min(32 * 3, image.width));
-                }
                 saveScaled(image, "../ui/block-" + block.name + "-ui", Math.min(image.width, maxUiIcon));
                 boolean hasEmpty = false;
                 Color average = new Color(), c = new Color();
@@ -496,7 +492,7 @@ public class MindustryGenerators {
                         res.set(x, y, Pixmap.blend((overlay.getRaw(x, y) & 0xffffff00) | (int) (floor.liquidOpacity * 255), res.getRaw(x, y)));
                     }
                 }
-                String name = floor.name + (++index);
+                String name = floor.name + "" + (++index);
                 save(res, "../blocks/environment/" + name);
                 save(res, "../editor/editor-" + name);
                 gens.put(floor, res);
@@ -515,7 +511,7 @@ public class MindustryGenerators {
             }
             Pixmap base = get(item.getContentType().name() + "-" + item.name);
             // tint status effect icon color
-            if (item instanceof StatusEffect){
+            if (item instanceof StatusEffect) {
                 StatusEffect stat = (StatusEffect) item;
                 Pixmap tint = base;
                 base.each((x, y) -> tint.setRaw(x, y, Color.muli(tint.getRaw(x, y), stat.color.rgba())));
@@ -524,7 +520,6 @@ public class MindustryGenerators {
                 container.draw(base, 3, 3, true);
                 base = container.outline(Pal.gray, 3);
             }
-            saveScaled(base, item.name + "-icon-logic", Math.min(logicIconSize, Math.min(base.width, base.height)));
             save(base, "../ui/" + item.getContentType().name() + "-" + item.name + "-ui");
         }
     }
@@ -584,7 +579,7 @@ public class MindustryGenerators {
             return;
         content.units().each(type -> {
             // internal hidden units don't generate
-            if (type.internal)
+            if (type.internal && !type.internalGenerateSprites)
                 return;
             ObjectSet<String> outlined = new ObjectSet<>();
             try {
@@ -600,6 +595,25 @@ public class MindustryGenerators {
                 for (TextureRegion region : toOutline) {
                     Pixmap pix = get(region).outline(type.outlineColor, type.outlineRadius);
                     save(pix, ((GenRegion) region).name + "-outline");
+                }
+                Seq<DrawPart> allParts = new Seq<>();
+                // this code is complete trash
+                Cons<Seq<DrawPart>>[] allDrawIter = new Cons[] { null };
+                allDrawIter[0] = seq -> {
+                    for (DrawPart part : seq) {
+                        allParts.add(part);
+                        if (part instanceof RegionPart) {
+                            allDrawIter[0].get(((RegionPart) part).children);
+                        }
+                    }
+                };
+                allDrawIter[0].get(type.parts);
+                for (DrawPart part : allParts) {
+                    if (part instanceof RegionPart && ((RegionPart) part).replaceOutline) {
+                        for (TextureRegion r : ((RegionPart) part).regions) {
+                            outliner.get(r);
+                        }
+                    }
                 }
                 Seq<Weapon> weapons = type.weapons;
                 weapons.each(Weapon::load);
@@ -647,7 +661,8 @@ public class MindustryGenerators {
                     outliner.get(type.legRegion);
                 if (sample instanceof Tankc)
                     outliner.get(type.treadRegion);
-                Pixmap image = type.segments > 0 ? get(type.segmentRegions[0]) : outline.get(get(type.previewRegion));
+                // TODO: for drawBody false, an empty pixmap is used; this is a hack
+                Pixmap image = type.segments > 0 ? get(type.segmentRegions[0]) : type.drawBody ? outline.get(get(type.previewRegion)) : new Pixmap(1, 1);
                 Func<Weapon, Pixmap> weaponRegion = weapon -> Core.atlas.has(weapon.name + "-preview") ? get(weapon.name + "-preview") : get(weapon.region);
                 Cons2<Weapon, Pixmap> drawWeapon = (weapon, pixmap) -> image.draw(weapon.flipSprite ? pixmap.flipX() : pixmap, (int) (weapon.x / Draw.scl + image.width / 2f - weapon.region.width / 2f), (int) (-weapon.y / Draw.scl + image.height / 2f - weapon.region.height / 2f), true);
                 boolean anyUnder = false;
@@ -665,8 +680,7 @@ public class MindustryGenerators {
                 // outline is currently never needed, although it could theoretically be necessary
                 if (type.needsBodyOutline()) {
                     save(image, type.name + "-outline");
-                } else if (type.segments == 0) {
-                    //noinspection ConstantValue
+                } else if (type.segments == 0 && type.drawBody) {
                     replace(type.name, type.segments > 0 ? get(type.segmentRegions[0]) : outline.get(get(type.region)));
                 }
                 // draw weapons that are under the base
@@ -722,7 +736,9 @@ public class MindustryGenerators {
                     }
                 }
                 // TODO I can save a LOT of space by not creating a full icon.
-                save(image, type.name + "-full");
+                if (type.generateFullIcon) {
+                    save(image, "" + type.name + "-full");
+                }
                 Rand rand = new Rand();
                 rand.setSeed(type.name.hashCode());
                 // generate random wrecks
@@ -753,7 +769,6 @@ public class MindustryGenerators {
                 int maxd = Math.min(Math.max(image.width, image.height), maxUiIcon);
                 Pixmap fit = new Pixmap(maxd, maxd);
                 drawScaledFit(fit, image);
-                saveScaled(fit, type.name + "-icon-logic", Math.min(logicIconSize, Math.min(fit.width, fit.height)));
                 save(fit, "../ui/unit-" + type.name + "-ui");
             } catch (IllegalArgumentException e) {
                 Log.err("WARNING: Skipping unit @: @", type.name, e.getMessage());
@@ -785,7 +800,7 @@ public class MindustryGenerators {
                 replace(ore.variantRegions[i], image);
                 save(image, "../blocks/environment/" + ore.name + (i + 1));
                 save(image, "../editor/editor-" + ore.name + (i + 1));
-                save(image, ore.name + "-full");
+                save(image, "" + ore.name + "-full");
                 save(image, "../ui/block-" + ore.name + "-ui");
             }
         });
